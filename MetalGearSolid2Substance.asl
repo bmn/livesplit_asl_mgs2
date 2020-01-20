@@ -1,5 +1,5 @@
 /*
-  MGS2 Autosplitter beta 3
+  MGS2 Autosplitter
   Main room configuration starts around line 100
 */
 
