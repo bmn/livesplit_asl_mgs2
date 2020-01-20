@@ -62,7 +62,7 @@ reset {
   OldRoomName = vars.GetRoomName(old.RoomCode);
   if (CurrentRoomName == "") CurrentRoomName = vars.GetRoomName(current.RoomCode);
   
-  vars.Debug("Moved from in-game [" + old.RoomCode + "] " + OldRoomName + " to menu [" + current.RoomCode + "] " + CurrentRoomName);
+  vars.Debug("In-game [" + old.RoomCode + "] " + OldRoomName + " > Menu [" + current.RoomCode + "] " + CurrentRoomName);
   return true;
 }
 
@@ -81,7 +81,7 @@ start {
   CurrentRoomName = vars.GetRoomName(current.RoomCode);
   if (OldRoomName == "") OldRoomName = vars.GetRoomName(old.RoomCode);
   
-  vars.Debug("Moved from menu [" + old.RoomCode + "] " + OldRoomName + " to in-game [" + current.RoomCode + "] " + CurrentRoomName);
+  vars.Debug("Menu [" + old.RoomCode + "] " + OldRoomName + " > In-game [" + current.RoomCode + "] " + CurrentRoomName);
   
   // Enable VR Missions mode if coming from the missions menu
   if (old.RoomCode == "mselect") vars.VRMissionsEnable();
@@ -90,11 +90,12 @@ start {
 } 
 
 startup {
-  string DebugPath = System.IO.Path.GetDirectoryName(Application.ExecutablePath) + "\\mgs2_sse_debug.log";
   vars.Initialised = false;
   
   // Debug message handler
   //settings.Add ("debug", false, "Log debug messages to " + vars.DebugPath);
+  string DebugPath = System.IO.Path.GetDirectoryName(Application.ExecutablePath) + "\\mgs2_sse_debug.log";
+  vars.DebugTimer = 0;
   Action<string> Debug = delegate(string message) {
     //if ( (Convert.ToString(settings.GetType()) != "LiveSplit.ASL.ASLSettingsBuilder") && (settings["debug"]) ) {
       using(System.IO.StreamWriter stream = new System.IO.StreamWriter(DebugPath, true)) {
@@ -103,6 +104,11 @@ startup {
       }
     //}
     print("[MGS2AS] " + message);
+    if (message == "Splitting now") {
+      vars.PrevDebug = vars.ASL_Debug;
+      vars.DebugTimer = 120;
+    }
+    else vars.DebugTimer = 0;
     vars.ASL_Debug = message;
   };
   vars.Debug = Debug;
@@ -132,70 +138,73 @@ startup {
   Dictionary< string, List<string> > Rooms = new Dictionary< string, List<string> >() {
     { "tanker", new List<string> {
       "w00a", "Aft Deck",
-      "w00b", "Navigational Deck (vs Olga)",
-      "d05t", "Olga cutscenes",
-      "w00c", "Navigational Deck (after Olga)",
-      "w01a", "Deck A, crew's quarters",
-      "w01b", "Deck B, crew's quarters",
-      "w01c", "Deck C, crew's quarters, port",
-      "w01d", "Deck D, crew's quarters",
-      "d04t", "Deck E cutscene",
-      "w01e", "Deck E, The Bridge",
-      "w01f", "Deck A, crew's lounge",
+      "w00b", "Navigational Deck, port wing (vs Olga)",
+      "d05t", "Navigational Deck, port wing cutscenes",
+      "w00c", "Navigational Deck, wing",
+      "w01a", "Deck-A, crew's quarters",
+      "w01b", "Deck-B, crew's quarters",
+      "w01c", "Deck-C, crew's quarters, port",
+      "w01d", "Deck-D, crew's quarters",
+      "d04t", "Deck-E cutscene",
+      "w01e", "Deck-E, the bridge",
+      "w01f", "Deck-A, crew's lounge",
       "w02a", "Engine Room",
-      "w03a", "Deck 2, port",
-      "w03b", "Deck 2, starboard",
-      "d10t", "Entering Holds cutscene", // this isn't a great guard rush split as the 1st cutscene isn't splittable
+      "w03a", "Deck-2, port",
+      "w03b", "Deck-2, starboard",
+      "d10t", "Hold No.1 cutscene", // this isn't a great guard rush split as the 1st cutscene isn't splittable
       "w04a", "Hold No.1",
       "w04b", "Hold No.2",
-      "d11t", "Entering Hold 3 cutscene",
+      "d11t", "Hold No.3 cutscene",
       "w04c", "Hold No.3",
-      "d12t", "Holds complete cutscene",
+      "d12t", "Tanker ending: confrontation", // ending 1
+      "d12t3", "Tanker ending: explosion", // ending 2
+      "d12t4", "Tanker ending: combat", // ending 3
+      "d13t", "Tanker ending: outside" // ending 4
     } },
     { "plant", new List<string> {
       "w11a", "Strut A Deep Sea Dock",
       "d005p01", "Strut A elevator cutscene",
       "w11b", "Strut A Deep Sea Dock (with bomb)",
       "w11c", "Strut A Deep Sea Dock (vs Fortune)",
-      "w12a", "Strut A Roof (before meeting Stillman)",
-      "w12c", "Strut A Roof",
-      "w12b", "Strut A Pump room",
-      "w13a", "AB connecting bridge (before meeting Stillman)",
+      "w12a", "Strut A roof (before Stillman)",
+      "w12c", "Strut A roof",
+      "w12b", "Strut A Pump Room",
+      "w13a", "AB connecting bridge (before Stillman)",
       "w13b", "AB connecting bridge",
       "w14a", "Strut B Transformer Room",
-      "d012p01", "Fortune AB bridge cutscene",
-      "w15a", "BC connecting bridge (before meeting Stillman)",
+      "d012p01", "BC connecting bridge cutscene",
+      "w15a", "BC connecting bridge (before Stillman)",
       "w15b", "BC connecting bridge",
-      "w16a", "Strut C Dining Hall (before meeting Stillman)",
+      "w16a", "Strut C Dining Hall (before Stillman)",
       "w16b", "Strut C Dining Hall",
       "w17a", "CD connecting bridge",
       "w18a", "Strut D Sediment Pool",
       "w19a", "DE connecting bridge",
-      "w20a", "Strut E Parcel room, 1F",
+      "w20a", "Strut E Parcel Room",
       "w20b", "Strut E heliport",
-      "w20c", "Strut E heliport (with Fatman)",
+      "w20c", "Strut E heliport (vs Fatman)",
       "d021p01", "Strut E heliport cutscenes",
-      "w20d", "Strut E heliport (after meeting ninja)",
+      "w20d", "Strut E heliport (after Ninja)",
       "w21a", "EF connecting bridge",
       "w21b", "EF connecting bridge (finale)",
-      "w22a", "Strut F Warehouse",
+      "w22a", "Strut F warehouse",
       "w23a", "FA connecting bridge",
       "w23b", "FA connecting bridge",
       "w24a", "Shell 1 Core, 1F",
       "d070p01", "Shell 1 Core B2 cutscenes",
-      "w24b", "Shell 1 Core B1",
-      "d036p03", "Shell 1 Core Hall cutscenes",
-      "w24d", "Shell 1 Core B2 Computer Room",
-      "w24c", "Shell 1 Core B1, Hall",
-      "w25a", "Shell 1/2 connecting bridge",
-      "d045p01", "Shell 1/2 connecting bridge Harrier intro",
-      "d046p01", "Shell 1/2 connecting bridge Harrier outro",
-      "w25b", "Shell 1/2 connecting bridge (after Harrier)",
+      "w24b", "Shell 1 Core, B1",
+      "d036p03", "Shell 1 Core, B1 Hall cutscenes",
+      "w24d", "Shell 1 Core, B2 Computer Room",
+      "w24c", "Shell 1 Core, B1 Hall",
+      "w25a", "Shell 1-2 connecting bridge",
+      "d045p01", "Shell 1-2 connecting bridge Harrier intro",
+      "d046p01", "Shell 1-2 connecting bridge Harrier outro",
+      "w25b", "Shell 1-2 connecting bridge (after Harrier)",
       "w25c", "Strut L perimeter",
       "w25d", "KL connecting bridge",
-      "d063p01", "KL connecting bridge cutscene with Emma",
+      "d063p01", "KL connecting bridge cutscene",
       "w28a", "Strut L Sewage Treatment Facility",
-      "d065p02", "Strut L cutscene with Emma",
+      "d065p02", "Strut L Oil Fence cutscene",
       "w31a", "Shell 2 Core, 1F Air Purification Room",
       "w31b", "Shell 2 Core, B1 Filtration Chamber No.1",
       "d055p01", "Shell 2 Core, B1 Filtration Chamber No.2 cutscenes",
@@ -210,28 +219,28 @@ startup {
       "w43a", "Arsenal Gear - Ascending Colon",
       "w44a", "Arsenal Gear - Ileum (vs Tengus 1)",
       "w45a", "Arsenal Gear - Sigmoid Colon (vs Tengus 2)",
-      "d078p01", "Arsenal Gear - Fortune cutscene after Tengus",
+      "d078p01", "Arsenal Gear - Sigmoid Colon cutscene",
       "w46a", "Arsenal Gear - Rectum (vs Rays)",
-      "d080p01", "Arsenal Gear cutscene after Rays",
+      "d080p01", "Arsenal Gear - Rectum cutscene",
       "w51a", "Arsenal Gear (after Rays)",
       "w61a", "Federal Hall (vs Solidus)",
-      "d082p01", "Federal Hall cutscene after Solidus"
+      "d082p01", "Plant ending"
     } },
     { "snaketales", new List<string>() {
       // Tanker
-      "a00a", "Aft deck",
-      "a01f", "Deck A, crew's quarters",
-      "a01a", "Deck A, crew's lounge",
-      "a01b", "Deck B, crew's quarters, starboard",
-      "a01c", "Deck C, crew's quarters",
-      "a01d", "Deck D, crew's quarters",
-      "a01e", "Deck E, the bridge",
-      "a02a", "Engine room",
+      "a00a", "Aft Deck",
+      "a01f", "Deck-A, crew's quarters",
+      "a01a", "Deck-A, crew's lounge",
+      "a01b", "Deck-B, crew's quarters, starboard",
+      "a01c", "Deck-C, crew's quarters",
+      "a01d", "Deck-D, crew's quarters",
+      "a01e", "Deck-E, the bridge",
+      "a02a", "Engine Room",
       "a03a", "Deck-2, port",
       "a03b", "Deck-2, starboard",
-      "a00b", "Navigational Deck (vs Meryl)",
+      "a00b", "Navigational Deck, port wing (vs Meryl)",
       // Plant
-      "a12a", "Strut A Roof",
+      "a12a", "Strut A roof",
       "a12b", "Strut A Pump Room",
       "a13b", "AB connecting bridge",
       "a13c", "AB connecting bridge (EG)",
@@ -253,12 +262,12 @@ startup {
       "a24b", "Shell 1 Core, B1",
       "a24c", "Shell 1 Core, B1 Hall",
       "a24d", "Shell 1 Core, B2 Computer Room",
-      "a25a", "Shell 1/2 connecting bridge?? (vs Harrier)",
+      "a25a", "Shell 1-2 connecting bridge (vs Harrier)",
       "a25d", "Strut L Sewage Treatment Facility",
       "a28a", "KL connecting bridge",
       "a31a", "Shell 2 Core, 1F Air Purification Room",
       "a31c", "Shell 2 Core, B1 Filtration Chamber No.2 (vs Vamp)",
-      "a46a", "Arsenal Gear (vs Rays)",
+      "a46a", "Arsenal Gear - Rectum (vs Rays)",
       "a61a", "Federal Hall (vs Solidus)",
       // External Gazer VR missions
       "ta24a", "Elimination Level 6",
@@ -355,6 +364,8 @@ startup {
     { "vr_variety_mgs1", new List<string>() { "sp03a", "sp06a", "sp08a" } }
   };
   
+  
+  // Rooms not considered for immediate splits (mostly cutscenes)
   Dictionary<string, string> OtherRooms = new Dictionary<string, string>() {
     // Menus
     { "init", "init" },
@@ -362,6 +373,29 @@ startup {
     { "n_title", "Main Menu" },
     { "mselect", "VR Mission select" },
     { "sselect", "Snake Tales episode select" },
+    { "ending", "Results" }, // also for the "not real people honest" message, but eh
+    // Tanker
+    { "d00t", "George Washington Bridge" }, // intro 1
+    { "d01t", "Aft Deck cutscenes" }, // intro 2
+    { "d14t", "Marine capture cutscene" },
+    // Plant
+    { "wmovie", "FMV cutscenes" },
+    { "museum", "Plant intro vignette" },
+    { "d001p01", "Plant intro" },
+    { "d001p02", "Strut A Deep Sea Dock cutscenes" },
+    { "d005p01", "Plant overview 1" },
+    { "d010p01", "Strut B Transformer Room cutscenes" },
+    { "d014p01", "Strut C Dining Hall cutscenes" },
+    { "d005p03", "Plant overview 2" },
+    { "d036p05", "Shell 1 Core, 1F cutscenes" },
+    { "w24c", "Shell 1 Core, B1 Hall (after Ames)" },
+    { "d070p09", "Arsenal Gear launch cutscene" },
+    { "d070px9", "Arsenal Gear - Stomach cutscenes" },
+    { "d080p06", "Arsenal Gear cutscenes" },
+    { "d080p07", "Arsenal Gear entering Manhattan cutscene" },
+    { "d080p08", "Federal Hall cutscenes" },
+    // External Gazer
+    { "ta02a", "Bomb Disposal 2" },
     // VR Missions
     { "vs01a", "Sneaking Mode 1" },
     { "vs02a", "Sneaking Mode 2" },
@@ -428,9 +462,7 @@ startup {
     { "st02a", "Streaking Mode 2" },
     { "st03a", "Streaking Mode 3" },
     { "st04a", "Streaking Mode 4" },
-    { "st05a", "Streaking Mode 5" },
-    // External Gazer
-    { "ta02a", "Bomb Disposal 2" }
+    { "st05a", "Streaking Mode 5" }
   };
   
   
@@ -511,7 +543,15 @@ startup {
   };
   vars.GetRoomName = GetRoomName;
   
-
+  
+  // Confirm a split
+  Func<bool> Split = delegate() {
+    vars.Debug("Splitting now");
+    return true;
+  };
+  vars.Split = Split;
+  
+  
   // Insta-split vs bosses, disable regular split mode if this is enabled
   string TempSetting = "boss_insta";
   settings.Add(TempSetting, false, "Split instantly when a boss is defeated", "options");
@@ -765,7 +805,7 @@ update {
       };
       // Otherwise, add the current room to the list
       if (!VRMissionsCurrentRooms.Contains(RoomCode)) VRMissionsCurrentRooms.Add(RoomCode);
-      vars.Debug("Went into [" + RoomCode + "], adding to current roomset > " + vars.VRMissionHash(VRMissionsCurrentRooms));
+      vars.Debug("Entered [" + RoomCode + "] " + vars.GetRoomName(current.RoomCode) + ", adding to current roomset > " + vars.VRMissionHash(VRMissionsCurrentRooms));
       return false;
     };
     Action VRMissionsEnable = delegate() {
@@ -783,11 +823,16 @@ update {
         vars.ASL_CurrentRoomCode = current.RoomCode;
         vars.ASL_CurrentRoom = vars.GetRoomName(current.RoomCode);
       }
-      if (current.Shots != old.Shots) vars.ASL_Shots = BitConverter.ToInt16 (current.Shots, 0);
-      if (current.Alerts != old.Alerts) vars.ASL_Alerts = BitConverter.ToInt16 (current.Alerts, 0);
-      if (current.Continues != old.Continues) vars.ASL_Continues = BitConverter.ToInt16 (current.Continues, 0);
-      if (current.Rations != old.Rations) vars.ASL_Rations = BitConverter.ToInt16 (current.Rations, 0);
-      if (current.Kills != old.Kills) vars.ASL_Kills = BitConverter.ToInt16 (current.Kills, 0);
+      if (current.Shots != old.Shots) vars.ASL_Shots = BitConverter.ToInt16(current.Shots, 0);
+      if (current.Alerts != old.Alerts) vars.ASL_Alerts = BitConverter.ToInt16(current.Alerts, 0);
+      if (current.Continues != old.Continues) vars.ASL_Continues = BitConverter.ToInt16(current.Continues, 0);
+      if (current.Rations != old.Rations) vars.ASL_Rations = BitConverter.ToInt16(current.Rations, 0);
+      if (current.Kills != old.Kills) vars.ASL_Kills = BitConverter.ToInt16(current.Kills, 0);
+      
+      if (vars.DebugTimer > 0) {
+        vars.DebugTimer--;
+        if (vars.DebugTimer == 0) vars.ASL_Debug = vars.PrevDebug;
+      }
     };
     vars.UpdateASLVars = UpdateASLVars;
     
@@ -833,13 +878,14 @@ split {
   int CallbackResult = 0;
   bool BoolResult = false;
   Dictionary<string, string> SpecialCase = null;
+  Func<bool> Split = vars.Split;
   
   // Watching special cases
   if ( (!DontWatch) && (vars.SpecialWatchCallback.ContainsKey(current.RoomCode)) ) {
     CallbackResult = vars.SpecialWatchCallback[current.RoomCode]();
     if (CallbackResult == 1) {
       DontWatch = true;
-      return true;
+      return Split();
     }
     else if (CallbackResult == -1) DontWatch = true;
   }
@@ -858,7 +904,7 @@ split {
     AvoidSplit = true; // Avoid splitting if we're coming from an unknown room
     OldRoomName = vars.GetRoomName(old.RoomCode);
   }
-  vars.Debug("Moved from [" + old.RoomCode + "] " + OldRoomName + " to [" + current.RoomCode + "] " + CurrentRoomName);
+  vars.Debug("[" + old.RoomCode + "] " + OldRoomName + " > [" + current.RoomCode + "] " + CurrentRoomName);
   
   // If we're in VR Missions, this is the last thing that gets run
   if (vars.VRMissions) return vars.VRLogMission(current.RoomCode);
@@ -877,7 +923,7 @@ split {
         AvoidSplit = true;
         break;
       }
-      return true;
+      return Split();
     }
   } while (false); // yes, I am in fact using a do-while-false "loop" just so I can use break
   
@@ -894,7 +940,7 @@ split {
         AvoidSplit = true;
         break;
       }
-      return true;
+      return Split();
     }
   } while (false);
   
@@ -922,7 +968,7 @@ split {
   if (vars.IncludeCurrentRoom.TryGetValue(current.RoomCode, out BoolResult)) DefinitelySplit = true;
  
   if ( (settings.ContainsKey(old.RoomCode)) && (!settings[old.RoomCode]) ) return false;
-  if ( (DefinitelySplit) || (!AvoidSplit) ) return true;
+  if ( (DefinitelySplit) || (!AvoidSplit) ) return Split();
   
   return false;
 }
