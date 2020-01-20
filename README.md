@@ -5,6 +5,12 @@ This autosplitter is early in development, and may not be well-tested (or even w
 
 Bug reports are welcomed so they can be stamped out, as is discussion of locations you would like to be able to split (or not split) that are not currently made available.
 
+# Features
+* Tanker, Plant and Tanker-Plant
+* Snake Tales
+* VR Missions (per-category)
+* ASL Var Viewer support for room names and some game stats
+
 # Notes
 * The [existing autosplitter](https://cdn.discordapp.com/attachments/227010401622032384/617793088135495691/MGS2.asl) can split the moment you defeat a boss. This one can currently only do it for Olga. There's a setting to enable it.
 * VR Missions splitting is done per-category, when you exit back to the missions menu. Visiting a mission (not beating it!) is usually sufficient to log it, so it's possible to trigger accidentally if you give up on a mission and exit out.
