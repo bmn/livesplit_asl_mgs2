@@ -10,4 +10,4 @@ Bug reports are welcomed so they can be stamped out, as is discussion of locatio
 * VR Missions splitting is done per-category, when you exit back to the missions menu. Visiting a mission (not beating it!) is usually sufficient to log it, so it's possible to trigger accidentally if you give up on a mission and exit out.
 * Raiden (Ninja), Pliskin, Tuxedo Snake and Snake (MGS1) have Variety categories that are entirely contained within the larger Variety mission set the other characters have. To avoid accidentally triggering the smaller categories, they're disabled in settings.
   * If you're doing a character run with one of those characters, you'll need to enable them in the settings.
-  * If doing an all-characters run, make sure to do each character's Variety category by starting at Variety 1 and choosing Next Stage at each results screen. This is not necessary in any other category.
+  * If doing an all-characters run, enable them all, but make sure to start every character's Variety category at Variety 1 and choose Next Stage at each results screen. This is not necessary in any other category.
