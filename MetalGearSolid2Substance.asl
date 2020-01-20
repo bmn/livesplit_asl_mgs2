@@ -6,27 +6,32 @@
 state("mgs2_sse") {
   uint      GameTime: 0xD8AEF8;
   string10  RoomCode: 0x601F34, 0x2C;
+  
+  byte2     Shots: 0x4D305C, 0x148;
+  byte2     Alerts: 0x3E315E, 0x75;
   byte2     Continues: 0x3E315E, 0x65;
-  
+  byte2     Rations: 0x2E9A1E, 0x428;
+  byte2     Kills: 0x3E315E, 0x77;
+
   uint      STCompletionCheck: 0x4A6C20, 0xB01; // This is a random offset that works well for Snake Tales
-  
-	int       OlgaStamina: 0xAD4F6C, 0x0, 0x1E0, 0x44, 0x1F8, 0x13C;
-  
+
+  int       OlgaStamina: 0xAD4F6C, 0x0, 0x1E0, 0x44, 0x1F8, 0x13C;
+
   byte2     FatmanHealth: 0xB6DEC4, 0x24E;
-	int       FatmanStamina: 0x664E78, 0x88;
+  int       FatmanStamina: 0x664E78, 0x88;
 
-	byte2     HarrierHealth: 0x619BB0, 0x5C;
+  byte2     HarrierHealth: 0x619BB0, 0x5C;
 
-	byte2     VampStamina: 0x664EA0, 0x15A;
-	byte2     VampHealth: 0x664EA0, 0x158;
+  byte2     VampStamina: 0x664EA0, 0x15A;
+  byte2     VampHealth: 0x664EA0, 0x158;
 
-	byte      SolidusHealth: 0x664E7C, 0xB8;
-	byte      SolidusStamina: 0x664E78, 0xC8;
+  byte      SolidusHealth: 0x664E7C, 0xB8;
+  byte      SolidusStamina: 0x664E78, 0xC8;
 
-	byte2     Vamp2Health: 0x61FBB8, 0x2AE;
-	byte2     Vamp2Stamina: 0x664E7C, 0x48;
+  byte2     Vamp2Health: 0x61FBB8, 0x2AE;
+  byte2     Vamp2Stamina: 0x664E7C, 0x48;
 
-	byte      RaysHealth: 0xAD4EA4, 0x54, 0x10, 0x10, 0x170, 0x7E0;
+  byte      RaysHealth: 0xAD4EA4, 0x54, 0x10, 0x10, 0x170, 0x7E0;
 }
 
 reset {
@@ -54,7 +59,9 @@ reset {
   // and we're not currently on the missions menu?
   if (current.RoomCode == "mselect") return false;
   
-  if (!vars.Rooms.TryGetValue(old.RoomCode, out OldRoomName)) OldRoomName = "Undefined room";
+  OldRoomName = vars.GetRoomName(old.RoomCode);
+  if (CurrentRoomName == "") CurrentRoomName = vars.GetRoomName(current.RoomCode);
+  
   vars.Debug("Moved from in-game [" + old.RoomCode + "] " + OldRoomName + " to menu [" + current.RoomCode + "] " + CurrentRoomName);
   return true;
 }
@@ -71,12 +78,14 @@ start {
   // is the new room NOT a menu?
   if (vars.Menus.TryGetValue(current.RoomCode, out CurrentRoomName)) return false;
   
-  if (!vars.Rooms.TryGetValue(current.RoomCode, out CurrentRoomName)) CurrentRoomName = "Undefined room";
+  CurrentRoomName = vars.GetRoomName(current.RoomCode);
+  if (OldRoomName == "") OldRoomName = vars.GetRoomName(old.RoomCode);
+  
   vars.Debug("Moved from menu [" + old.RoomCode + "] " + OldRoomName + " to in-game [" + current.RoomCode + "] " + CurrentRoomName);
   
   // Enable VR Missions mode if coming from the missions menu
   if (old.RoomCode == "mselect") vars.VRMissionsEnable();
-      
+  
   return true;
 } 
 
@@ -94,6 +103,7 @@ startup {
       }
     //}
     print("[MGS2AS] " + message);
+    vars.ASL_Debug = message;
   };
   vars.Debug = Debug;
   
@@ -251,12 +261,12 @@ startup {
       "a46a", "Arsenal Gear (vs Rays)",
       "a61a", "Federal Hall (vs Solidus)",
       // External Gazer VR missions
-      "ta24a", "1",
+      "ta24a", "Elimination Level 6",
       "tsp03a", "2",
-      "tvs03a", "3",
-      "twp03a", "4",
-      "tvs05a", "5",
-      "tvs08a", "6",
+      "tvs03a", "Sneaking Level 3",
+      "twp03a", "Handgun Level 3",
+      "tvs05a", "Sneaking Level 5",
+      "tvs08a", "Sneaking Level 8",
       "ta31a", "7"
     } }
   };
@@ -345,6 +355,85 @@ startup {
     { "vr_variety_mgs1", new List<string>() { "sp03a", "sp06a", "sp08a" } }
   };
   
+  Dictionary<string, string> OtherRooms = new Dictionary<string, string>() {
+    // Menus
+    { "init", "init" },
+    { "select", "select" },
+    { "n_title", "Main Menu" },
+    { "mselect", "VR Mission select" },
+    { "sselect", "Snake Tales episode select" },
+    // VR Missions
+    { "vs01a", "Sneaking Mode 1" },
+    { "vs02a", "Sneaking Mode 2" },
+    { "vs03a", "Sneaking Mode 3" },
+    { "vs04a", "Sneaking Mode 4" },
+    { "vs05a", "Sneaking Mode 5" },
+    { "vs06a", "Sneaking Mode 6" },
+    { "vs07a", "Sneaking Mode 7" },
+    { "vs08a", "Sneaking Mode 8" },
+    { "vs09a", "Sneaking Mode 9" },
+    { "vs10a", "Sneaking Mode 10" },
+    { "wp01a", "Handgun 1"},
+    { "wp02a", "Handgun 2"},
+    { "wp03a", "Handgun 3"},
+    { "wp04a", "Handgun 4"},
+    { "wp05a", "Handgun 5"},
+    { "wp11a", "Assault Rifle 1"},
+    { "wp12a", "Assault Rifle 2"},
+    { "wp13a", "Assault Rifle 3"},
+    { "wp14a", "Assault Rifle 4"},
+    { "wp15a", "Assault Rifle 5"},
+    { "wp21a", "C4 1"},
+    { "wp22a", "C4 2"},
+    { "wp23a", "C4 3"},
+    { "wp24a", "C4 4"},
+    { "wp25a", "C4 5"},
+    { "wp31a", "Grenade 1"},
+    { "wp32a", "Grenade 2"},
+    { "wp33a", "Grenade 3"},
+    { "wp34a", "Grenade 4"},
+    { "wp35a", "Grenade 5"},
+    { "wp41a", "Stinger 1"},
+    { "wp42a", "Stinger 2"},
+    { "wp43a", "Stinger 3"},
+    { "wp44a", "Stinger 4"},
+    { "wp45a", "Stinger 5"},
+    { "wp51a", "Nikita 1"},
+    { "wp52a", "Nikita 2"},
+    { "wp53a", "Nikita 3"},
+    { "wp54a", "Nikita 4"},
+    { "wp55a", "Nikita 5"},
+    { "wp61a", "HF Blade 1"},
+    { "wp62a", "HF Blade 2"},
+    { "wp63a", "HF Blade 3"},
+    { "wp64a", "HF Blade 4"},
+    { "wp65a", "HF Blade 5"},
+    { "wp71a", "No Weapon 1"},
+    { "wp72a", "No Weapon 2"},
+    { "wp73a", "No Weapon 3"},
+    { "wp74a", "No Weapon 4"},
+    { "wp75a", "No Weapon 5"},
+    { "sp21a", "First Person View 1"},
+    { "sp22a", "First Person View 2"},
+    { "sp23a", "First Person View 3"},
+    { "sp24a", "First Person View 4"},
+    { "sp25a", "First Person View 5"},
+    { "sp01a", "Variety Mode room 1"},
+    { "sp02a", "Variety Mode room 2"},
+    { "sp03a", "Variety Mode room 3"},
+    { "sp06a", "Variety Mode room 6"},
+    { "sp07a", "Variety Mode room 7"},
+    { "sp08a", "Variety Mode room 8"},
+    { "st01a", "Streaking Mode 1" },
+    { "st02a", "Streaking Mode 2" },
+    { "st03a", "Streaking Mode 3" },
+    { "st04a", "Streaking Mode 4" },
+    { "st05a", "Streaking Mode 5" },
+    // External Gazer
+    { "ta02a", "Bomb Disposal 2" }
+  };
+  
+  
   /* MAIN CONFIGURATION ENDS */
   
   
@@ -411,7 +500,17 @@ startup {
   }
   string rn = string.Join("\n  ", vars.Rooms);
   vars.Debug("List of rooms: " + "{\n  " + rn + "\n}");
-
+  
+  
+  // General-purpose room identifier
+  Func<string, string> GetRoomName = delegate(string RoomCode) {
+    string output = "";
+    if (vars.Rooms.TryGetValue(RoomCode, out output)) return output;
+    if (OtherRooms.TryGetValue(RoomCode, out output)) return output;
+    return "Undefined room";
+  };
+  vars.GetRoomName = GetRoomName;
+  
 
   // Insta-split vs bosses, disable regular split mode if this is enabled
   string TempSetting = "boss_insta";
@@ -678,12 +777,28 @@ update {
     vars.VRMissionsEnable = VRMissionsEnable;
     vars.VRLogMission = VRLogMission;
     
+    // ASLVarViewer values
+    Action UpdateASLVars = delegate() {
+      if (current.RoomCode != old.RoomCode){
+        vars.ASL_CurrentRoomCode = current.RoomCode;
+        vars.ASL_CurrentRoom = vars.GetRoomName(current.RoomCode);
+      }
+      if (current.Shots != old.Shots) vars.ASL_Shots = BitConverter.ToInt16 (current.Shots, 0);
+      if (current.Alerts != old.Alerts) vars.ASL_Alerts = BitConverter.ToInt16 (current.Alerts, 0);
+      if (current.Continues != old.Continues) vars.ASL_Continues = BitConverter.ToInt16 (current.Continues, 0);
+      if (current.Rations != old.Rations) vars.ASL_Rations = BitConverter.ToInt16 (current.Rations, 0);
+      if (current.Kills != old.Kills) vars.ASL_Kills = BitConverter.ToInt16 (current.Kills, 0);
+    };
+    vars.UpdateASLVars = UpdateASLVars;
+    
     
     vars.Debug("Finished initialising script. It's all up to you now.");
-    
-    // pausing the game won't help you...
-    if (current.GameTime != 0) return true;
   }
+  
+  vars.UpdateASLVars();
+  
+  // pausing the game won't help you...
+  if (current.GameTime != 0) return true;
 }
 
 
@@ -737,11 +852,11 @@ split {
   string CurrentRoomName, OldRoomName;
   if (!vars.Rooms.TryGetValue(current.RoomCode, out CurrentRoomName)) {
     AvoidSplit = true; // Avoid splitting if we're going to an unknown room
-    CurrentRoomName = "Undefined room";
+    CurrentRoomName = vars.GetRoomName(current.RoomCode);
   }
   if (!vars.Rooms.TryGetValue(old.RoomCode, out OldRoomName)) {
     AvoidSplit = true; // Avoid splitting if we're coming from an unknown room
-    OldRoomName = "Undefined room";
+    OldRoomName = vars.GetRoomName(old.RoomCode);
   }
   vars.Debug("Moved from [" + old.RoomCode + "] " + OldRoomName + " to [" + current.RoomCode + "] " + CurrentRoomName);
   
@@ -817,5 +932,5 @@ isLoading {
 }
 
 gameTime {
-	return TimeSpan.FromMilliseconds((current.GameTime) * 1000 / 60);
+  return TimeSpan.FromMilliseconds((current.GameTime) * 1000 / 60);
 }
