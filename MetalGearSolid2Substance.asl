@@ -163,11 +163,7 @@ startup {
       "w04a", "Hold No.1",
       "w04b", "Hold No.2",
       "d11t", "Hold No.3 cutscene",
-      "w04c", "Hold No.3",
-      "d12t", "Tanker ending: confrontation", // ending 1
-      "d12t3", "Tanker ending: explosion", // ending 2
-      "d12t4", "Tanker ending: combat", // ending 3
-      "d13t", "Tanker ending: outside" // ending 4
+      "w04c", "Hold No.3"
     } },
     { "plant", new List<string> {
       "w11a", "Strut A Deep Sea Dock",
@@ -386,6 +382,10 @@ startup {
     { "d00t", "George Washington Bridge" }, // intro 1
     { "d01t", "Aft Deck cutscenes" }, // intro 2
     { "d14t", "Marine capture cutscene" },
+    { "d12t", "Tanker ending: confrontation" }, // ending 1
+    { "d12t3", "Tanker ending: explosion" }, // ending 2
+    { "d12t4", "Tanker ending: combat" }, // ending 3
+    { "d13t", "Tanker ending: outside" }, // ending 4
     // Plant
     { "wmovie", "FMV cutscenes" },
     { "museum", "Plant intro vignette" },
