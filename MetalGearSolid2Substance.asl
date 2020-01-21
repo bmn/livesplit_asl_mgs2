@@ -5,13 +5,19 @@
 
 state("mgs2_sse") {
   uint      GameTime: 0xD8AEF8;
-  string10  RoomCode: 0x601F34, 0x2C;
+  int       RoomTimer: 0x3E315E, 0x16;
   
-  byte2     Shots: 0x4D305C, 0x148;
+  string10  RoomCode: 0x601F34, 0x2C;
+
+  byte2     Shots: 0x3E315E, 0x73;
   byte2     Alerts: 0x3E315E, 0x75;
   byte2     Continues: 0x3E315E, 0x65;
-  byte2     Rations: 0x2E9A1E, 0x428;
+  byte2     Rations: 0xF80DB, 0x4C3;
   byte2     Kills: 0x3E315E, 0x77;
+  byte2     Damage: 0x3E315E, 0x79;
+  byte2     Saves: 0x3E315E, 0x69;
+  byte2     Mechs: 0x3E315E, 0x8B;
+  byte2     Strength: 0x3E315E, 0x63;
 
   uint      STCompletionCheck: 0x4A6C20, 0xB01; // This is a random offset that works well for Snake Tales
 
@@ -19,7 +25,6 @@ state("mgs2_sse") {
 
   byte2     FatmanHealth: 0xB6DEC4, 0x24E;
   int       FatmanStamina: 0x664E78, 0x88;
-  //byte      FatmanBombsActive: 0x664E78, 0x280; // sometimes reports 3?!
   byte      FatmanBombsActive: 0x664E7C, 0x280;
 
   byte2     HarrierHealth: 0x619BB0, 0x5C;
@@ -33,7 +38,7 @@ state("mgs2_sse") {
   byte2     Vamp2Health: 0x61FBB8, 0x2AE;
   byte2     Vamp2Stamina: 0x664E7C, 0x48;
 
-  byte2      RaysHealth: 0xAD4EA4, 0x54, 0x10, 0x10, 0x170, 0x7E0;
+  byte2     RaysHealth: 0xAD4EA4, 0x54, 0x10, 0x10, 0x170, 0x7E0;
 }
 
 reset {
@@ -556,20 +561,7 @@ startup {
   
   // Insta-split vs bosses, disable regular split mode if this is enabled
   string TempSetting = "boss_insta";
-  settings.Add(TempSetting, false, "Split instantly when a boss is defeated", "options");
-  settings.SetToolTip(TempSetting, "VERY experimental, currently only affects Olga");
-  /*
-  List<string> BossCodes = new List<string>() {
-    "w00b", // Olga
-    // Fatman not included because it would also block the ninja split immediately afterwards (dealt with below)
-  };
-  foreach (string code in BossCodes) {
-    vars.SpecialRoomChange.Add(code, new Dictionary<string, string>() {
-      { "setting", TempSetting },
-      { "no_split", "true" }
-    });
-  }
-  */
+  settings.Add(TempSetting, true, "Split instantly when a boss is defeated", "options");
   
   
   // VR roomset signatures and settings
@@ -691,9 +683,13 @@ update {
     int BossHealth = 99999;
     int BossStamina = 99999;
     
+    // Shortened name for the byte[]-to-int converter
+    Func<byte[], int> C = (input) => BitConverter.ToInt16(input, 0);
+    vars.C = C;
+    
     // Check for new continues
     Func<bool> HasContinued = delegate() {
-      int NewContinues = BitConverter.ToInt16(current.Continues, 0);
+      int NewContinues = C(current.Continues);
       if (NewContinues > Continues) {
         vars.Debug("Detected continue during boss: " + Continues + " > " + NewContinues);
         Continues = NewContinues;
@@ -716,10 +712,9 @@ update {
     vars.ResetBossData = ResetBossData;
     
     // General-purpose boss health watcher - this gets called by the specific bosses below
-
     Func<int, int, int> WatchBoss = delegate(int CurrentStamina, int CurrentHealth) {
       if (!settings["boss_insta"]) return -1; // stop watching if insta-splits are disabled
-      if (Continues == -1) Continues = BitConverter.ToInt16(current.Continues, 0);
+      if (Continues == -1) Continues = C(current.Continues);
       else if (HasContinued()) ResetBossData();
       //if ((Counter++ % 300) == 0) vars.Debug("Stamina: " + Convert.ToString(CurrentStamina) + " Health: " + Convert.ToString(CurrentHealth));
       if ( (CurrentStamina != BossStamina) || (CurrentHealth != BossHealth) ) {
@@ -756,9 +751,7 @@ update {
     // Fatman the troublemaker
     Func<int> WatchFatman = delegate() {
       if (!BossDefeated) {
-        if (WatchBoss(current.FatmanStamina, BitConverter.ToInt16(current.FatmanHealth, 0)) == 1) {
-          BossDefeated = true;
-        }
+        if (WatchBoss(current.FatmanStamina, C(current.FatmanHealth)) == 1) BossDefeated = true;
       }
       if (BossDefeated) {
         if (HasContinued()) {
@@ -776,19 +769,19 @@ update {
     vars.SpecialWatchCallback.Add("w20c", WatchFatman);
     
     // Harrier
-    Func<int> WatchHarrier = () => WatchBoss(128, BitConverter.ToInt16(current.HarrierHealth, 0));
+    Func<int> WatchHarrier = () => WatchBoss(128, C(current.HarrierHealth));
     vars.SpecialWatchCallback.Add("w25a", WatchHarrier);
     
     // Vamp
-    Func<int> WatchVamp = () => WatchBoss(BitConverter.ToInt16(current.VampStamina, 0), BitConverter.ToInt16(current.VampHealth, 0));
+    Func<int> WatchVamp = () => WatchBoss(C(current.VampStamina), C(current.VampHealth));
     vars.SpecialWatchCallback.Add("w31c", WatchVamp);
     
     // Vamp 2
-    Func<int> WatchVamp2 = () => WatchBoss(BitConverter.ToInt16(current.Vamp2Stamina, 0), BitConverter.ToInt16(current.Vamp2Health, 0));
+    Func<int> WatchVamp2 = () => WatchBoss(C(current.Vamp2Stamina), C(current.Vamp2Health));
     vars.SpecialWatchCallback.Add("w32b", WatchVamp2);
     
     // Rays
-    Func<int> WatchRays = () => WatchBoss(128, BitConverter.ToInt16(current.RaysHealth, 0));
+    Func<int> WatchRays = () => WatchBoss(128, C(current.RaysHealth));
     vars.SpecialWatchCallback.Add("w46a", WatchRays);
     
     // Solidus
@@ -826,7 +819,7 @@ update {
       // Also set up for the results check
       if (current.RoomCode == "sselect") {
         STCompletionCheck = current.STCompletionCheck;
-        vars.Debug("Moved onto trying to figure out when this tale of snakes has ended.");
+        vars.Debug("Trying to figure out when this tale of snakes has ended.");
       }
       return -1; // don't split after tales
     };
@@ -882,13 +875,16 @@ update {
     // ASLVarViewer values
     Action UpdateASLVars = delegate() {
       vars.ASL_CurrentRoomCode = current.RoomCode;
-      if (current.RoomCode != old.RoomCode) vars.ASL_CurrentRoom = vars.GetRoomName(current.RoomCode);
-      vars.ASL_Shots = BitConverter.ToInt16(current.Shots, 0);
-      vars.ASL_Alerts = BitConverter.ToInt16(current.Alerts, 0);
-      vars.ASL_Continues = BitConverter.ToInt16(current.Continues, 0);
-      vars.ASL_Rations = BitConverter.ToInt16(current.Rations, 0);
-      vars.ASL_Kills = BitConverter.ToInt16(current.Kills, 0);
-      //if (current.FatmanBombsActive != old.FatmanBombsActive) vars.ASL_FatmanBombsActive = current.FatmanBombsActive;
+      vars.ASL_Shots = C(current.Shots);
+      vars.ASL_Alerts = C(current.Alerts);
+      vars.ASL_Continues = C(current.Continues);
+      vars.ASL_Rations = C(current.Rations);
+      vars.ASL_Kills = C(current.Kills);
+      vars.ASL_DamageTaken = C(current.Damage);
+      vars.ASL_Saves = C(current.Saves);
+      vars.ASL_MechsDestroyed = C(current.Mechs);
+      vars.ASL_Strength = C(current.Strength);
+      vars.ASL_RoomTimer = current.RoomTimer;
       
       if (vars.DebugTimer > 0) {
         vars.DebugTimer--;
@@ -951,6 +947,8 @@ split {
   }
   
   if (current.RoomCode == old.RoomCode) return false; // room is unchanged
+  
+  vars.ASL_CurrentRoom = vars.GetRoomName(current.RoomCode);
   
   if (vars.BlockNextRoom) {
     vars.BlockNextRoom = false;
