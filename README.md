@@ -9,10 +9,11 @@ Bug reports are welcomed so they can be stamped out, as is discussion of locatio
 * Tanker, Plant and Tanker-Plant
 * Snake Tales
 * VR Missions (per-category)
+* Instant splitting when you defeat a boss
 * ASL Var Viewer support for room names and some game stats
 
 # Notes
-* The [existing autosplitter](https://cdn.discordapp.com/attachments/227010401622032384/617793088135495691/MGS2.asl) can split the moment you defeat a boss. This one can currently only do it for Olga. There's a setting to enable it.
+* There are two modes for boss splits. The default is to split on the next room change. The more complex version which watches boss health (and bombs) and splits instantly should be enabled via an ASL setting.
 * VR Missions splitting is done per-category, when you exit back to the missions menu. Visiting a mission (not beating it!) is usually sufficient to log it, so it's possible to trigger accidentally if you give up on a mission and exit out.
 * Raiden (Ninja), Pliskin, Tuxedo Snake and Snake (MGS1) have Variety categories that are entirely contained within the larger Variety mission set the other characters have. To avoid accidentally triggering the smaller categories, they're disabled in settings.
   * If you're doing a character run with one of those characters, you'll need to enable them in the settings.
