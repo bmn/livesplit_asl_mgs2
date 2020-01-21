@@ -12,6 +12,8 @@ Bug reports are welcomed so they can be stamped out, as is discussion of locatio
 * Instant splitting when you defeat a boss
 * ASL Var Viewer support for room names and some game stats
 
+(README.png)
+
 # Notes
 * There are two modes for boss splits. The default is to split on the next room change. The more complex version which watches boss health (and bombs) and splits instantly should be enabled via an ASL setting.
 * VR Missions splitting is done per-category, when you exit back to the missions menu. Visiting a mission (not beating it!) is usually sufficient to log it, so it's possible to trigger accidentally if you give up on a mission and exit out.
