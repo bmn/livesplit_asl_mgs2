@@ -1,6 +1,6 @@
 /*
   MGS2 Autosplitter
-  Main room configuration starts around line 100
+  Main room configuration starts around line 115
 */
 
 state("mgs2_sse") {
@@ -19,6 +19,8 @@ state("mgs2_sse") {
 
   byte2     FatmanHealth: 0xB6DEC4, 0x24E;
   int       FatmanStamina: 0x664E78, 0x88;
+  //byte      FatmanBombsActive: 0x664E78, 0x280; // sometimes reports 3?!
+  byte      FatmanBombsActive: 0x664E7C, 0x280;
 
   byte2     HarrierHealth: 0x619BB0, 0x5C;
 
@@ -31,7 +33,7 @@ state("mgs2_sse") {
   byte2     Vamp2Health: 0x61FBB8, 0x2AE;
   byte2     Vamp2Stamina: 0x664E7C, 0x48;
 
-  byte      RaysHealth: 0xAD4EA4, 0x54, 0x10, 0x10, 0x170, 0x7E0;
+  byte2      RaysHealth: 0xAD4EA4, 0x54, 0x10, 0x10, 0x170, 0x7E0;
 }
 
 reset {
@@ -63,12 +65,15 @@ reset {
   if (CurrentRoomName == "") CurrentRoomName = vars.GetRoomName(current.RoomCode);
   
   vars.Debug("In-game [" + old.RoomCode + "] " + OldRoomName + " > Menu [" + current.RoomCode + "] " + CurrentRoomName);
+  vars.ResetBossData(); // resetting on an unbeaten boss can cause some really bad things to happen in insta
   return true;
 }
 
 start {
   int i;
   string CurrentRoomName, OldRoomName;
+  
+  if (old.RoomCode == "") return false;
   
   if (current.RoomCode == old.RoomCode) return false; // room is unchanged
     
@@ -96,6 +101,7 @@ startup {
   //settings.Add ("debug", false, "Log debug messages to " + vars.DebugPath);
   string DebugPath = System.IO.Path.GetDirectoryName(Application.ExecutablePath) + "\\mgs2_sse_debug.log";
   vars.DebugTimer = 0;
+  vars.DebugTimerStart = 120;
   Action<string> Debug = delegate(string message) {
     //if ( (Convert.ToString(settings.GetType()) != "LiveSplit.ASL.ASLSettingsBuilder") && (settings["debug"]) ) {
       using(System.IO.StreamWriter stream = new System.IO.StreamWriter(DebugPath, true)) {
@@ -104,12 +110,9 @@ startup {
       }
     //}
     print("[MGS2AS] " + message);
-    if (message == "Splitting now") {
-      vars.PrevDebug = vars.ASL_Debug;
-      vars.DebugTimer = 120;
-    }
-    else vars.DebugTimer = 0;
     vars.ASL_Debug = message;
+    // also overwrite the previous message if we're already showing the "splitting now" message
+    if (vars.DebugTimer != vars.DebugTimerStart) vars.PrevDebug = message;
   };
   vars.Debug = Debug;
   
@@ -475,6 +478,9 @@ startup {
   vars.SpecialWatchCallback = new Dictionary<string, Delegate>();
   vars.SpecialRoomChangeCallback = new Dictionary<string, Delegate>();
   vars.SpecialNewRoomCallback = new Dictionary<string, Delegate>();
+  vars.DontWatch = false;
+  vars.BlockNextRoom = false;
+  vars.SplitNextRoom = false;
   
   
   // Add main settings
@@ -509,21 +515,15 @@ startup {
   };
   // This is a lot of setup, but it's worth it for supafast room lookups
   int alen = Areas.Count();
-  string akey = "";
-  string aval = "";
-  int rlen = 0;
-  string rkey = "";
-  string rval = "";
-  int j = 0;
   for (int i = 0; i < alen; i = i+2) { // for every area...
-    akey = Areas[i];
-    aval = Areas[i + 1];
+    string akey = Areas[i];
+    string aval = Areas[i + 1];
     settings.Add(akey, true, aval, "splits"); // add area setting
     
-    rlen = Rooms[akey].Count();
-    for (j = 0; j < rlen; j = j+2) { // and for every room in the area...
-      rkey = Rooms[akey][j];
-      rval = Rooms[akey][j + 1];
+    int rlen = Rooms[akey].Count();
+    for (int j = 0; j < rlen; j = j+2) { // and for every room in the area...
+      string rkey = Rooms[akey][j];
+      string rval = Rooms[akey][j + 1];
       vars.Rooms.Add(rkey, rval); // add the room to vars.Rooms
       if (!vars.ExcludeOldRoom.ContainsKey(rkey)) { // and if not already excluded...
         settings.Add(rkey, true, rval, akey); // add room to the settings split list
@@ -546,6 +546,8 @@ startup {
   
   // Confirm a split
   Func<bool> Split = delegate() {
+    vars.DebugTimer = vars.DebugTimerStart;
+    vars.PrevDebug = vars.ASL_Debug;
     vars.Debug("Splitting now");
     return true;
   };
@@ -556,8 +558,10 @@ startup {
   string TempSetting = "boss_insta";
   settings.Add(TempSetting, false, "Split instantly when a boss is defeated", "options");
   settings.SetToolTip(TempSetting, "VERY experimental, currently only affects Olga");
+  /*
   List<string> BossCodes = new List<string>() {
-    "w00b" // Olga
+    "w00b", // Olga
+    // Fatman not included because it would also block the ninja split immediately afterwards (dealt with below)
   };
   foreach (string code in BossCodes) {
     vars.SpecialRoomChange.Add(code, new Dictionary<string, string>() {
@@ -565,6 +569,7 @@ startup {
       { "no_split", "true" }
     });
   }
+  */
   
   
   // VR roomset signatures and settings
@@ -680,61 +685,118 @@ update {
     vars.Initialised = true;
     int Counter = 0;
     bool BossActive = false;
+    int Continues = -1;
+    bool BossDefeated = false;
+    int BossCounter = 99999;
+    int BossHealth = 99999;
+    int BossStamina = 99999;
+    
+    // Check for new continues
+    Func<bool> HasContinued = delegate() {
+      int NewContinues = BitConverter.ToInt16(current.Continues, 0);
+      if (NewContinues > Continues) {
+        vars.Debug("Detected continue during boss: " + Continues + " > " + NewContinues);
+        Continues = NewContinues;
+        return true;
+      }
+      return false;
+    };
+    
+    // Reset counters used to track bosses
+    Action ResetBossData = delegate() {
+      BossActive = false;
+      BossDefeated = false;
+      BossCounter = 99999;
+      Continues = -1;
+      BossHealth = 99999; // normally i'd use -1, but rays can actually go under 0 so have to test <=0
+      BossStamina = 99999;
+      vars.SplitNextRoom = false;
+      vars.BlockNextRoom = false;
+    };
+    vars.ResetBossData = ResetBossData;
     
     // General-purpose boss health watcher - this gets called by the specific bosses below
+
     Func<int, int, int> WatchBoss = delegate(int CurrentStamina, int CurrentHealth) {
       if (!settings["boss_insta"]) return -1; // stop watching if insta-splits are disabled
-      Counter++;
-      if ((Counter % 600) == 0) vars.Debug("Stamina: " + Convert.ToString(CurrentStamina) + " Health: " + Convert.ToString(CurrentHealth));
-      if ( (CurrentStamina == 0) || (CurrentHealth == 0) ) {
-        if (BossActive) {
-          vars.Debug("Boss defeated!");
-          BossActive = false;
-          return 1;
+      if (Continues == -1) Continues = BitConverter.ToInt16(current.Continues, 0);
+      else if (HasContinued()) ResetBossData();
+      //if ((Counter++ % 300) == 0) vars.Debug("Stamina: " + Convert.ToString(CurrentStamina) + " Health: " + Convert.ToString(CurrentHealth));
+      if ( (CurrentStamina != BossStamina) || (CurrentHealth != BossHealth) ) {
+        BossStamina = CurrentStamina;
+        BossHealth = CurrentHealth;
+        vars.ASL_BossStamina = CurrentStamina;
+        vars.ASL_BossHealth = CurrentHealth;
+        vars.Debug("Stamina: " + Convert.ToString(CurrentStamina) + " Health: " + Convert.ToString(CurrentHealth));
+        if ( (CurrentStamina <= 0) || (CurrentHealth <= 0) ) {
+          if (BossActive) {
+            vars.Debug("Boss defeated!");
+            vars.BlockNextRoom = true; // Stop the non-insta split that occurs on the next room change
+            return 1;
+          }
+        }
+        // necessary for reloading saves after beating a boss already - they'll start at 0 and get a refill
+        // so we wait until they've been given some health to start checking properly
+        else if (!BossActive) {
+          BossActive = true;
+          vars.Debug("Currently fighting a boss");
         }
       }
-      // necessary for reloading saves after beating a boss already - they'll start at 0 and get a refill
-      // so we wait until they've been given some health to start checking properly
-      else if (!BossActive) BossActive = true;
       return 0;
     };
     
-    // TODO: Extra logic to check we're actually fighting, in boss rooms that are used elsewhere
+
+    // BOSSES
     
-    // Olga (this actually works)
+    // Olga
     // Line below is equiv. to: Func<int> WatchOlga = delegate() { return WatchBoss(current.OlgaStamina, 100); }
     Func<int> WatchOlga = () => WatchBoss(current.OlgaStamina, 128);
     vars.SpecialWatchCallback.Add("w00b", WatchOlga);
 
-/*
-    // Fatman (BitConverter isn't working here? Maybe attempt to move it into WatchBoss?)
-    // That would require <byte[]> def(s) for WatchBoss tho
+    // Fatman the troublemaker
     Func<int> WatchFatman = delegate() {
-      return WatchBoss(BitConverter.ToInt16(current.FatmanStamina, 0), current.FatmanHealth);
-      // TODO: Add an additional check for bomb defusals
+      if (!BossDefeated) {
+        if (WatchBoss(current.FatmanStamina, BitConverter.ToInt16(current.FatmanHealth, 0)) == 1) {
+          BossDefeated = true;
+        }
+      }
+      if (BossDefeated) {
+        if (HasContinued()) {
+          ResetBossData();
+          return 0;
+        }
+        if (current.FatmanBombsActive < BossCounter) {
+          BossCounter = current.FatmanBombsActive;
+          vars.Debug("Bombs remaining: " + Convert.ToString(BossCounter));
+        }
+        if (current.FatmanBombsActive == 0) return 1; // not necesary to reset boss data as it'll happen in split
+      }
+      return 0;
     };
-    vars.SpecialWatchCallback.Add("w20b", WatchFatman);
+    vars.SpecialWatchCallback.Add("w20c", WatchFatman);
     
     // Harrier
-    Func<int> WatchHarrier = () => WatchBoss(128, current.HarrierHealth);
-    vars.SpecialWatchCallback.Add("w25b", WatchHarrier);
+    Func<int> WatchHarrier = () => WatchBoss(128, BitConverter.ToInt16(current.HarrierHealth, 0));
+    vars.SpecialWatchCallback.Add("w25a", WatchHarrier);
     
     // Vamp
-    Func<int> WatchVamp = () => WatchBoss(current.VampStamina, current.VampHealth);
+    Func<int> WatchVamp = () => WatchBoss(BitConverter.ToInt16(current.VampStamina, 0), BitConverter.ToInt16(current.VampHealth, 0));
     vars.SpecialWatchCallback.Add("w31c", WatchVamp);
     
     // Vamp 2
-    Func<int> WatchVamp2 = () => WatchBoss(current.Vamp2Stamina, current.Vamp2Health);
+    Func<int> WatchVamp2 = () => WatchBoss(BitConverter.ToInt16(current.Vamp2Stamina, 0), BitConverter.ToInt16(current.Vamp2Health, 0));
     vars.SpecialWatchCallback.Add("w32b", WatchVamp2);
     
     // Rays
-    // TODO
+    Func<int> WatchRays = () => WatchBoss(128, BitConverter.ToInt16(current.RaysHealth, 0));
+    vars.SpecialWatchCallback.Add("w46a", WatchRays);
     
     // Solidus
     Func<int> WatchSolidus = () => WatchBoss(current.SolidusStamina, current.SolidusHealth);
     vars.SpecialWatchCallback.Add("w61a", WatchSolidus); 
-*/
     
+    // BOSSES END
+
     
     // Plant: Filter out the "valid" room change that happens during the torture cutscenes
     bool TortureSkipNextRoomChange = false;
@@ -819,15 +881,14 @@ update {
     
     // ASLVarViewer values
     Action UpdateASLVars = delegate() {
-      if (current.RoomCode != old.RoomCode){
-        vars.ASL_CurrentRoomCode = current.RoomCode;
-        vars.ASL_CurrentRoom = vars.GetRoomName(current.RoomCode);
-      }
-      if (current.Shots != old.Shots) vars.ASL_Shots = BitConverter.ToInt16(current.Shots, 0);
-      if (current.Alerts != old.Alerts) vars.ASL_Alerts = BitConverter.ToInt16(current.Alerts, 0);
-      if (current.Continues != old.Continues) vars.ASL_Continues = BitConverter.ToInt16(current.Continues, 0);
-      if (current.Rations != old.Rations) vars.ASL_Rations = BitConverter.ToInt16(current.Rations, 0);
-      if (current.Kills != old.Kills) vars.ASL_Kills = BitConverter.ToInt16(current.Kills, 0);
+      vars.ASL_CurrentRoomCode = current.RoomCode;
+      if (current.RoomCode != old.RoomCode) vars.ASL_CurrentRoom = vars.GetRoomName(current.RoomCode);
+      vars.ASL_Shots = BitConverter.ToInt16(current.Shots, 0);
+      vars.ASL_Alerts = BitConverter.ToInt16(current.Alerts, 0);
+      vars.ASL_Continues = BitConverter.ToInt16(current.Continues, 0);
+      vars.ASL_Rations = BitConverter.ToInt16(current.Rations, 0);
+      vars.ASL_Kills = BitConverter.ToInt16(current.Kills, 0);
+      //if (current.FatmanBombsActive != old.FatmanBombsActive) vars.ASL_FatmanBombsActive = current.FatmanBombsActive;
       
       if (vars.DebugTimer > 0) {
         vars.DebugTimer--;
@@ -872,7 +933,6 @@ update {
         is enabled in settings)
 */
 split {
-  bool DontWatch = false;
   bool DefinitelySplit = false;
   bool AvoidSplit = false;
   int CallbackResult = 0;
@@ -881,18 +941,28 @@ split {
   Func<bool> Split = vars.Split;
   
   // Watching special cases
-  if ( (!DontWatch) && (vars.SpecialWatchCallback.ContainsKey(current.RoomCode)) ) {
+  if ( (!vars.DontWatch) && (vars.SpecialWatchCallback.ContainsKey(current.RoomCode)) ) {
     CallbackResult = vars.SpecialWatchCallback[current.RoomCode]();
     if (CallbackResult == 1) {
-      DontWatch = true;
+      vars.DontWatch = true;
       return Split();
     }
-    else if (CallbackResult == -1) DontWatch = true;
+    else if (CallbackResult == -1) vars.DontWatch = true;
   }
   
   if (current.RoomCode == old.RoomCode) return false; // room is unchanged
   
-  if (DontWatch) DontWatch = false; // reset the watch switch on new room
+  if (vars.BlockNextRoom) {
+    vars.BlockNextRoom = false;
+    vars.ResetBossData(); // BlockNextRoom will generally be specified by insta-split bosses
+    return false; // something requested that we not split this time
+  }
+  if (vars.SplitNextRoom) {
+    vars.SplitNextRoom = false;
+    return Split(); // the opposite happened!
+  }
+  
+  if (vars.DontWatch) vars.DontWatch = false; // reset the watch switch on new room
   
   // get the friendly room names for logging
   string CurrentRoomName, OldRoomName;
@@ -917,7 +987,7 @@ split {
       if ( (SpecialCase.ContainsKey("setting")) && (!settings[ SpecialCase["setting"] ]) ) break;
       if ( (SpecialCase.ContainsKey("setting_false")) && (settings[ SpecialCase["setting_false"] ]) ) break;
       // ...or if the new room isn't what we want
-      if (current.RoomCode != SpecialCase["current"]) break;
+      if ( (SpecialCase.ContainsKey("current")) && (current.RoomCode != SpecialCase["current"]) ) break;
       // ...and specifically disable the split if required
       if (SpecialCase["no_split"] == "true") {
         AvoidSplit = true;
@@ -934,7 +1004,7 @@ split {
       if ( (SpecialCase.ContainsKey("setting")) && (!settings[ SpecialCase["setting"] ]) ) break;
       if ( (SpecialCase.ContainsKey("setting_false")) && (settings[ SpecialCase["setting_false"] ]) ) break;
       // ...or if the new room isn't what we want
-      if (old.RoomCode != SpecialCase["old"]) break;
+      if ( (SpecialCase.ContainsKey("old")) && (old.RoomCode != SpecialCase["old"]) ) break;
       // ...and specifically disable the split if required
       if (SpecialCase["no_split"] == "true") {
         AvoidSplit = true;
