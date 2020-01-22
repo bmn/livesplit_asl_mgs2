@@ -13,7 +13,7 @@ Bug reports are welcomed so they can be stamped out, as is discussion of locatio
 * ASL Var Viewer support for room names and some game stats
 * Big Boss (or equivalent) Tanker-Plant rank status for ASL Var Viewer
 
-(README.png)
+![Screenshot](README.png)
 
 # Notes
 * There are two modes for boss splits. The default is to split on the next room change. The more complex version which watches boss health (and bombs) and splits instantly should be enabled via an ASL setting.
