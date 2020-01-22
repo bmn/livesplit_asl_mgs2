@@ -11,6 +11,7 @@ Bug reports are welcomed so they can be stamped out, as is discussion of locatio
 * VR Missions (per-category)
 * Instant splitting when you defeat a boss
 * ASL Var Viewer support for room names and some game stats
+* Big Boss (or equivalent) Tanker-Plant rank status for ASL Var Viewer
 
 (README.png)
 

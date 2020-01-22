@@ -5,7 +5,7 @@
 
 state("mgs2_sse") {
   uint      GameTime: 0xD8AEF8;
-  int       RoomTimer: 0x3E315E, 0x16;
+  int       RoomTimer: 0x3E315E, 0x17;
   
   string10  RoomCode: 0x601F34, 0x2C;
 
@@ -71,6 +71,7 @@ reset {
   
   vars.Debug("In-game [" + old.RoomCode + "] " + OldRoomName + " > Menu [" + current.RoomCode + "] " + CurrentRoomName);
   vars.ResetBossData(); // resetting on an unbeaten boss can cause some really bad things to happen in insta
+  vars.ResetBigBossData(); // this is our 3 allowed alerts
   return true;
 }
 
@@ -163,7 +164,8 @@ startup {
       "w04a", "Hold No.1",
       "w04b", "Hold No.2",
       "d11t", "Hold No.3 cutscene",
-      "w04c", "Hold No.3"
+      "w04c", "Hold No.3",
+      "d12t", "Tanker ending: confrontation" // ending 1
     } },
     { "plant", new List<string> {
       "w11a", "Strut A Deep Sea Dock",
@@ -382,7 +384,6 @@ startup {
     { "d00t", "George Washington Bridge" }, // intro 1
     { "d01t", "Aft Deck cutscenes" }, // intro 2
     { "d14t", "Marine capture cutscene" },
-    { "d12t", "Tanker ending: confrontation" }, // ending 1
     { "d12t3", "Tanker ending: explosion" }, // ending 2
     { "d12t4", "Tanker ending: combat" }, // ending 3
     { "d13t", "Tanker ending: outside" }, // ending 4
@@ -397,6 +398,7 @@ startup {
     { "d005p03", "Plant overview 2" },
     { "d036p05", "Shell 1 Core, 1F cutscenes" },
     { "w24c", "Shell 1 Core, B1 Hall (after Ames)" },
+    { "w24e", "Shell 1 Core, B1 Hall (eavesdropping)" },
     { "d070p09", "Arsenal Gear launch cutscene" },
     { "d070px9", "Arsenal Gear - Stomach cutscenes" },
     { "d080p06", "Arsenal Gear cutscenes" },
@@ -491,6 +493,8 @@ startup {
   // Add main settings
   settings.Add("options", true, "Advanced Options");
   settings.Add("resets", true, "Reset the timer when returning to menu", "options");
+  settings.Add("bigboss_euro", false, "Use European Extreme instead of Extreme when calculating Big Boss status");
+  settings.SetToolTip("bigboss_euro", "This is an ASLVarViewer feature");
   settings.Add("splits", true, "Split Locations");
   
   
@@ -682,6 +686,10 @@ update {
     int BossCounter = 99999;
     int BossHealth = 99999;
     int BossStamina = 99999;
+    int BossMaxHealth = 99999;
+    int BossMaxStamina = 99999;
+    bool BigBossFailed = false;
+    int BigBossAlertState = 0;
     
     // Shortened name for the byte[]-to-int converter
     Func<byte[], int> C = (input) => BitConverter.ToInt16(input, 0);
@@ -698,6 +706,13 @@ update {
       return false;
     };
     
+    // Reset Big Boss alert counters
+    Action ResetBigBossData = delegate() {
+      BigBossFailed = false;
+      BigBossAlertState = 0;
+    };
+    vars.ResetBigBossData = ResetBigBossData;
+    
     // Reset counters used to track bosses
     Action ResetBossData = delegate() {
       BossActive = false;
@@ -706,10 +721,17 @@ update {
       Continues = -1;
       BossHealth = 99999; // normally i'd use -1, but rays can actually go under 0 so have to test <=0
       BossStamina = 99999;
+      BossMaxHealth = 99999;
+      BossMaxStamina = 99999;
       vars.SplitNextRoom = false;
       vars.BlockNextRoom = false;
     };
     vars.ResetBossData = ResetBossData;
+    
+    Func<int, int, int> Percent = delegate(int cur, int max) {
+      double percentage = (100.0 * cur / max);
+      return Convert.ToInt16( Math.Round(percentage) );
+    };
     
     // General-purpose boss health watcher - this gets called by the specific bosses below
     Func<int, int, int> WatchBoss = delegate(int CurrentStamina, int CurrentHealth) {
@@ -722,7 +744,6 @@ update {
         BossHealth = CurrentHealth;
         vars.ASL_BossStamina = CurrentStamina;
         vars.ASL_BossHealth = CurrentHealth;
-        vars.Debug("Stamina: " + Convert.ToString(CurrentStamina) + " Health: " + Convert.ToString(CurrentHealth));
         if ( (CurrentStamina <= 0) || (CurrentHealth <= 0) ) {
           if (BossActive) {
             vars.Debug("Boss defeated!");
@@ -734,8 +755,11 @@ update {
         // so we wait until they've been given some health to start checking properly
         else if (!BossActive) {
           BossActive = true;
+          BossMaxStamina = CurrentStamina;
+          BossMaxHealth = CurrentHealth;
           vars.Debug("Currently fighting a boss");
         }
+        vars.Debug("Stamina: " + Convert.ToString(Percent(CurrentStamina, BossMaxStamina)) + "% (" + CurrentStamina + "/" + BossMaxStamina + ") Health: " + Convert.ToString(Percent(CurrentHealth, BossMaxHealth)) + "% (" + CurrentHealth + "/" + BossMaxHealth + ")");
       }
       return 0;
     };
@@ -812,6 +836,23 @@ update {
     vars.SpecialRoomChangeCallback.Add("d070px9", CallTortureCutscene);
     vars.SpecialRoomChangeCallback.Add("w42a", CallTortureCutscene2);
     
+    // Plant: Increment the Big Boss alert counters
+    Func<int> CallBigBossAlert1 = delegate() {
+      BigBossAlertState = 1;
+      return 0;
+    };
+    Func<int> CallBigBossAlert2 = delegate() {
+      BigBossAlertState = 2;
+      return 0;
+    };
+    Func<int> CallBigBossAlert3 = delegate() {
+      BigBossAlertState = 3;
+      return 0;
+    };
+    vars.SpecialRoomChangeCallback.Add("e32a", CallBigBossAlert1); // sniping
+    vars.SpecialRoomChangeCallback.Add("w44a", CallBigBossAlert1); // tengus 1
+    vars.SpecialRoomChangeCallback.Add("w45a", CallBigBossAlert1); // tengus 2
+    
     
     // Snake Tales in general: Don't split if we're coming from storyline.
     int STCompletionCheck = 99999;
@@ -871,6 +912,42 @@ update {
     };
     vars.VRMissionsEnable = VRMissionsEnable;
     vars.VRLogMission = VRLogMission;
+    
+    // Big Boss status for ASLVarViewer
+    Func<int> UpdateBigBoss = delegate() {
+      if (BigBossFailed) return -1; // we already doned, so no need to process
+      
+      string Message = "Big Boss rank possible";
+      bool BigBoss = false; // it's like the null hypothesis...
+      int LifebarSize = (settings["bigboss_euro"]) ? 30 : 50;
+      
+      do {
+        // If over 3 alerts (only allowing for the mandatory ones when they appear)...
+        if (vars.ASL_Alerts > BigBossAlertState) { Message = "Over Alerts limit"; break; }
+        // If has continued...
+        if (vars.ASL_Continues > 0) { Message = "Over Continues limit"; break; }
+        // If has killed...
+        if (vars.ASL_Kills > 0) { Message = "Over Kills limit"; break; }
+        // If has eaten rations...
+        if (vars.ASL_Rations > 0) { Message = "Over Rations limit"; break; }
+        // If time is over 3 hours...
+        if (current.GameTime > (60/*f*/ * 60/*s*/ * 60/*m*/ * 3/*h*/)) { Message = "Over Time limit"; break; }
+        // If has saved more than 8 times...
+        if (vars.ASL_Saves > 8) { Message = "Over Saves limit"; break; }
+        // If has taken over 10.5 lifebars of damage...
+        if (vars.ASL_DamageTaken > (LifebarSize * 10.5)) { Message = "Over Damage Taken limit"; break; }
+        // If has shot a decent number of bullets...
+        if (vars.ASL_Shots > 699) { Message = "Over Shots Fired limit"; break; }
+        // If has shot MANY mechs...
+        if (vars.ASL_MechsDestroyed > 70) { Message = "Over Mech Destruction limit"; break; }
+        BigBoss = true;
+      }
+      while (false);
+      
+      vars.ASL_BigBoss = Message;
+      return (BigBoss) ? 1 : 0;
+    };
+    vars.UpdateBigBoss = UpdateBigBoss;
     
     // ASLVarViewer values
     Action UpdateASLVars = delegate() {
@@ -949,6 +1026,7 @@ split {
   if (current.RoomCode == old.RoomCode) return false; // room is unchanged
   
   vars.ASL_CurrentRoom = vars.GetRoomName(current.RoomCode);
+  vars.UpdateBigBoss();
   
   if (vars.BlockNextRoom) {
     vars.BlockNextRoom = false;
