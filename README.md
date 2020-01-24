@@ -27,6 +27,7 @@ The following variables are available in the Variables category:
 * **ASL_Alerts** Number of Alerts
 * **ASL_BestCodeName** Shows the best codename available on the current difficulty (except for Very Easy). If you have already failed the requirements, it will instead show the first requirement missed. This can be used to keep track of Big Boss runs.
 * **ASL_Continues** Number of Continues
+* **ASL_CurrentRoom** The current game location
 * **ASL_CurrentRoomCode** The game's internal code for the current location
 * **ASL_DamageTaken** Amount of Damage taken [More info](https://metalgearspeedrunners.com/wiki/doku.php?id=mgs2_difficulty_differences#health_values)
 * **ASL_Difficulty** The name of the current difficulty
