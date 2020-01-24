@@ -17,7 +17,15 @@ state("mgs2_sse") {
   byte2     Damage: 0x3E315E, 0x79;
   byte2     Saves: 0x3E315E, 0x69;
   byte2     Mechs: 0x3E315E, 0x8B;
-  byte2     Strength: 0x3E315E, 0x63;
+  byte2     StrengthRaiden: 0x3E315E, 0x63;
+  byte2     StrengthSnake: 0xD8AEEE;
+  
+  byte      CurrentHealth: 0x3E315E, 0x2D;
+  byte      MaxHealth: 0x3E315E, 0x2F;
+  byte2     CurrentO2: 0x3E315E, 0x31;
+  byte2     CurrentGrip: 0x618BAC, 0x80;
+  byte2     GripMultiplier: 0xD8F500;
+  byte      RadarOn: 0xF80DB, 0x4CA;
 
   uint      STCompletionCheck: 0x4A6C20, 0xB01; // This is a random offset that works well for Snake Tales
 
@@ -97,6 +105,9 @@ start {
   // Enable VR Missions mode if coming from the missions menu
   if (old.RoomCode == "mselect") vars.VRMissionsEnable();
   
+  // Might as well!
+  vars.UpdateBigBoss();
+  
   return true;
 } 
 
@@ -107,6 +118,7 @@ startup {
   //settings.Add ("debug", false, "Log debug messages to " + vars.DebugPath);
   string DebugPath = System.IO.Path.GetDirectoryName(Application.ExecutablePath) + "\\mgs2_sse_debug.log";
   vars.DebugTimer = 0;
+  vars.InfoTimer = 0;
   vars.DebugTimerStart = 120;
   Action<string> Debug = delegate(string message) {
     //if ( (Convert.ToString(settings.GetType()) != "LiveSplit.ASL.ASLSettingsBuilder") && (settings["debug"]) ) {
@@ -121,6 +133,17 @@ startup {
     if (vars.DebugTimer != vars.DebugTimerStart) vars.PrevDebug = message;
   };
   vars.Debug = Debug;
+  
+  Action<string> Info = delegate(string message) {
+    vars.ASL_Info = message;
+  };
+  vars.Info = Info;
+  
+  Action<string> DebugInfo = delegate(string message) {
+    Debug(message);
+    Info(message);
+  };
+  vars.DebugInfo = DebugInfo;
   
   
   /* MAIN CONFIGURATION STARTS */
@@ -475,6 +498,24 @@ startup {
     { "st05a", "Streaking Mode 5" }
   };
   
+  // Big Boss values
+  vars.DifficultyHealth = new Dictionary<int, string> {
+    { 200, "Very Easy" },
+    { 120, "Easy" },
+    { 100, "Normal" },
+    { 75, "Hard" },
+    { 50, "Extreme" },
+    { 30, "European Extreme" }
+  };
+  
+  vars.BestCodeNames = new Dictionary<int, string> {
+    { 120, "Hound" },
+    { 100, "Doberman" },
+    { 75, "Fox" },
+    { 50, "Big Boss" },
+    { 30, "Big Boss" }
+  };
+  
   
   /* MAIN CONFIGURATION ENDS */
   
@@ -488,13 +529,16 @@ startup {
   vars.DontWatch = false;
   vars.BlockNextRoom = false;
   vars.SplitNextRoom = false;
+  vars.ASL_Difficulty = "";
+  vars.ASL_BestCodeName = "";
   
   
   // Add main settings
   settings.Add("options", true, "Advanced Options");
   settings.Add("resets", true, "Reset the timer when returning to menu", "options");
-  settings.Add("bigboss_euro", false, "Use European Extreme instead of Extreme when calculating Big Boss status");
-  settings.SetToolTip("bigboss_euro", "This is an ASLVarViewer feature");
+  settings.Add("aslvv", true, "ASL Var Viewer Options", "options");
+  settings.Add("info_percent", true, "Show numbers as percentages in ASL_Info", "aslvv");
+  settings.Add("info_max", true, "Also show the maximum/starting value", "aslvv");
   settings.Add("splits", true, "Split Locations");
   
   
@@ -733,8 +777,17 @@ update {
       return Convert.ToInt16( Math.Round(percentage) );
     };
     
+    Func<int, int, string> ValueFormat = delegate(int cur, int max) {
+      if (settings["info_percent"]) return string.Format("{0,2}%", Percent(cur, max));
+      
+      int MaxLen = (int)Math.Floor(Math.Log10(max) + 1);
+      if (settings["info_max"]) return string.Format("{0," + MaxLen + "}/{1," + MaxLen + "}", cur, max);
+      return string.Format("{0," + MaxLen + "}", cur);
+    };
+    vars.ValueFormat = ValueFormat;
+    
     // General-purpose boss health watcher - this gets called by the specific bosses below
-    Func<int, int, int> WatchBoss = delegate(int CurrentStamina, int CurrentHealth) {
+    Func<string, int, int, int> WatchBoss = delegate(string Name, int CurrentStamina, int CurrentHealth) {
       if (!settings["boss_insta"]) return -1; // stop watching if insta-splits are disabled
       if (Continues == -1) Continues = C(current.Continues);
       else if (HasContinued()) ResetBossData();
@@ -757,9 +810,10 @@ update {
           BossActive = true;
           BossMaxStamina = CurrentStamina;
           BossMaxHealth = CurrentHealth;
-          vars.Debug("Currently fighting a boss");
+          vars.Debug("Currently fighting " + Name);
         }
-        vars.Debug("Stamina: " + Convert.ToString(Percent(CurrentStamina, BossMaxStamina)) + "% (" + CurrentStamina + "/" + BossMaxStamina + ") Health: " + Convert.ToString(Percent(CurrentHealth, BossMaxHealth)) + "% (" + CurrentHealth + "/" + BossMaxHealth + ")");
+        
+        vars.DebugInfo( Name + " | Stamina: " + ValueFormat(CurrentStamina, BossMaxStamina) + " Health: " + ValueFormat(CurrentHealth, BossMaxHealth) );
       }
       return 0;
     };
@@ -769,13 +823,13 @@ update {
     
     // Olga
     // Line below is equiv. to: Func<int> WatchOlga = delegate() { return WatchBoss(current.OlgaStamina, 100); }
-    Func<int> WatchOlga = () => WatchBoss(current.OlgaStamina, 128);
+    Func<int> WatchOlga = () => WatchBoss("Olga", current.OlgaStamina, 128);
     vars.SpecialWatchCallback.Add("w00b", WatchOlga);
 
     // Fatman the troublemaker
     Func<int> WatchFatman = delegate() {
       if (!BossDefeated) {
-        if (WatchBoss(current.FatmanStamina, C(current.FatmanHealth)) == 1) BossDefeated = true;
+        if (WatchBoss("Fatman", current.FatmanStamina, C(current.FatmanHealth)) == 1) BossDefeated = true;
       }
       if (BossDefeated) {
         if (HasContinued()) {
@@ -793,23 +847,23 @@ update {
     vars.SpecialWatchCallback.Add("w20c", WatchFatman);
     
     // Harrier
-    Func<int> WatchHarrier = () => WatchBoss(128, C(current.HarrierHealth));
+    Func<int> WatchHarrier = () => WatchBoss("Harrier", 128, C(current.HarrierHealth));
     vars.SpecialWatchCallback.Add("w25a", WatchHarrier);
     
     // Vamp
-    Func<int> WatchVamp = () => WatchBoss(C(current.VampStamina), C(current.VampHealth));
+    Func<int> WatchVamp = () => WatchBoss("Vamp", C(current.VampStamina), C(current.VampHealth));
     vars.SpecialWatchCallback.Add("w31c", WatchVamp);
     
     // Vamp 2
-    Func<int> WatchVamp2 = () => WatchBoss(C(current.Vamp2Stamina), C(current.Vamp2Health));
+    Func<int> WatchVamp2 = () => WatchBoss("Vamp", C(current.Vamp2Stamina), C(current.Vamp2Health));
     vars.SpecialWatchCallback.Add("w32b", WatchVamp2);
     
     // Rays
-    Func<int> WatchRays = () => WatchBoss(128, C(current.RaysHealth));
+    Func<int> WatchRays = () => WatchBoss("Rays", 128, C(current.RaysHealth));
     vars.SpecialWatchCallback.Add("w46a", WatchRays);
     
     // Solidus
-    Func<int> WatchSolidus = () => WatchBoss(current.SolidusStamina, current.SolidusHealth);
+    Func<int> WatchSolidus = () => WatchBoss("Solidus", current.SolidusStamina, current.SolidusHealth);
     vars.SpecialWatchCallback.Add("w61a", WatchSolidus); 
     
     // BOSSES END
@@ -917,11 +971,24 @@ update {
     Func<int> UpdateBigBoss = delegate() {
       if (BigBossFailed) return -1; // we already doned, so no need to process
       
-      string Message = "Big Boss rank possible";
+      // Possible improvement: only do this once at the start of the mission?
+      vars.ASL_Difficulty = vars.DifficultyHealth[current.MaxHealth];
+      vars.ASL_RadarOn = (current.RadarOn == 32);
+
+      string Message = "";
       bool BigBoss = false; // it's like the null hypothesis...
-      int LifebarSize = (settings["bigboss_euro"]) ? 30 : 50;
       
       do {
+        if (vars.ASL_Difficulty == "Very Easy") {
+          Message = "On Very Easy";
+          break;
+        }
+        
+        vars.ASL_BestCodeName = vars.BestCodeNames[current.MaxHealth];
+        int DamageLimit = (vars.ASL_Difficulty == "European Extreme") ? 279 : 499; // prob incorrect for easier difficulties
+      
+        // If radar is on...
+        if (vars.ASL_RadarOn) { Message = "Radar is enabled"; break; }
         // If over 3 alerts (only allowing for the mandatory ones when they appear)...
         if (vars.ASL_Alerts > BigBossAlertState) { Message = "Over Alerts limit"; break; }
         // If has continued...
@@ -930,43 +997,81 @@ update {
         if (vars.ASL_Kills > 0) { Message = "Over Kills limit"; break; }
         // If has eaten rations...
         if (vars.ASL_Rations > 0) { Message = "Over Rations limit"; break; }
-        // If time is over 3 hours...
-        if (current.GameTime > (60/*f*/ * 60/*s*/ * 60/*m*/ * 3/*h*/)) { Message = "Over Time limit"; break; }
+        // If time is 3h00m01s or more
+        if (current.GameTime > ((60/*f*/ * 60/*s*/ * 60/*m*/ * 3/*h*/) + 59)) { Message = "Over Time limit"; break; }
         // If has saved more than 8 times...
         if (vars.ASL_Saves > 8) { Message = "Over Saves limit"; break; }
-        // If has taken over 10.5 lifebars of damage...
-        if (vars.ASL_DamageTaken > (LifebarSize * 10.5)) { Message = "Over Damage Taken limit"; break; }
+        // If has taken too much damage...
+        if (vars.ASL_DamageTaken > DamageLimit) { Message = "Over Damage Taken limit"; break; }
         // If has shot a decent number of bullets...
-        if (vars.ASL_Shots > 699) { Message = "Over Shots Fired limit"; break; }
-        // If has shot MANY mechs...
-        if (vars.ASL_MechsDestroyed > 70) { Message = "Over Mech Destruction limit"; break; }
+        if (vars.ASL_Shots > 700) { Message = "Over Shots Fired limit"; break; }
         BigBoss = true;
       }
       while (false);
       
-      vars.ASL_BigBoss = Message;
-      return (BigBoss) ? 1 : 0;
+      if (BigBoss) return 1;
+
+      BigBossFailed = true;
+      vars.ASL_BestCodeName = Message;
+      return 0;
     };
     vars.UpdateBigBoss = UpdateBigBoss;
     
     // ASLVarViewer values
+    int PreviousO2 = 4000;
+    int PreviousGrip = 1800;
     Action UpdateASLVars = delegate() {
-      vars.ASL_CurrentRoomCode = current.RoomCode;
-      vars.ASL_Shots = C(current.Shots);
-      vars.ASL_Alerts = C(current.Alerts);
-      vars.ASL_Continues = C(current.Continues);
-      vars.ASL_Rations = C(current.Rations);
-      vars.ASL_Kills = C(current.Kills);
-      vars.ASL_DamageTaken = C(current.Damage);
-      vars.ASL_Saves = C(current.Saves);
-      vars.ASL_MechsDestroyed = C(current.Mechs);
-      vars.ASL_Strength = C(current.Strength);
-      vars.ASL_RoomTimer = current.RoomTimer;
+      if (settings["aslvv"]) {
       
-      if (vars.DebugTimer > 0) {
-        vars.DebugTimer--;
-        if (vars.DebugTimer == 0) vars.ASL_Debug = vars.PrevDebug;
+        bool Snake = (C(current.GripMultiplier) == 1800); // Raiden's is 3600 - but this doesn't work
+        //vars.Debug(Snake ? "Snake" : "Raiden");
+        //vars.Debug(C(current.GripMultiplier).ToString());
+        
+        vars.ASL_CurrentRoomCode = current.RoomCode;
+        vars.ASL_Shots = C(current.Shots);
+        vars.ASL_Alerts = C(current.Alerts);
+        vars.ASL_Continues = C(current.Continues);
+        vars.ASL_Rations = C(current.Rations);
+        vars.ASL_Kills = C(current.Kills);
+        vars.ASL_DamageTaken = C(current.Damage);
+        vars.ASL_Saves = C(current.Saves);
+        vars.ASL_MechsDestroyed = C(current.Mechs);
+        vars.ASL_Strength = C(Snake ? current.StrengthSnake : current.StrengthRaiden);
+        vars.ASL_RoomTimer = current.RoomTimer;
+        
+        if (vars.DebugTimer > 0) {
+          vars.DebugTimer--;
+          if (vars.DebugTimer == 0) vars.ASL_Debug = vars.PrevDebug;
+        }
+        
+        if (vars.InfoTimer > 0) {
+          vars.InfoTimer--;
+          if (vars.InfoTimer == 0) vars.ASL_Info = "";
+        }
+        
+        int CurrentO2 = C(current.CurrentO2);
+        int CurrentGrip = (current.CurrentGrip != null) ? C(current.CurrentGrip) : 1800;
+        // If we're underwater, update the O2 status in ASL_Info
+        if (CurrentO2 != PreviousO2) {
+          int MaxO2 = 4000;
+          PreviousO2 = CurrentO2;
+          int O2Rate = (current.CurrentHealth == current.MaxHealth) ? 60 : 120;
+          string O2TimeLeft = string.Format( "{0:0.0}", (decimal)((double)CurrentO2 / O2Rate) );
+          vars.ASL_Info = "O2: " + vars.ValueFormat(CurrentO2, MaxO2) + " (" + O2TimeLeft + " left)";
+          vars.InfoTimer = 30;
+        }
+        // If we're hanging, update the grip status
+        else if (CurrentGrip != PreviousGrip) {
+          PreviousGrip = CurrentGrip;
+          int StrengthLevel = (int)Math.Floor((double)vars.ASL_Strength / 100);
+          int MaxGrip = ( 1800 * ((Snake ? 1 : 2) + StrengthLevel) );
+          int GripRate = (current.CurrentHealth == current.MaxHealth) ? 60 : 120;
+          string GripTimeLeft = string.Format( "{0:0.0}", (decimal)((double)CurrentGrip / GripRate) );
+          vars.ASL_Info = "Grip: " + vars.ValueFormat(CurrentGrip, MaxGrip) + " (" + GripTimeLeft + " left)";
+          vars.InfoTimer = 30;
+        }
       }
+      
     };
     vars.UpdateASLVars = UpdateASLVars;
     
