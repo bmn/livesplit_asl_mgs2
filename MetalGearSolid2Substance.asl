@@ -24,7 +24,7 @@ state("mgs2_sse") {
   byte      MaxHealth: 0x3E315E, 0x2F;
   byte2     CurrentO2: 0x3E315E, 0x31;
   byte2     CurrentGrip: 0x618BAC, 0x80;
-  byte2     GripMultiplier: 0xD8F500;
+  byte2     GripMultiplier: 0xD8F500; // This is meant to be 1800 for Snake, 3600 for Raiden, but isn't?
   byte      RadarOn: 0xF80DB, 0x4CA;
 
   uint      STCompletionCheck: 0x4A6C20, 0xB01; // This is a random offset that works well for Snake Tales
@@ -115,18 +115,17 @@ startup {
   vars.Initialised = false;
   
   // Debug message handler
-  //settings.Add ("debug", false, "Log debug messages to " + vars.DebugPath);
   string DebugPath = System.IO.Path.GetDirectoryName(Application.ExecutablePath) + "\\mgs2_sse_debug.log";
   vars.DebugTimer = 0;
   vars.InfoTimer = 0;
   vars.DebugTimerStart = 120;
   Action<string> Debug = delegate(string message) {
-    //if ( (Convert.ToString(settings.GetType()) != "LiveSplit.ASL.ASLSettingsBuilder") && (settings["debug"]) ) {
-      using(System.IO.StreamWriter stream = new System.IO.StreamWriter(DebugPath, true)) {
-        stream.WriteLine(message);
-        stream.Close();
-      }
-    //}
+    /*
+    using(System.IO.StreamWriter stream = new System.IO.StreamWriter(DebugPath, true)) {
+      stream.WriteLine(message);
+      stream.Close();
+    }
+    */
     print("[MGS2AS] " + message);
     vars.ASL_Debug = message;
     // also overwrite the previous message if we're already showing the "splitting now" message
@@ -529,16 +528,35 @@ startup {
   vars.DontWatch = false;
   vars.BlockNextRoom = false;
   vars.SplitNextRoom = false;
+  
+  // Init ASL variables
   vars.ASL_Difficulty = "";
   vars.ASL_BestCodeName = "";
+  vars.ASL_CurrentRoom = "";
+  vars.ASL_CurrentRoomCode = "";
+  vars.ASL_Shots = 0;
+  vars.ASL_Alerts = 0;
+  vars.ASL_Continues = 0;
+  vars.ASL_Rations = 0;
+  vars.ASL_Kills = 0;
+  vars.ASL_DamageTaken = 0;
+  vars.ASL_Saves = 0;
+  vars.ASL_MechsDestroyed = 0;
+  vars.ASL_Strength = 0;
+  vars.ASL_RoomTimer = 0;
+  vars.ASL_Info = "";
+  vars.ASL_Debug = "";
   
   
   // Add main settings
   settings.Add("options", true, "Advanced Options");
   settings.Add("resets", true, "Reset the timer when returning to menu", "options");
-  settings.Add("aslvv", true, "ASL Var Viewer Options", "options");
-  settings.Add("info_percent", true, "Show numbers as percentages in ASL_Info", "aslvv");
-  settings.Add("info_max", true, "Also show the maximum/starting value", "aslvv");
+  settings.Add("aslvv", true, "Enable ASL Var Viewer integration", "options");
+  settings.SetToolTip("aslvv", "Disabling this may slightly improve performance");
+  settings.Add("aslvv_info_room", false, "ASL_Info: Show the current location when there is no other info", "aslvv");
+  settings.SetToolTip("aslvv_info_room", "Location is provided on its own by ASL_CurrentRoom");
+  settings.Add("aslvv_info_percent", true, "ASL_Info: Show numbers as percentages instead", "aslvv");
+  settings.Add("aslvv_info_max", true, "ASL_Info: Show both the current and maximum value (raw values only)", "aslvv");
   settings.Add("splits", true, "Split Locations");
   
   
@@ -566,7 +584,7 @@ startup {
   vars.Rooms = new Dictionary<string, string>() {
     { "tales", "Snake Tales storyline" }
   };
-  // This is a lot of setup, but it's worth it for supafast room lookups
+  // This is a lot of setup, but it's worth it for O(1) room lookups
   int alen = Areas.Count();
   for (int i = 0; i < alen; i = i+2) { // for every area...
     string akey = Areas[i];
@@ -778,10 +796,10 @@ update {
     };
     
     Func<int, int, string> ValueFormat = delegate(int cur, int max) {
-      if (settings["info_percent"]) return string.Format("{0,2}%", Percent(cur, max));
+      if (settings["aslvv_info_percent"]) return string.Format("{0,2}%", Percent(cur, max));
       
       int MaxLen = (int)Math.Floor(Math.Log10(max) + 1);
-      if (settings["info_max"]) return string.Format("{0," + MaxLen + "}/{1," + MaxLen + "}", cur, max);
+      if (settings["aslvv_info_max"]) return string.Format("{0," + MaxLen + "}/{1," + MaxLen + "}", cur, max);
       return string.Format("{0," + MaxLen + "}", cur);
     };
     vars.ValueFormat = ValueFormat;
@@ -838,7 +856,7 @@ update {
         }
         if (current.FatmanBombsActive < BossCounter) {
           BossCounter = current.FatmanBombsActive;
-          vars.Debug("Bombs remaining: " + Convert.ToString(BossCounter));
+          vars.DebugInfo("Bombs remaining: " + Convert.ToString(BossCounter));
         }
         if (current.FatmanBombsActive == 0) return 1; // not necesary to reset boss data as it'll happen in split
       }
@@ -1046,7 +1064,7 @@ update {
         
         if (vars.InfoTimer > 0) {
           vars.InfoTimer--;
-          if (vars.InfoTimer == 0) vars.ASL_Info = "";
+          if (vars.InfoTimer == 0) vars.ASL_Info = (settings["aslvv_info_room"]) ? vars.ASL_CurrentRoom : "";
         }
         
         int CurrentO2 = C(current.CurrentO2);
@@ -1058,7 +1076,7 @@ update {
           int O2Rate = (current.CurrentHealth == current.MaxHealth) ? 60 : 120;
           string O2TimeLeft = string.Format( "{0:0.0}", (decimal)((double)CurrentO2 / O2Rate) );
           vars.ASL_Info = "O2: " + vars.ValueFormat(CurrentO2, MaxO2) + " (" + O2TimeLeft + " left)";
-          vars.InfoTimer = 30;
+          vars.InfoTimer = 60;
         }
         // If we're hanging, update the grip status
         else if (CurrentGrip != PreviousGrip) {
@@ -1068,7 +1086,7 @@ update {
           int GripRate = (current.CurrentHealth == current.MaxHealth) ? 60 : 120;
           string GripTimeLeft = string.Format( "{0:0.0}", (decimal)((double)CurrentGrip / GripRate) );
           vars.ASL_Info = "Grip: " + vars.ValueFormat(CurrentGrip, MaxGrip) + " (" + GripTimeLeft + " left)";
-          vars.InfoTimer = 30;
+          vars.InfoTimer = 60;
         }
       }
       
@@ -1131,6 +1149,7 @@ split {
   if (current.RoomCode == old.RoomCode) return false; // room is unchanged
   
   vars.ASL_CurrentRoom = vars.GetRoomName(current.RoomCode);
+  vars.ASL_Info = (settings["aslvv_info_room"]) ? vars.ASL_CurrentRoom : "";
   vars.UpdateBigBoss();
   
   if (vars.BlockNextRoom) {
@@ -1211,12 +1230,12 @@ split {
   }
 
   // Rooms to exclude (typically cutscenes)
-  if (vars.ExcludeOldRoom.TryGetValue(old.RoomCode, out BoolResult)) AvoidSplit = true;
-  if (vars.ExcludeCurrentRoom.TryGetValue(current.RoomCode, out BoolResult)) AvoidSplit = true;
+  if (vars.ExcludeOldRoom.ContainsKey(old.RoomCode)) AvoidSplit = true;
+  if (vars.ExcludeCurrentRoom.ContainsKey(current.RoomCode)) AvoidSplit = true;
   
   // Rooms to include
-  if (vars.IncludeOldRoom.TryGetValue(old.RoomCode, out BoolResult)) DefinitelySplit = true;
-  if (vars.IncludeCurrentRoom.TryGetValue(current.RoomCode, out BoolResult)) DefinitelySplit = true;
+  if (vars.IncludeOldRoom.ContainsKey(old.RoomCode)) DefinitelySplit = true;
+  if (vars.IncludeCurrentRoom.ContainsKey(current.RoomCode)) DefinitelySplit = true;
  
   if ( (settings.ContainsKey(old.RoomCode)) && (!settings[old.RoomCode]) ) return false;
   if ( (DefinitelySplit) || (!AvoidSplit) ) return Split();
