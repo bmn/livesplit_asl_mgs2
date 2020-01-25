@@ -5,6 +5,10 @@ This autosplitter is early in development, and may not be well-tested (or even w
 
 Bug reports are welcomed so they can be stamped out, as is discussion of locations you would like to be able to split (or not split) that are not currently made available.
 
+# Right now...
+* Split logic is partially untested, and missing some split options that some players may want to set
+* Quick boss splits are in a broken state (sometimes don't recognise bosses or splits early) due to a botched attempt to deal with the game doing messy things on Continue.
+
 # Features
 * Tanker, Plant and Tanker-Plant
 * Snake Tales
