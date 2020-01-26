@@ -6,15 +6,13 @@ This autosplitter is early in development, and may not be well-tested (or even w
 Bug reports are welcomed so they can be stamped out, as is discussion of locations you would like to be able to split (or not split) that are not currently made available.
 
 # Right now...
-* Split logic is partially untested, and missing some split options that some players may want to set
-* Quick boss splits are in a broken state (sometimes don't recognise bosses or splits early) due to a botched attempt to deal with the game doing messy things on Continue.
+* A small amount of split logic is untested, and it's missing some split options that some players may want to set
+* The ARMSTREN ASL Var Viewer variable only works for Raiden.
 
 # Features
-* Tanker, Plant and Tanker-Plant
-* Snake Tales
-* VR Missions (per-category)
+* Automatic splitting for Tanker, Plant, Snake Tales, and VR Missions (per-category)
 * Instant splitting when you defeat a boss
-* ASL Var Viewer support for room names and some game stats
+* ASL Var Viewer support for room names, game stats, and live information including boss health
 * Big Boss (or equivalent) Tanker-Plant rank status for ASL Var Viewer
 
 ![Screenshot](README.png)
