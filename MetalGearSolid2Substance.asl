@@ -22,12 +22,13 @@ state("mgs2_sse") {
   
   byte      CurrentHealth: 0x3E315E, 0x2D;
   byte      MaxHealth: 0x3E315E, 0x2F;
+  byte2     CurrentChaff: 0xB6DE4C;
   byte2     CurrentO2: 0x3E315E, 0x31;
   byte2     CurrentGrip: 0x618BAC, 0x80;
   byte2     GripMultiplier: 0xD8F500; // This is meant to be 1800 for Snake, 3600 for Raiden, but isn't?
   byte      RadarOn: 0xF80DB, 0x4CA;
 
-  uint      STCompletionCheck: 0x4A6C20, 0xB01; // This is a random offset that works well for Snake Tales
+  byte2     STCompletionCheck: 0x13A178C; // This value rises slowly from 0 during credits to about 260, then goes back to 0 at results
 
   int       OlgaStamina: 0xAD4F6C, 0x0, 0x1E0, 0x44, 0x1F8, 0x13C;
 
@@ -78,8 +79,6 @@ reset {
   if (CurrentRoomName == "") CurrentRoomName = vars.GetRoomName(current.RoomCode);
   
   vars.Debug("In-game [" + old.RoomCode + "] " + OldRoomName + " > Menu [" + current.RoomCode + "] " + CurrentRoomName);
-  vars.ResetBossData(); // resetting on an unbeaten boss can cause some really bad things to happen in insta
-  vars.ResetBigBossData(); // this is our 3 allowed alerts
   return true;
 }
 
@@ -87,7 +86,7 @@ start {
   int i;
   string CurrentRoomName, OldRoomName;
   
-  if (old.RoomCode == "") return false;
+  if ( (old.RoomCode == null) || (old.RoomCode == "") ) return false;
   
   if (current.RoomCode == old.RoomCode) return false; // room is unchanged
     
@@ -106,6 +105,7 @@ start {
   if (old.RoomCode == "mselect") vars.VRMissionsEnable();
   
   // Might as well!
+  vars.ResetData(); // resetting on an unbeaten boss can cause some really bad things to happen in insta
   vars.UpdateBigBoss();
   
   return true;
@@ -113,37 +113,6 @@ start {
 
 startup {
   vars.Initialised = false;
-  
-  // Debug message handler
-  string DebugPath = System.IO.Path.GetDirectoryName(Application.ExecutablePath) + "\\mgs2_sse_debug.log";
-  vars.DebugTimer = 0;
-  vars.InfoTimer = 0;
-  vars.DebugTimerStart = 120;
-  Action<string> Debug = delegate(string message) {
-    /*
-    using(System.IO.StreamWriter stream = new System.IO.StreamWriter(DebugPath, true)) {
-      stream.WriteLine(message);
-      stream.Close();
-    }
-    */
-    print("[MGS2AS] " + message);
-    vars.ASL_Debug = message;
-    // also overwrite the previous message if we're already showing the "splitting now" message
-    if (vars.DebugTimer != vars.DebugTimerStart) vars.PrevDebug = message;
-  };
-  vars.Debug = Debug;
-  
-  Action<string> Info = delegate(string message) {
-    vars.ASL_Info = message;
-  };
-  vars.Info = Info;
-  
-  Action<string> DebugInfo = delegate(string message) {
-    Debug(message);
-    Info(message);
-  };
-  vars.DebugInfo = DebugInfo;
-  
   
   /* MAIN CONFIGURATION STARTS */
   
@@ -420,7 +389,7 @@ startup {
     { "d005p03", "Plant overview 2" },
     { "d036p05", "Shell 1 Core, 1F cutscenes" },
     { "w24c", "Shell 1 Core, B1 Hall (after Ames)" },
-    { "w24e", "Shell 1 Core, B1 Hall (eavesdropping)" },
+    { "w24e", "Shell 1 Core, B1 Hall (with Ames)" },
     { "d070p09", "Arsenal Gear launch cutscene" },
     { "d070px9", "Arsenal Gear - Stomach cutscenes" },
     { "d080p06", "Arsenal Gear cutscenes" },
@@ -550,6 +519,7 @@ startup {
   
   // Add main settings
   settings.Add("options", true, "Advanced Options");
+  settings.Add("debug_file", true, "Save debug information to LiveSplit program directory");
   settings.Add("resets", true, "Reset the timer when returning to menu", "options");
   settings.Add("aslvv", true, "Enable ASL Var Viewer integration", "options");
   settings.SetToolTip("aslvv", "Disabling this may slightly improve performance");
@@ -557,6 +527,7 @@ startup {
   settings.SetToolTip("aslvv_info_room", "Location is provided on its own by ASL_CurrentRoom");
   settings.Add("aslvv_info_percent", true, "ASL_Info: Show numbers as percentages instead", "aslvv");
   settings.Add("aslvv_info_max", true, "ASL_Info: Show both the current and maximum value (raw values only)", "aslvv");
+  settings.Add("aslvv_info_o2health", false, "ASL_Info -> O2: Also show the time remaining from Life", "aslvv");
   settings.Add("splits", true, "Split Locations");
   
   
@@ -601,8 +572,6 @@ startup {
       }
     }
   }
-  string rn = string.Join("\n  ", vars.Rooms);
-  vars.Debug("List of rooms: " + "{\n  " + rn + "\n}");
   
   
   // General-purpose room identifier
@@ -613,16 +582,6 @@ startup {
     return "Undefined room";
   };
   vars.GetRoomName = GetRoomName;
-  
-  
-  // Confirm a split
-  Func<bool> Split = delegate() {
-    vars.DebugTimer = vars.DebugTimerStart;
-    vars.PrevDebug = vars.ASL_Debug;
-    vars.Debug("Splitting now");
-    return true;
-  };
-  vars.Split = Split;
   
   
   // Insta-split vs bosses, disable regular split mode if this is enabled
@@ -732,8 +691,6 @@ startup {
     { "no_split", "true" }
   });
   
-  
-  vars.Debug("MGS2 autosplitter ready to roll!"); 
 }
 
 
@@ -743,25 +700,75 @@ update {
     vars.Initialised = true;
     int Counter = 0;
     bool BossActive = false;
+    bool NoBoss = false;
     int Continues = -1;
     bool BossDefeated = false;
     int BossCounter = 99999;
     int BossHealth = 99999;
     int BossStamina = 99999;
-    int BossMaxHealth = 99999;
-    int BossMaxStamina = 99999;
+    int BossMaxHealth = -1;
+    int BossMaxStamina = -1;
     bool BigBossFailed = false;
     int BigBossAlertState = 0;
+    int STCompletion = 0;
+    vars.PrevInfo = "";
+    
+    // Debug message handler
+    string DebugPath = System.IO.Path.GetDirectoryName(Application.ExecutablePath) + "\\mgs2_sse_debug.log";
+    vars.DebugTimer = 0;
+    vars.InfoTimer = 0;
+    vars.DebugTimerStart = 120;
+    Action<string> Debug = delegate(string message) {
+      if (settings["debug_file"]) {
+        using(System.IO.StreamWriter stream = new System.IO.StreamWriter(DebugPath, true)) {
+          stream.WriteLine(message);
+          stream.Close();
+        }
+      }
+      print("[MGS2AS] " + message);
+      vars.ASL_Debug = message;
+      // also overwrite the previous message if we're already showing the "splitting now" message
+      if (vars.DebugTimer != vars.DebugTimerStart) vars.PrevDebug = message;
+    };
+    vars.Debug = Debug;
+    
+    Action<string> Info = delegate(string message) {
+      vars.ASL_Info = message;
+    };
+    vars.Info = Info;
+    
+    Action<string> DebugInfo = delegate(string message) {
+      Debug(message);
+      Info(message);
+    };
+    vars.DebugInfo = DebugInfo;
+    
+    // Show debug a list of rooms
+    string rn = string.Join("\n  ", vars.Rooms);
+    Debug("List of rooms: " + "{\n  " + rn + "\n}");
     
     // Shortened name for the byte[]-to-int converter
-    Func<byte[], int> C = (input) => BitConverter.ToInt16(input, 0);
+    Func<byte[], int> C = delegate(byte[] input) {
+      if (input == null) return 0;
+      return BitConverter.ToInt16(input, 0);
+    };
     vars.C = C;
+    
+    // Confirm a split
+    Func<bool> Split = delegate() {
+      vars.DebugTimer = vars.DebugTimerStart;
+      vars.PrevDebug = vars.ASL_Debug;
+      vars.Debug("Splitting now");
+      return true;
+    };
+    vars.Split = Split;
     
     // Check for new continues
     Func<bool> HasContinued = delegate() {
       int NewContinues = C(current.Continues);
+      //print("hc" + Continues.ToString() + " to " + NewContinues.ToString());
       if (NewContinues > Continues) {
-        vars.Debug("Detected continue during boss: " + Continues + " > " + NewContinues);
+        Debug("Detected continue during boss: " + Continues + " > " + NewContinues);
         Continues = NewContinues;
         return true;
       }
@@ -778,17 +785,24 @@ update {
     // Reset counters used to track bosses
     Action ResetBossData = delegate() {
       BossActive = false;
+      NoBoss = false;
       BossDefeated = false;
       BossCounter = 99999;
-      Continues = -1;
-      BossHealth = 99999; // normally i'd use -1, but rays can actually go under 0 so have to test <=0
-      BossStamina = 99999;
-      BossMaxHealth = 99999;
-      BossMaxStamina = 99999;
+      BossMaxHealth = -1;
+      BossMaxStamina = -1;
       vars.SplitNextRoom = false;
       vars.BlockNextRoom = false;
     };
     vars.ResetBossData = ResetBossData;
+    
+    // Reset all counters
+    Action ResetData = delegate() {
+      Continues = -1;
+      STCompletion = 0;
+      ResetBigBossData();
+      ResetBossData();
+    };
+    vars.ResetData = ResetData;
     
     Func<int, int, int> Percent = delegate(int cur, int max) {
       double percentage = (100.0 * cur / max);
@@ -804,35 +818,72 @@ update {
     };
     vars.ValueFormat = ValueFormat;
     
-    // General-purpose boss health watcher - this gets called by the specific bosses below
+
+    /*
+    // Temporary boss watcher to examine what health values do
     Func<string, int, int, int> WatchBoss = delegate(string Name, int CurrentStamina, int CurrentHealth) {
-      if (!settings["boss_insta"]) return -1; // stop watching if insta-splits are disabled
       if (Continues == -1) Continues = C(current.Continues);
-      else if (HasContinued()) ResetBossData();
-      //if ((Counter++ % 300) == 0) vars.Debug("Stamina: " + Convert.ToString(CurrentStamina) + " Health: " + Convert.ToString(CurrentHealth));
-      if ( (CurrentStamina != BossStamina) || (CurrentHealth != BossHealth) ) {
+      else if (HasContinued()) {
+        ResetBossData();
+        vars.Debug(current.RoomTimer +" | Continued");
+      }
+      if (CurrentStamina != BossStamina) {
+        vars.Debug(current.RoomTimer +" | "+ Name +": Stamina "+ BossStamina +" > "+ CurrentStamina);
         BossStamina = CurrentStamina;
+      }
+      if (CurrentHealth != BossHealth) {
+        vars.Debug(current.RoomTimer +" | "+ Name +": Health "+ BossHealth +" > "+ CurrentHealth);
         BossHealth = CurrentHealth;
-        vars.ASL_BossStamina = CurrentStamina;
-        vars.ASL_BossHealth = CurrentHealth;
-        if ( (CurrentStamina <= 0) || (CurrentHealth <= 0) ) {
-          if (BossActive) {
-            vars.Debug("Boss defeated!");
-            vars.BlockNextRoom = true; // Stop the non-insta split that occurs on the next room change
+      }
+      return 0;
+    };
+    */
+    // New snazzy boss watcher
+    Func<string, int, int, int> WatchBoss = delegate(string Name, int NewStamina, int NewHealth) {
+      if (!settings["boss_insta"]) return -1; // stop watching if insta-splits are disabled
+      //if (Continues == -1) Continues = C(current.Continues);
+      
+      if ( (BossActive) && ( (NewStamina != BossStamina) || (NewHealth != BossHealth) ) ) {
+        //if (HasContinued()) ResetBossData();
+        //else {
+          if (BossMaxStamina <= 0) {
+            BossMaxStamina = NewStamina;
+            BossMaxHealth = NewHealth;
+          }
+          
+          string DebugDelta = "";
+          if ( (BossStamina != 99999) || (BossHealth != 99999) ) {
+            if (NewHealth < BossHealth) DebugDelta = "[-" + (BossHealth - NewHealth) + "] ";
+            else if (NewStamina < BossStamina) DebugDelta = "[-" + (BossStamina - NewStamina) + "] ";
+          }
+          
+          BossStamina = NewStamina;
+          BossHealth = NewHealth;
+              
+          string DebugStamina = "";
+          string DebugHealth = "";
+          if (NewStamina != 99999) DebugStamina = " Stamina: " + ValueFormat(NewStamina, BossMaxStamina);
+          if (NewHealth != 99999) DebugHealth = " Life: " + ValueFormat(NewHealth, BossMaxHealth);
+          string DebugString = DebugDelta + Name + " |" + DebugStamina + DebugHealth;
+          DebugInfo(DebugString);
+          if ( (NewStamina <= 0) || (NewHealth <= 0) ) {
+            vars.PrevInfo = ""; // boss info will be out of fashion once the next message has timed out...
+            vars.InfoTimer = 180;
+            DebugInfo("Boss defeated!");
+            vars.BlockNextRoom = true;
             return 1;
           }
-        }
-        // necessary for reloading saves after beating a boss already - they'll start at 0 and get a refill
-        // so we wait until they've been given some health to start checking properly
-        else if (!BossActive) {
-          BossActive = true;
-          BossMaxStamina = CurrentStamina;
-          BossMaxHealth = CurrentHealth;
-          vars.Debug("Currently fighting " + Name);
-        }
-        
-        vars.DebugInfo( Name + " | Stamina: " + ValueFormat(CurrentStamina, BossMaxStamina) + " Health: " + ValueFormat(CurrentHealth, BossMaxHealth) );
+          vars.PrevInfo = DebugString;
+        //}
       }
+      else if ( (!NoBoss) && (current.RoomTimer > 5) ) {
+        if ( (NewStamina == null) || (NewStamina == 0) ) NoBoss = true;
+        else BossActive = true;
+      }
+      else if ( ( (NoBoss) || (BossActive) ) && (current.RoomTimer < 5) ) {
+        ResetBossData();
+      }
+      
       return 0;
     };
     
@@ -841,8 +892,12 @@ update {
     
     // Olga
     // Line below is equiv. to: Func<int> WatchOlga = delegate() { return WatchBoss(current.OlgaStamina, 100); }
-    Func<int> WatchOlga = () => WatchBoss("Olga", current.OlgaStamina, 128);
+    Func<int> WatchOlga = () => WatchBoss("Olga", current.OlgaStamina, 99999);
     vars.SpecialWatchCallback.Add("w00b", WatchOlga);
+    
+    // Meryl (Confidential Legacy)
+    Func<int> WatchMeryl = () => WatchBoss("Meryl", current.OlgaStamina, 99999);
+    vars.SpecialWatchCallback.Add("a00b", WatchMeryl);
 
     // Fatman the troublemaker
     Func<int> WatchFatman = delegate() {
@@ -850,39 +905,45 @@ update {
         if (WatchBoss("Fatman", current.FatmanStamina, C(current.FatmanHealth)) == 1) BossDefeated = true;
       }
       if (BossDefeated) {
-        if (HasContinued()) {
-          ResetBossData();
-          return 0;
-        }
         if (current.FatmanBombsActive < BossCounter) {
           BossCounter = current.FatmanBombsActive;
-          vars.DebugInfo("Bombs remaining: " + Convert.ToString(BossCounter));
+          vars.InfoTimer = 0; // deactivate the "boss defeated" timeout
+          DebugInfo("Bombs remaining: " + Convert.ToString(BossCounter));
         }
-        if (current.FatmanBombsActive == 0) return 1; // not necesary to reset boss data as it'll happen in split
+        if (current.FatmanBombsActive == 0) {
+          vars.InfoTimer = 180;
+          DebugInfo("Boss defeated!");
+          return 1; // not necesary to reset boss data as it'll happen in split
+        }
       }
       return 0;
     };
-    vars.SpecialWatchCallback.Add("w20c", WatchFatman);
+    vars.SpecialWatchCallback.Add("w20c", WatchFatman); // Sons of Liberty
+    vars.SpecialWatchCallback.Add("a20c", WatchFatman); // A Wrongdoing
     
     // Harrier
-    Func<int> WatchHarrier = () => WatchBoss("Harrier", 128, C(current.HarrierHealth));
-    vars.SpecialWatchCallback.Add("w25a", WatchHarrier);
+    Func<int> WatchHarrier = () => WatchBoss("Harrier", 99999, C(current.HarrierHealth));
+    vars.SpecialWatchCallback.Add("w25a", WatchHarrier); // Sons of Liberty
+    vars.SpecialWatchCallback.Add("a25a", WatchHarrier); // Big Shell Evil
     
     // Vamp
     Func<int> WatchVamp = () => WatchBoss("Vamp", C(current.VampStamina), C(current.VampHealth));
-    vars.SpecialWatchCallback.Add("w31c", WatchVamp);
+    vars.SpecialWatchCallback.Add("w31c", WatchVamp); // Sons of Liberty
+    vars.SpecialWatchCallback.Add("a31c", WatchVamp); // Dead Man Whispers
     
     // Vamp 2
     Func<int> WatchVamp2 = () => WatchBoss("Vamp", C(current.Vamp2Stamina), C(current.Vamp2Health));
     vars.SpecialWatchCallback.Add("w32b", WatchVamp2);
     
     // Rays
-    Func<int> WatchRays = () => WatchBoss("Rays", 128, C(current.RaysHealth));
-    vars.SpecialWatchCallback.Add("w46a", WatchRays);
+    Func<int> WatchRays = () => WatchBoss("Rays", 99999, C(current.RaysHealth));
+    vars.SpecialWatchCallback.Add("w46a", WatchRays); // Sons of Liberty
+    vars.SpecialWatchCallback.Add("a46a", WatchRays); // External Gazer
     
     // Solidus
     Func<int> WatchSolidus = () => WatchBoss("Solidus", current.SolidusStamina, current.SolidusHealth);
-    vars.SpecialWatchCallback.Add("w61a", WatchSolidus); 
+    vars.SpecialWatchCallback.Add("w61a", WatchSolidus); // Sons of Liberty
+    vars.SpecialWatchCallback.Add("a61a", WatchSolidus); // External Gazer
     
     // BOSSES END
 
@@ -892,7 +953,7 @@ update {
     Func<int> CallTortureCutscene = delegate() {
       // cutscene > jejunum
       if (current.RoomCode == "w42a") {
-        vars.Debug("In the torture sequence: skipping the Jejunum > Stomach room change that occurs during it");
+        Debug("In the torture sequence: skipping the Jejunum > Stomach room change that occurs during it");
         TortureSkipNextRoomChange = true;
       }
       return 0;
@@ -922,26 +983,28 @@ update {
       return 0;
     };
     vars.SpecialRoomChangeCallback.Add("e32a", CallBigBossAlert1); // sniping
-    vars.SpecialRoomChangeCallback.Add("w44a", CallBigBossAlert1); // tengus 1
-    vars.SpecialRoomChangeCallback.Add("w45a", CallBigBossAlert1); // tengus 2
+    vars.SpecialRoomChangeCallback.Add("w44a", CallBigBossAlert2); // tengus 1
+    vars.SpecialRoomChangeCallback.Add("w45a", CallBigBossAlert3); // tengus 2
     
     
     // Snake Tales in general: Don't split if we're coming from storyline.
-    int STCompletionCheck = 99999;
     Func<int> CallSnakeTales = delegate() {
       // Also set up for the results check
       if (current.RoomCode == "sselect") {
-        STCompletionCheck = current.STCompletionCheck;
-        vars.Debug("Trying to figure out when this tale of snakes has ended.");
+        STCompletion = 1;
+        Debug("Trying to figure out when this tale of snakes has ended.");
       }
       return -1; // don't split after tales
     };
     vars.SpecialRoomChangeCallback.Add("tales", CallSnakeTales);
-    // And the results check. I hate this whole thing.
+    // And the results check.
     Func<int> WatchSnakeTalesCredits = delegate() {
-      if ( (STCompletionCheck != 99999) && (current.STCompletionCheck != STCompletionCheck) ) {
-        STCompletionCheck = 99999;
-        vars.Debug("Moved briskly to the Snake Tales result screen!");
+      // it starts at 0, goes up...
+      if ( (STCompletion == 1) && (C(current.STCompletionCheck) != 0) ) STCompletion = 2;
+      // ...then goes back to 0
+      else if ( (STCompletion == 2) && (C(current.STCompletionCheck) == 0) ) {
+        Debug("Moved briskly to the Snake Tales result screen!");
+        STCompletion = 0;
         return 1;
       }
       return 0;
@@ -962,22 +1025,22 @@ update {
           string VRCategory = "";
           if (vars.VRMissionSignatures.TryGetValue(Hash, out VRCategory)) {
             if ( (!settings.ContainsKey(VRCategory)) || (settings[VRCategory]) ) {
-              vars.Debug("Found completed VR roomset " + VRCategory + " = " + Hash);
+              Debug("Found completed VR roomset " + VRCategory + " = " + Hash);
               VRMissionsCurrentRooms.Clear();
               return true;
             }
-            vars.Debug("Found completed VR roomset " + VRCategory + " = " + Hash + ", but it is disabled in settings");
+            Debug("Found completed VR roomset " + VRCategory + " = " + Hash + ", but it is disabled in settings");
           }
         }
         return false;
       };
       // Otherwise, add the current room to the list
       if (!VRMissionsCurrentRooms.Contains(RoomCode)) VRMissionsCurrentRooms.Add(RoomCode);
-      vars.Debug("Entered [" + RoomCode + "] " + vars.GetRoomName(current.RoomCode) + ", adding to current roomset > " + vars.VRMissionHash(VRMissionsCurrentRooms));
+      Debug("Entered [" + RoomCode + "] " + vars.GetRoomName(current.RoomCode) + ", adding to current roomset > " + vars.VRMissionHash(VRMissionsCurrentRooms));
       return false;
     };
     Action VRMissionsEnable = delegate() {
-      vars.Debug("VR Missions mode on!");
+      Debug("VR Missions mode on!");
       vars.VRMissions = true;
       VRMissionsCurrentRooms.Clear();
       VRLogMission(current.RoomCode); // we need to log the first room here
@@ -1037,7 +1100,10 @@ update {
     
     // ASLVarViewer values
     int PreviousO2 = 4000;
-    int PreviousGrip = 1800;
+    int PreviousGrip = -1;
+    int MaxGrip = -1;
+    float ChaffRate = (1024.0f / 30);
+    //int MaxChaff = -1;
     Action UpdateASLVars = delegate() {
       if (settings["aslvv"]) {
       
@@ -1054,7 +1120,7 @@ update {
         vars.ASL_DamageTaken = C(current.Damage);
         vars.ASL_Saves = C(current.Saves);
         vars.ASL_MechsDestroyed = C(current.Mechs);
-        vars.ASL_Strength = C(Snake ? current.StrengthSnake : current.StrengthRaiden);
+        vars.ASL_Strength = C(current.StrengthRaiden); //C(Snake ? current.StrengthSnake : current.StrengthRaiden);
         vars.ASL_RoomTimer = current.RoomTimer;
         
         if (vars.DebugTimer > 0) {
@@ -1064,37 +1130,60 @@ update {
         
         if (vars.InfoTimer > 0) {
           vars.InfoTimer--;
-          if (vars.InfoTimer == 0) vars.ASL_Info = (settings["aslvv_info_room"]) ? vars.ASL_CurrentRoom : "";
+          if (vars.InfoTimer == 0) {
+            if (vars.PrevInfo != "") vars.ASL_Info = vars.PrevInfo;
+            else vars.ASL_Info = (settings["aslvv_info_room"]) ? vars.ASL_CurrentRoom : "";
+          }
         }
         
         int CurrentO2 = C(current.CurrentO2);
-        int CurrentGrip = (current.CurrentGrip != null) ? C(current.CurrentGrip) : 1800;
+        int CurrentGrip = (current.CurrentGrip != null) ? C(current.CurrentGrip) : -1;
+        int CurrentChaff = C(current.CurrentChaff);
+        //int CurrentChaff = (current.CurrentChaff != null
         // If we're underwater, update the O2 status in ASL_Info
-        if (CurrentO2 != PreviousO2) {
-          int MaxO2 = 4000;
+        if (CurrentO2 != PreviousO2) { // TODO get O2 + health info display working
           PreviousO2 = CurrentO2;
-          int O2Rate = (current.CurrentHealth == current.MaxHealth) ? 60 : 120;
-          string O2TimeLeft = string.Format( "{0:0.0}", (decimal)((double)CurrentO2 / O2Rate) );
-          vars.ASL_Info = "O2: " + vars.ValueFormat(CurrentO2, MaxO2) + " (" + O2TimeLeft + " left)";
-          vars.InfoTimer = 60;
+          if (current.RoomTimer > 5) {
+            int MaxO2 = 4000;
+            int O2Rate = (current.CurrentHealth == current.MaxHealth) ? 60 : 120;
+            string O2TimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentO2 / O2Rate) );
+            string HealthTimeLeft = "";
+            if (settings["aslvv_info_o2health"]) {
+              HealthTimeLeft = " + " + string.Format( "{00:0.0}", (decimal)((double)current.CurrentHealth / 4) );
+            }
+            vars.ASL_Info = "O2: " + vars.ValueFormat(CurrentO2, MaxO2) + " (" + O2TimeLeft + HealthTimeLeft + " left)";
+            vars.InfoTimer = 60;
+          }
         }
         // If we're hanging, update the grip status
-        else if (CurrentGrip != PreviousGrip) {
+        else if ( (CurrentGrip != -1) && (CurrentGrip != PreviousGrip) ) {
           PreviousGrip = CurrentGrip;
-          int StrengthLevel = (int)Math.Floor((double)vars.ASL_Strength / 100);
-          int MaxGrip = ( 1800 * ((Snake ? 1 : 2) + StrengthLevel) );
-          int GripRate = (current.CurrentHealth == current.MaxHealth) ? 60 : 120;
-          string GripTimeLeft = string.Format( "{0:0.0}", (decimal)((double)CurrentGrip / GripRate) );
-          vars.ASL_Info = "Grip: " + vars.ValueFormat(CurrentGrip, MaxGrip) + " (" + GripTimeLeft + " left)";
-          vars.InfoTimer = 60;
+          if (current.RoomTimer > 5) {
+            // Quick fix, won't change immediately when leveling up at low CurrentGrip
+            if (CurrentGrip > MaxGrip) MaxGrip = (int)Math.Ceiling((double)CurrentGrip / 1800) * 1800;
+            int StrengthLevel = (int)Math.Floor((double)vars.ASL_Strength / 100);
+            int GripRate = (current.CurrentHealth == current.MaxHealth) ? 60 : 120;
+            string GripTimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentGrip / GripRate) );
+            vars.ASL_Info = "Grip: " + vars.ValueFormat(CurrentGrip, MaxGrip) + " (" + GripTimeLeft + " left)";
+            vars.InfoTimer = 60;
+          }
         }
+        // If there's a chaff grenade active, show that
+        else if (CurrentChaff > 0) {
+          int MaxChaff = 1024;
+          //if (CurrentChaff > MaxChaff) MaxChaff = CurrentChaff;
+          string ChaffTimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentChaff / ChaffRate) );
+          vars.ASL_Info = "Chaff: " + vars.ValueFormat(CurrentChaff, MaxChaff) + " (" + ChaffTimeLeft + " left)";
+          vars.InfoTimer = 1; // the insta :O
+        }
+        
       }
       
     };
     vars.UpdateASLVars = UpdateASLVars;
     
     
-    vars.Debug("Finished initialising script. It's all up to you now.");
+    Debug("Finished initialising script. It's all up to you now.");
   }
   
   vars.UpdateASLVars();
@@ -1154,13 +1243,15 @@ split {
   
   if (vars.BlockNextRoom) {
     vars.BlockNextRoom = false;
-    vars.ResetBossData(); // BlockNextRoom will generally be specified by insta-split bosses
     return false; // something requested that we not split this time
   }
   if (vars.SplitNextRoom) {
     vars.SplitNextRoom = false;
+    vars.ResetBossData();
     return Split(); // the opposite happened!
   }
+  
+  vars.ResetBossData();
   
   if (vars.DontWatch) vars.DontWatch = false; // reset the watch switch on new room
   
