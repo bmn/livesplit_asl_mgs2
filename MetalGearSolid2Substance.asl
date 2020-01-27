@@ -30,7 +30,8 @@ state("mgs2_sse") {
 
   byte2     STCompletionCheck: 0x13A178C; // This value rises slowly from 0 during credits to about 260, then goes back to 0 at results
 
-  int       OlgaStamina: 0xAD4F6C, 0x0, 0x1E0, 0x44, 0x1F8, 0x13C;
+  byte      OlgaStamina: 0xAD4F6C, 0x0, 0x1E0, 0x44, 0x1F8, 0x13C;
+  byte      MerylHealth: 0xB6DEC4, 0x284;
 
   byte2     FatmanHealth: 0xB6DEC4, 0x24E;
   int       FatmanStamina: 0x664E78, 0x88;
@@ -48,6 +49,7 @@ state("mgs2_sse") {
   byte2     Vamp2Stamina: 0x664E7C, 0x48;
 
   byte2     RaysHealth: 0xAD4EA4, 0x54, 0x10, 0x10, 0x170, 0x7E0;
+  byte2     RaysEGHealth: 0x652F30, 0x490;
 }
 
 reset {
@@ -240,20 +242,21 @@ startup {
       "a12a", "Strut A roof",
       "a12b", "Strut A Pump Room",
       "a13b", "AB connecting bridge",
-      "a13c", "AB connecting bridge (EG)",
-      "a14a", "Strut B Transformer Room (BSE)",
-      "a14b", "Strut B Transformer Room (AW/DMW)",
+      "a13c", "AB connecting bridge", // EG
+      "a14a", "Strut B Transformer Room", // BSE & EG
+      "a14b", "Strut B Transformer Room", // AW & DMW
       "a15b", "BC connecting bridge",
       "a16a", "Strut C Dining Hall",
       "a17a", "CD connecting bridge",
       "a18a", "Strut D Sediment Pool",
       "a19a", "DE connecting bridge",
-      "a20a", "Strut E Parcel Room, 1F (AW)",
+      "a20a", "Strut E Parcel Room, 1F", // AW
+      "a20b", "Strut E heliport (BSE)",
       "a20c", "Strut E heliport",
-      "a20e", "Strut E Parcel Room, 1F (BSE)",
+      "a20e", "Strut E Parcel Room, 1F", // BSE
       "a21a", "EF connecting bridge",
-      "a22a", "Strut F warehouse (AW/DMW)",
-      "a22b", "Strut F warehouse (BSE)",
+      "a22a", "Strut F warehouse", // AM & DMW
+      "a22b", "Strut F warehouse", // BSE
       "a23b", "FA connecting bridge",
       "a24a", "Shell 1 Core, 1F",
       "a24b", "Shell 1 Core, B1",
@@ -267,13 +270,11 @@ startup {
       "a46a", "Arsenal Gear - Rectum (vs Rays)",
       "a61a", "Federal Hall (vs Solidus)",
       // External Gazer VR missions
-      "ta24a", "Elimination Level 6",
-      "tsp03a", "2",
-      "tvs03a", "Sneaking Level 3",
-      "twp03a", "Handgun Level 3",
-      "tvs05a", "Sneaking Level 5",
-      "tvs08a", "Sneaking Level 8",
-      "ta31a", "7"
+      "tsp03a", "Gurlugon",
+      "tvs03a", "Snake Sneaking Level 3",
+      "twp03a", "Snake Handgun Level 3",
+      "tvs05a", "Snake Sneaking Level 5",
+      "tvs08a", "Snake Sneaking Level 8"
     } }
   };
   
@@ -306,7 +307,6 @@ startup {
   
   // Old rooms to explicitly include a split at, even when the next room is unknown
   List<string> IncludeOldRoom = new List<string>() {
-    //"d13t" // Final Tanker cutscene (not any more)
   };
   // and new
   List<string> IncludeCurrentRoom = new List<string>() {
@@ -396,7 +396,9 @@ startup {
     { "d080p07", "Arsenal Gear entering Manhattan cutscene" },
     { "d080p08", "Federal Hall cutscenes" },
     // External Gazer
-    { "ta02a", "Bomb Disposal 2" },
+    { "ta02a", "Snake Bomb Disposal 2" },
+    { "ta24a", "Snake Elimination Level 6" },
+    { "ta31a", "Raiden Bomb Disposal Level 1" },
     // VR Missions
     { "vs01a", "Sneaking Mode 1" },
     { "vs02a", "Sneaking Mode 2" },
@@ -519,16 +521,42 @@ startup {
   
   // Add main settings
   settings.Add("options", true, "Advanced Options");
-  settings.Add("debug_file", true, "Save debug information to LiveSplit program directory");
-  settings.Add("resets", true, "Reset the timer when returning to menu", "options");
-  settings.Add("aslvv", true, "Enable ASL Var Viewer integration", "options");
-  settings.SetToolTip("aslvv", "Disabling this may slightly improve performance");
-  settings.Add("aslvv_info_room", false, "ASL_Info: Show the current location when there is no other info", "aslvv");
-  settings.SetToolTip("aslvv_info_room", "Location is provided on its own by ASL_CurrentRoom");
-  settings.Add("aslvv_info_percent", true, "ASL_Info: Show numbers as percentages instead", "aslvv");
-  settings.Add("aslvv_info_max", true, "ASL_Info: Show both the current and maximum value (raw values only)", "aslvv");
-  settings.Add("aslvv_info_o2health", false, "ASL_Info -> O2: Also show the time remaining from Life", "aslvv");
   settings.Add("splits", true, "Split Locations");
+  
+    settings.Add("options_plant", true, "Plant", "options");
+    settings.Add("options_snaketales", true, "Snake Tales", "options");
+    settings.Add("options_vr", true, "VR Missions", "options");
+  
+    settings.Add("debug_file", true, "Save debug information to LiveSplit program directory", "options");
+    settings.Add("resets", true, "Reset the timer when returning to menu", "options");
+    settings.Add("boss_insta", true, "Split instantly when a boss is defeated", "options");
+    settings.SetToolTip("boss_insta", "This also enables boss health information in ASL Var Viewer");
+    settings.Add("aslvv", true, "Enable ASL Var Viewer integration", "options");
+    settings.SetToolTip("aslvv", "Disabling this may slightly improve performance");
+  
+      settings.Add("aslvv_info_room", false, "ASL_Info: Show the current location when there is no other info", "aslvv");
+      settings.SetToolTip("aslvv_info_room", "Location is provided on its own by ASL_CurrentRoom");
+      settings.Add("aslvv_info_percent", true, "ASL_Info: Show numbers as percentages instead", "aslvv");
+      settings.Add("aslvv_info_max", true, "ASL_Info: Show both the current and maximum value (raw values only)", "aslvv");
+      settings.Add("aslvv_info_o2health", false, "ASL_Info -> O2: Also show the time remaining from Life", "aslvv");
+      
+      settings.Add("snaketales_a", true, "A Wrongdoing", "options_snaketales");
+      settings.Add("snaketales_b", true, "Big Shell Evil", "options_snaketales");
+      settings.Add("snaketales_c", true, "Confidential Legacy", "options_snaketales");
+      settings.Add("snaketales_d", true, "Dead Man Whispers", "options_snaketales");
+      settings.Add("snaketales_e", true, "External Gazer", "options_snaketales");
+      
+      settings.Add("vr_variety_ninja", false, "Enable splits for Variety (Ninja)", "options_vr");
+      settings.Add("vr_variety_pliskin", false, "Enable splits for Variety (Pliskin/Tuxedo)", "options_vr");
+      settings.Add("vr_variety_mgs1", false, "Enable splits for Variety (MGS1)", "options_vr");
+      string Tooltip = "The rules for these modes can accidentally trigger Variety splits for other characters. Only enable if you are playing this character.";
+      settings.SetToolTip("vr_variety_ninja", Tooltip);
+      settings.SetToolTip("vr_variety_pliskin", Tooltip);
+      settings.SetToolTip("vr_variety_mgs1", Tooltip);
+  
+    
+      
+  
   
   
   // Build the old/current room exclusion/inclusion dictionaries
@@ -584,21 +612,8 @@ startup {
   vars.GetRoomName = GetRoomName;
   
   
-  // Insta-split vs bosses, disable regular split mode if this is enabled
-  string TempSetting = "boss_insta";
-  settings.Add(TempSetting, true, "Split instantly when a boss is defeated", "options");
-  
-  
   // VR roomset signatures and settings
   vars.VRMissions = false;
-  settings.Add("vr", true, "VR Missions", "options");
-  settings.Add("vr_variety_ninja", false, "Enable splits for Variety (Ninja)", "vr");
-  settings.Add("vr_variety_pliskin", false, "Enable splits for Variety (Pliskin/Tuxedo)", "vr");
-  settings.Add("vr_variety_mgs1", false, "Enable splits for Variety (MGS1)", "vr");
-  string Tooltip = "The rules for these modes can accidentally trigger Variety splits for other characters. Only enable if you are playing this character.";
-  settings.SetToolTip("vr_variety_ninja", Tooltip);
-  settings.SetToolTip("vr_variety_pliskin", Tooltip);
-  settings.SetToolTip("vr_variety_mgs1", Tooltip);
   // Hash function
   Func< List<string>, string > VRMissionHash = delegate(List<string> roomset) {
     roomset.Sort();
@@ -628,13 +643,12 @@ startup {
     
   
   // Plant: Option to split when meeting Stillman in Strut C
-  settings.Add("options_plant", true, "Tanker", "options");
-  TempSetting = "d014p01";
-  settings.Add(TempSetting, true, "Don't split when meeting Stillman", "options_plant");
-  settings.SetToolTip(TempSetting, "You will need two Strut C splits if this is not enabled");
+  string TempSetting = "d014p01";
+  settings.Add(TempSetting, false, "Split when meeting Stillman", "options_plant");
+  settings.SetToolTip(TempSetting, "You will need two Strut C splits if this is enabled");
   vars.SpecialNewRoom.Add(TempSetting, new Dictionary<string, string>() {
     { "old", "w16a" },
-    { "setting", TempSetting },
+    { "setting_false", TempSetting },
     { "no_split", "true" }
   });
   // Never split when meeting Olga in Strut E heliport
@@ -644,11 +658,11 @@ startup {
   });
   // Option to split when meeting Prez in Shell 2 Core
   TempSetting = "w31a_prez";
-  settings.Add(TempSetting, true, "Don't split when meeting Prez", "options_plant");
-  settings.SetToolTip(TempSetting, "You will need two Shell 2 Core 1F splits if this is not enabled");
+  settings.Add(TempSetting, true, "Split when meeting Prez", "options_plant");
+  settings.SetToolTip(TempSetting, "You will need two Shell 2 Core 1F splits if this is enabled");
   vars.SpecialRoomChange.Add("w31a", new Dictionary<string, string>() {
     { "current", "wmovie" },
-    { "setting_false", TempSetting }
+    { "setting", TempSetting }
   });
   // Never split when opening the underwater hatch in Shell 2 Core B1
   vars.SpecialNewRoom.Add("d053p01", new Dictionary<string, string>() { // B1 No.1 cutscenes
@@ -669,27 +683,43 @@ startup {
   
   
   // A Wrongdoing: Option to split when meeting Ames in Strut F
-  settings.Add("snaketales_a", true, "A Wrongdoing", "options");
   TempSetting = "snaketales_a_ames";
-  settings.Add(TempSetting, true, "Don't split when meeting Ames", "snaketales_a");
-  settings.SetToolTip(TempSetting, "You will need two Strut F splits if this is not enabled");
+  settings.Add(TempSetting, false, "Split when meeting Ames", "snaketales_a");
+  settings.SetToolTip(TempSetting, "You will need two Strut F splits if this is enabled");
   vars.SpecialRoomChange.Add("a22a", new Dictionary<string, string>() {
     { "current", "tales" },
     { "setting", TempSetting },
     { "no_split", "true" }
   });
 
-  
-  // Big Shell Evil: Option to split when accessing the node in Strut B
-  settings.Add("snaketales_b", true, "Big Shell Evil", "options");
+  // Big Shell Evil: Option to split when meeting Emma in Strut C - details in update
+  TempSetting = "snaketales_b_pantry";
+  settings.Add(TempSetting, false, "Split when meeting Emma in Strut C", "snaketales_b");
+  settings.SetToolTip(TempSetting, "You will need a Strut C split before Guard Rush if this is enabled");
+  // Option to split when accessing the node in Strut B - again, details in update
   TempSetting = "snaketales_b_node";
-  settings.Add(TempSetting, true, "Don't split when accessing the node", "snaketales_b");
-  settings.SetToolTip(TempSetting, "You will need two Strut B splits if this is not enabled");
-  vars.SpecialRoomChange.Add("a14a", new Dictionary<string, string>() {
+  settings.Add(TempSetting, false, "Split when accessing the node", "snaketales_b");
+  settings.SetToolTip(TempSetting, "You will need two Strut B splits if this is enabled");
+  // Option to split when meeting Emma in Strut F
+  TempSetting = "snaketales_b_emma";
+  settings.Add(TempSetting, false, "Split when meeting Emma in Strut F", "snaketales_b");
+  settings.SetToolTip(TempSetting, "You will need two Strut F splits if this is enabled");
+  vars.SpecialRoomChange.Add("a22b", new Dictionary<string, string>() {
     { "current", "tales" },
-    { "setting", TempSetting },
+    { "setting_false", TempSetting },
     { "no_split", "true" }
   });
+  
+  // Confidential Legacy: Never split when meeting Meryl in Deck E
+  vars.SpecialRoomChange.Add("a01e", new Dictionary<string, string>() {
+    { "current", "tales" },
+    {"no_split", "true" }
+  });
+  
+  // External Gazer: Option to split after first AB connecting bridge (1st area) - possible???
+  
+  
+  
   
 }
 
@@ -711,6 +741,7 @@ update {
     bool BigBossFailed = false;
     int BigBossAlertState = 0;
     int STCompletion = 0;
+    bool RoomTracker = false;
     vars.PrevInfo = "";
     
     // Debug message handler
@@ -799,6 +830,7 @@ update {
     Action ResetData = delegate() {
       Continues = -1;
       STCompletion = 0;
+      RoomTracker = false;
       ResetBigBossData();
       ResetBossData();
     };
@@ -841,40 +873,36 @@ update {
     // New snazzy boss watcher
     Func<string, int, int, int> WatchBoss = delegate(string Name, int NewStamina, int NewHealth) {
       if (!settings["boss_insta"]) return -1; // stop watching if insta-splits are disabled
-      //if (Continues == -1) Continues = C(current.Continues);
       
       if ( (BossActive) && ( (NewStamina != BossStamina) || (NewHealth != BossHealth) ) ) {
-        //if (HasContinued()) ResetBossData();
-        //else {
-          if (BossMaxStamina <= 0) {
-            BossMaxStamina = NewStamina;
-            BossMaxHealth = NewHealth;
-          }
-          
-          string DebugDelta = "";
-          if ( (BossStamina != 99999) || (BossHealth != 99999) ) {
-            if (NewHealth < BossHealth) DebugDelta = "[-" + (BossHealth - NewHealth) + "] ";
-            else if (NewStamina < BossStamina) DebugDelta = "[-" + (BossStamina - NewStamina) + "] ";
-          }
-          
-          BossStamina = NewStamina;
-          BossHealth = NewHealth;
-              
-          string DebugStamina = "";
-          string DebugHealth = "";
-          if (NewStamina != 99999) DebugStamina = " Stamina: " + ValueFormat(NewStamina, BossMaxStamina);
-          if (NewHealth != 99999) DebugHealth = " Life: " + ValueFormat(NewHealth, BossMaxHealth);
-          string DebugString = DebugDelta + Name + " |" + DebugStamina + DebugHealth;
-          DebugInfo(DebugString);
-          if ( (NewStamina <= 0) || (NewHealth <= 0) ) {
-            vars.PrevInfo = ""; // boss info will be out of fashion once the next message has timed out...
-            vars.InfoTimer = 180;
-            DebugInfo("Boss defeated!");
-            vars.BlockNextRoom = true;
-            return 1;
-          }
-          vars.PrevInfo = DebugString;
-        //}
+        if (BossMaxStamina <= 0) {
+          BossMaxStamina = NewStamina;
+          BossMaxHealth = NewHealth;
+        }
+        
+        string DebugDelta = "";
+        if (current.RoomTimer > 5) {
+          if (NewHealth < BossHealth) DebugDelta = "[-" + (BossHealth - NewHealth) + "] ";
+          else if (NewStamina < BossStamina) DebugDelta = "[-" + (BossStamina - NewStamina) + "] ";
+        }
+        
+        BossStamina = NewStamina;
+        BossHealth = NewHealth;
+            
+        string DebugStamina = "";
+        string DebugHealth = "";
+        if (NewStamina != 99999) DebugStamina = " Stamina: " + ValueFormat(NewStamina, BossMaxStamina);
+        if (NewHealth != 99999) DebugHealth = " Life: " + ValueFormat(NewHealth, BossMaxHealth);
+        string DebugString = Name + " |" + DebugStamina + DebugHealth;
+        DebugInfo(DebugDelta + DebugString);
+        vars.InfoTimer = 180;
+        if ( (NewStamina <= 0) || (NewHealth <= 0) ) {
+          vars.PrevInfo = ""; // boss info will be out of fashion once the next message has timed out...
+          DebugInfo("Boss defeated!");
+          vars.BlockNextRoom = true;
+          return 1;
+        }
+        vars.PrevInfo = DebugString;
       }
       else if ( (!NoBoss) && (current.RoomTimer > 5) ) {
         if ( (NewStamina == null) || (NewStamina == 0) ) NoBoss = true;
@@ -896,7 +924,7 @@ update {
     vars.SpecialWatchCallback.Add("w00b", WatchOlga);
     
     // Meryl (Confidential Legacy)
-    Func<int> WatchMeryl = () => WatchBoss("Meryl", current.OlgaStamina, 99999);
+    Func<int> WatchMeryl = () => WatchBoss("Meryl", current.OlgaStamina, current.MerylHealth);
     vars.SpecialWatchCallback.Add("a00b", WatchMeryl);
 
     // Fatman the troublemaker
@@ -905,15 +933,15 @@ update {
         if (WatchBoss("Fatman", current.FatmanStamina, C(current.FatmanHealth)) == 1) BossDefeated = true;
       }
       if (BossDefeated) {
-        if (current.FatmanBombsActive < BossCounter) {
-          BossCounter = current.FatmanBombsActive;
-          vars.InfoTimer = 0; // deactivate the "boss defeated" timeout
-          DebugInfo("Bombs remaining: " + Convert.ToString(BossCounter));
-        }
         if (current.FatmanBombsActive == 0) {
           vars.InfoTimer = 180;
           DebugInfo("Boss defeated!");
           return 1; // not necesary to reset boss data as it'll happen in split
+        }
+        if (current.FatmanBombsActive < BossCounter) {
+          BossCounter = current.FatmanBombsActive;
+          vars.InfoTimer = 0; // deactivate the "boss defeated" timeout
+          DebugInfo("Bombs remaining: " + Convert.ToString(BossCounter));
         }
       }
       return 0;
@@ -938,7 +966,8 @@ update {
     // Rays
     Func<int> WatchRays = () => WatchBoss("Rays", 99999, C(current.RaysHealth));
     vars.SpecialWatchCallback.Add("w46a", WatchRays); // Sons of Liberty
-    vars.SpecialWatchCallback.Add("a46a", WatchRays); // External Gazer
+    Func<int> WatchRaysEG = () => WatchBoss("Rays", 99999, C(current.RaysEGHealth));
+    vars.SpecialWatchCallback.Add("a46a", WatchRaysEG); // External Gazer
     
     // Solidus
     Func<int> WatchSolidus = () => WatchBoss("Solidus", current.SolidusStamina, current.SolidusHealth);
@@ -949,19 +978,18 @@ update {
 
     
     // Plant: Filter out the "valid" room change that happens during the torture cutscenes
-    bool TortureSkipNextRoomChange = false;
     Func<int> CallTortureCutscene = delegate() {
       // cutscene > jejunum
       if (current.RoomCode == "w42a") {
         Debug("In the torture sequence: skipping the Jejunum > Stomach room change that occurs during it");
-        TortureSkipNextRoomChange = true;
+        RoomTracker = true;
       }
       return 0;
     };
     Func<int> CallTortureCutscene2 = delegate() {
       // jejunum > stomach (in cutscene)
-      if ( (TortureSkipNextRoomChange) && (current.RoomCode == "w41a") ) {
-        TortureSkipNextRoomChange = false;
+      if ( (RoomTracker) && (current.RoomCode == "w41a") ) {
+        RoomTracker = false;
         return -1;
       }
       return 0;
@@ -1011,6 +1039,44 @@ update {
     };
     vars.SpecialWatchCallback.Add("sselect", WatchSnakeTalesCredits);
     
+    // Big Shell Evil: Option to split when meeting Emma in Strut C
+    Func<int> CallBSEStrutC1 = delegate() {
+      if (current.RoomCode == "a16a") {
+        Debug("Entering Strut C from D: will skip pre-Guard Rush split if enabled in settings");
+        RoomTracker = true;
+      }
+      return 0;
+    };
+    Func<int> CallBSEStrutC2 = delegate() {
+      if (current.RoomCode == "tales") {
+        if (RoomTracker) {
+          RoomTracker = false;
+          return (settings["snaketales_b_pantry"]) ? 1 : -1; // pre-Guard Rush, split on setting
+        }
+        return 1; // post-Guard Rush, always split
+      }
+      return 0; // defer otherwise
+    };
+    vars.SpecialRoomChangeCallback.Add("a17a", CallBSEStrutC1);
+    vars.SpecialRoomChangeCallback.Add("a16a", CallBSEStrutC2);
+    
+    // Big Shell Evil: Option to split when accessing the node in Strut B
+    // (with some extra stuff to tiptoe around the same sequence in External Gazer - this is a bit awkward
+    //  because we can't really tweak the already-awkward Strut C situ in BSE)
+    Func<int> CallEGStrutB = delegate() {
+      RoomTracker = true; // in reverse! set the tracker when we go to EG-only VR
+      return 0;
+    };
+    Func<int> CallBSEStrutB = delegate() {
+      if ( (!RoomTracker) && (current.RoomCode("tales")) ) {
+        RoomTracker = true;
+        return (settings["snaketales_b_node"]) ? 1 : -1;
+      }
+      return 0;
+    };
+    vars.SpecialRoomChangeCallback.Add("ta02a", CallEGStrutB);
+    vars.SpecialRoomChangeCallback.Add("a14a", CallBSEStrutB);
+    
     
     // Scary VR Missions stuff
     List<string> VRMissionsCurrentRooms = new List<string>();
@@ -1051,17 +1117,22 @@ update {
     // Big Boss status for ASLVarViewer
     Func<int> UpdateBigBoss = delegate() {
       if (BigBossFailed) return -1; // we already doned, so no need to process
-      
-      // Possible improvement: only do this once at the start of the mission?
-      vars.ASL_Difficulty = vars.DifficultyHealth[current.MaxHealth];
-      vars.ASL_RadarOn = (current.RadarOn == 32);
 
-      string Message = "";
+      string Status = "";      
       bool BigBoss = false; // it's like the null hypothesis...
       
       do {
+        // Possible improvement: only do this once at the start of the mission?
+        string Difficulty = "";
+        if (!vars.DifficultyHealth.TryGetValue(current.MaxHealth, out Difficulty)) {
+          Status = "Not Main Game";
+          break;
+        }
+        vars.ASL_Difficulty = Difficulty;
+        vars.ASL_RadarOn = (current.RadarOn == 32);
+        
         if (vars.ASL_Difficulty == "Very Easy") {
-          Message = "On Very Easy";
+          Status = "On Very Easy";
           break;
         }
         
@@ -1069,23 +1140,23 @@ update {
         int DamageLimit = (vars.ASL_Difficulty == "European Extreme") ? 279 : 499; // prob incorrect for easier difficulties
       
         // If radar is on...
-        if (vars.ASL_RadarOn) { Message = "Radar is enabled"; break; }
+        if (vars.ASL_RadarOn) { Status = "Radar is enabled"; break; }
         // If over 3 alerts (only allowing for the mandatory ones when they appear)...
-        if (vars.ASL_Alerts > BigBossAlertState) { Message = "Over Alerts limit"; break; }
+        if (vars.ASL_Alerts > BigBossAlertState) { Status = "Over Alerts limit"; break; }
         // If has continued...
-        if (vars.ASL_Continues > 0) { Message = "Over Continues limit"; break; }
+        if (vars.ASL_Continues > 0) { Status = "Over Continues limit"; break; }
         // If has killed...
-        if (vars.ASL_Kills > 0) { Message = "Over Kills limit"; break; }
+        if (vars.ASL_Kills > 0) { Status = "Over Kills limit"; break; }
         // If has eaten rations...
-        if (vars.ASL_Rations > 0) { Message = "Over Rations limit"; break; }
+        if (vars.ASL_Rations > 0) { Status = "Over Rations limit"; break; }
         // If time is 3h00m01s or more
-        if (current.GameTime > ((60/*f*/ * 60/*s*/ * 60/*m*/ * 3/*h*/) + 59)) { Message = "Over Time limit"; break; }
+        if (current.GameTime > ((60/*f*/ * 60/*s*/ * 60/*m*/ * 3/*h*/) + 59)) { Status = "Over Time limit"; break; }
         // If has saved more than 8 times...
-        if (vars.ASL_Saves > 8) { Message = "Over Saves limit"; break; }
+        if (vars.ASL_Saves > 8) { Status = "Over Saves limit"; break; }
         // If has taken too much damage...
-        if (vars.ASL_DamageTaken > DamageLimit) { Message = "Over Damage Taken limit"; break; }
+        if (vars.ASL_DamageTaken > DamageLimit) { Status = "Over Damage Taken limit"; break; }
         // If has shot a decent number of bullets...
-        if (vars.ASL_Shots > 700) { Message = "Over Shots Fired limit"; break; }
+        if (vars.ASL_Shots > 700) { Status = "Over Shots Fired limit"; break; }
         BigBoss = true;
       }
       while (false);
@@ -1093,7 +1164,7 @@ update {
       if (BigBoss) return 1;
 
       BigBossFailed = true;
-      vars.ASL_BestCodeName = Message;
+      vars.ASL_BestCodeName = Status;
       return 0;
     };
     vars.UpdateBigBoss = UpdateBigBoss;
@@ -1111,7 +1182,6 @@ update {
         //vars.Debug(Snake ? "Snake" : "Raiden");
         //vars.Debug(C(current.GripMultiplier).ToString());
         
-        vars.ASL_CurrentRoomCode = current.RoomCode;
         vars.ASL_Shots = C(current.Shots);
         vars.ASL_Alerts = C(current.Alerts);
         vars.ASL_Continues = C(current.Continues);
@@ -1237,6 +1307,7 @@ split {
   
   if (current.RoomCode == old.RoomCode) return false; // room is unchanged
   
+  vars.ASL_CurrentRoomCode = current.RoomCode;
   vars.ASL_CurrentRoom = vars.GetRoomName(current.RoomCode);
   vars.ASL_Info = (settings["aslvv_info_room"]) ? vars.ASL_CurrentRoom : "";
   vars.UpdateBigBoss();
