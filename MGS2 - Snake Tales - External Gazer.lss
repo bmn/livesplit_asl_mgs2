@@ -5,8 +5,7 @@
   <CategoryName>Snake Tales: External Gazer</CategoryName>
   <Metadata>
     <Run id="" />
-    <Platform usesEmulator="False">
-    </Platform>
+    <Platform usesEmulator="False">PC</Platform>
     <Region>
     </Region>
     <Variables />
@@ -18,126 +17,98 @@
     <Segment>
       <Name>AB connecting bridge</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>CD connecting bridge</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Strut C Dining Hall</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>BC connecting bridge</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Strut B Transformer Room</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>AB connecting bridge</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Gurlugon</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Snake Sneaking Level 3</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Snake Handgun Level 3</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Snake Eliminate All Level 5</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Snake Sneaking Level 8</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Rays</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Solidus</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>External Gazer</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>

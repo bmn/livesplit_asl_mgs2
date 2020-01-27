@@ -5,8 +5,7 @@
   <CategoryName>Snake Tales: A Wrongdoing (Hostages)</CategoryName>
   <Metadata>
     <Run id="" />
-    <Platform usesEmulator="False">
-    </Platform>
+    <Platform usesEmulator="False">PC</Platform>
     <Region>
     </Region>
     <Variables />
@@ -18,81 +17,63 @@
     <Segment>
       <Name>Strut A roof</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Strut A Pump Room</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>FA connecting bridge</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Strut F warehouse</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>EF connecting bridge</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Strut E Parcel Room</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Strut E heliport</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Fatman</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>A Wrongdoing</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>

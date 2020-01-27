@@ -199,7 +199,7 @@ startup {
       "d045p01", "Shell 1-2 connecting bridge Harrier intro",
       "d046p01", "Shell 1-2 connecting bridge Harrier outro",
       "w25b", "Shell 1-2 connecting bridge (after Harrier)",
-      "w25c", "Strut L perimeter",
+      "w25c", "KL connecting bridge", // "Strut L perimeter" in-game
       "w25d", "KL connecting bridge",
       "d063p01", "KL connecting bridge cutscene",
       "w28a", "Strut L Sewage Treatment Facility",
@@ -1115,6 +1115,7 @@ update {
     vars.VRLogMission = VRLogMission;
     
     // Big Boss status for ASLVarViewer
+    // TODO perfect stats if on a non-BB mode
     Func<int> UpdateBigBoss = delegate() {
       if (BigBossFailed) return -1; // we already doned, so no need to process
 

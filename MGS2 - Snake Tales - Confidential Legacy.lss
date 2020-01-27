@@ -5,8 +5,7 @@
   <CategoryName>Snake Tales: Confidential Legacy</CategoryName>
   <Metadata>
     <Run id="" />
-    <Platform usesEmulator="False">
-    </Platform>
+    <Platform usesEmulator="False">PC</Platform>
     <Region>
     </Region>
     <Variables />
@@ -18,207 +17,161 @@
     <Segment>
       <Name>Aft Deck</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Deck-A, crew's quarters</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Deck-A, crew's lounge</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Deck-B, crew's quarters</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Deck-C, crew's quarters</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Deck-D, crew's quarters</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Deck-E, the bridge</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Deck-D, crew's quarters</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Deck-C, crew's quarters</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Deck-B, crew's quarters</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Deck-A, crew's lounge</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Engine Room</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Deck-2, port</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Deck-2, starboard</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Guard Rush</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Deck-2, port</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Engine Room</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Deck-A, crew's lounge</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Deck-B, crew's quarters</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Deck-C, crew's quarters</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Deck-D, crew's quarters</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Meryl</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
       <Name>Confidential Legacy</Name>
       <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
+      <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
