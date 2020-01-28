@@ -1103,8 +1103,14 @@ update {
         }
         return false;
       };
-      // Otherwise, add the current room to the list
-      if (!VRMissionsCurrentRooms.Contains(RoomCode)) VRMissionsCurrentRooms.Add(RoomCode);
+      // Otherwise, add the current room to the list:
+      // Do nothing if we just did this room
+      int VRCount = VRMissionsCurrentRooms.Count;
+      if ( (VRCount > 0) && (VRMissionsCurrentRooms[VRCount - 1] == RoomCode) ) return false; 
+      // Remove the duplicate if it's not the most recent
+      if (VRMissionsCurrentRooms.Contains(RoomCode)) VRMissionsCurrentRooms.Remove(RoomCode);
+      // Add this room as most recent
+      VRMissionsCurrentRooms.Add(RoomCode);
       Debug("Entered [" + RoomCode + "] " + vars.GetRoomName(current.RoomCode) + ", adding to current roomset > " + vars.VRMissionHash(VRMissionsCurrentRooms));
       return false;
     };
