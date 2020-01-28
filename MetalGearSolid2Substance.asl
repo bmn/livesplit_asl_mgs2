@@ -328,16 +328,16 @@ startup {
     { "vr_c4", new List<string>() { "wp21a", "wp22a", "wp23a", "wp24a", "wp25a" } },
     // Grenade
     { "vr_grenade", new List<string>() { "wp31a", "wp32a", "wp33a", "wp34a", "wp35a" } },
+    // PSG-1
+    { "vr_psg1", new List<string>() { "wp41a", "wp42a", "wp43a", "wp44a", "wp45a" } },
     // Stinger
-    { "vr_stinger", new List<string>() { "wp41a", "wp42a", "wp43a", "wp44a", "wp45a" } },
+    { "vr_stinger", new List<string>() { "wp51a", "wp52a", "wp53a", "wp54a", "wp55a" } },
     // Nikita
-    { "vr_nikita", new List<string>() { "wp51a", "wp52a", "wp53a", "wp54a", "wp55a" } },
-    // HF Blade
-    { "vr_hf_blade", new List<string>() { "wp61a", "wp62a", "wp63a", "wp64a", "wp65a" } },
-    // No Weapon
+    { "vr_nikita", new List<string>() { "wp61a", "wp62a", "wp63a", "wp64a", "wp65a" } },
+    // HF.Blade/No Weapon
     { "vr_no_weapon", new List<string>() { "wp71a", "wp72a", "wp73a", "wp74a", "wp75a" } },
     // First Person
-    { "vr_first_person", new List<string>() { "sp21a", "sp22a", "sp23a", "sp24a", "sp25a" } },
+    { "vr_first_person", new List<string>() { "sp21a", "sp22a", "sp24a", "sp25a" } },
     // Variety (will trigger Ninja Variety if only 8 is played before menu,
     //   MGS1 variety if 3/6/8 are played, or Pliskin/Tuxedo Variety is 6/8 are played)
     { "vr_variety", new List<string>() { "sp01a", "sp02a", "sp03a", "sp06a", "sp07a", "sp08a" } },
@@ -420,36 +420,36 @@ startup {
     { "wp13a", "Assault Rifle 3"},
     { "wp14a", "Assault Rifle 4"},
     { "wp15a", "Assault Rifle 5"},
-    { "wp21a", "C4 1"},
-    { "wp22a", "C4 2"},
-    { "wp23a", "C4 3"},
-    { "wp24a", "C4 4"},
-    { "wp25a", "C4 5"},
+    { "wp21a", "C4/Claymore 1"},
+    { "wp22a", "C4/Claymore 2"},
+    { "wp23a", "C4/Claymore 3"},
+    { "wp24a", "C4/Claymore 4"},
+    { "wp25a", "C4/Claymore 5"},
     { "wp31a", "Grenade 1"},
     { "wp32a", "Grenade 2"},
     { "wp33a", "Grenade 3"},
     { "wp34a", "Grenade 4"},
     { "wp35a", "Grenade 5"},
-    { "wp41a", "Stinger 1"},
-    { "wp42a", "Stinger 2"},
-    { "wp43a", "Stinger 3"},
-    { "wp44a", "Stinger 4"},
-    { "wp45a", "Stinger 5"},
-    { "wp51a", "Nikita 1"},
-    { "wp52a", "Nikita 2"},
-    { "wp53a", "Nikita 3"},
-    { "wp54a", "Nikita 4"},
-    { "wp55a", "Nikita 5"},
-    { "wp61a", "HF Blade 1"},
-    { "wp62a", "HF Blade 2"},
-    { "wp63a", "HF Blade 3"},
-    { "wp64a", "HF Blade 4"},
-    { "wp65a", "HF Blade 5"},
-    { "wp71a", "No Weapon 1"},
-    { "wp72a", "No Weapon 2"},
-    { "wp73a", "No Weapon 3"},
-    { "wp74a", "No Weapon 4"},
-    { "wp75a", "No Weapon 5"},
+    { "wp41a", "PSG-1 1"},
+    { "wp42a", "PSG-1 2"},
+    { "wp43a", "PSG-1 3"},
+    { "wp44a", "PSG-1 4"},
+    { "wp45a", "PSG-1 5"},
+    { "wp51a", "Stinger 1"},
+    { "wp52a", "Stinger 2"},
+    { "wp53a", "Stinger 3"},
+    { "wp54a", "Stinger 4"},
+    { "wp55a", "Stinger 5"},
+    { "wp61a", "Nikita 1"},
+    { "wp62a", "Nikita 2"},
+    { "wp63a", "Nikita 3"},
+    { "wp64a", "Nikita 4"},
+    { "wp65a", "Nikita 5"},
+    { "wp71a", "HF Blade/No Weapon 1"},
+    { "wp72a", "HF Blade/No Weapon 2"},
+    { "wp73a", "HF Blade/No Weapon 3"},
+    { "wp74a", "HF Blade/No Weapon 4"},
+    { "wp75a", "HF Blade/No Weapon 5"},
     { "sp21a", "First Person View 1"},
     { "sp22a", "First Person View 2"},
     { "sp23a", "First Person View 3"},
@@ -616,12 +616,14 @@ startup {
   vars.VRMissions = false;
   // Hash function
   Func< List<string>, string > VRMissionHash = delegate(List<string> roomset) {
-    roomset.Sort();
-    return String.Join(";", roomset);
+    string[] array = roomset.ToArray();
+    Array.Sort(array);
+    return String.Join(";", array);
   };
   Func< List<string>, int, string > VRMissionHashRange = delegate(List<string> roomset, int range) {
     int length = roomset.Count();
-    return VRMissionHash( roomset.GetRange(length - range, range) );
+    List<string> slice = roomset.GetRange(length - range, range).ToArray().ToList();
+    return VRMissionHash(slice);
   };
   vars.VRMissionHash = VRMissionHash;
   vars.VRMissionHashRange = VRMissionHashRange;
@@ -1088,6 +1090,7 @@ update {
         foreach (int VRLength in vars.VRMissionLengths) {
           if (VRLength > CurrentLen) continue; // no point if the roomset is already bigger than our current one
           string Hash = vars.VRMissionHashRange(VRMissionsCurrentRooms, VRLength); // current hash with appropriate length
+          vars.Debug("Checking hash " + Hash);
           string VRCategory = "";
           if (vars.VRMissionSignatures.TryGetValue(Hash, out VRCategory)) {
             if ( (!settings.ContainsKey(VRCategory)) || (settings[VRCategory]) ) {
