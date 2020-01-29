@@ -7,7 +7,8 @@ Bug reports are welcomed so they can be stamped out, as is discussion of locatio
 
 # Right now...
 * A small amount of split logic is untested, and it's missing some split options that some players may want to set
-* The ARMSTREN ASL Var Viewer variable only works for Raiden.
+* Boss health watching/splitting for Meryl (Confidential Legacy) is broken some of the time
+* The ARMSTREN ASL Var Viewer variable only works for Raiden
 
 # Features
 * Automatic splitting for Tanker, Plant, Snake Tales, and VR Missions (per-category)
