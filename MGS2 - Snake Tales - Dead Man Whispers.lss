@@ -106,6 +106,13 @@
       <SegmentHistory />
     </Segment>
     <Segment>
+      <Name>Shell 2 Core, 1F Air Purification Room (with Nikita)</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
       <Name>Shell 2 Core, 1F Air Purification Room</Name>
       <Icon />
       <SplitTimes />

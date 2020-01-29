@@ -31,7 +31,7 @@ state("mgs2_sse") {
   byte2     STCompletionCheck: 0x13A178C; // This value rises slowly from 0 during credits to about 260, then goes back to 0 at results
 
   byte      OlgaStamina: 0xAD4F6C, 0x0, 0x1E0, 0x44, 0x1F8, 0x13C;
-  byte      MerylHealth: 0xB6DEC4, 0x284;
+  byte      MerylHealth: 0xB6DEC4, 0x284; // TODO not working all the time, find this again
 
   byte2     FatmanHealth: 0xB6DEC4, 0x24E;
   int       FatmanStamina: 0x664E78, 0x88;
@@ -105,6 +105,7 @@ start {
   
   // Enable VR Missions mode if coming from the missions menu
   if (old.RoomCode == "mselect") vars.VRMissionsEnable();
+  else if (vars.VRMissions) vars.VRMissions = false;
   
   // Might as well!
   vars.ResetData(); // resetting on an unbeaten boss can cause some really bad things to happen in insta
@@ -690,7 +691,7 @@ startup {
   settings.SetToolTip(TempSetting, "You will need two Strut F splits if this is enabled");
   vars.SpecialRoomChange.Add("a22a", new Dictionary<string, string>() {
     { "current", "tales" },
-    { "setting", TempSetting },
+    { "setting_false", TempSetting },
     { "no_split", "true" }
   });
 
@@ -715,7 +716,7 @@ startup {
   // Confidential Legacy: Never split when meeting Meryl in Deck E
   vars.SpecialRoomChange.Add("a01e", new Dictionary<string, string>() {
     { "current", "tales" },
-    {"no_split", "true" }
+    { "no_split", "true" }
   });
   
   // External Gazer: Option to split after first AB connecting bridge (1st area) - possible???
@@ -743,7 +744,13 @@ update {
     bool BigBossFailed = false;
     int BigBossAlertState = 0;
     int STCompletion = 0;
-    bool RoomTracker = false;
+    bool RoomTrackerT = false;
+    bool RoomTrackerP = false;
+    bool RoomTrackerA = false;
+    bool RoomTrackerB = false;
+    bool RoomTrackerC = false;
+    bool RoomTrackerD = false;
+    bool RoomTrackerE = false;
     vars.PrevInfo = "";
     
     // Debug message handler
@@ -832,7 +839,13 @@ update {
     Action ResetData = delegate() {
       Continues = -1;
       STCompletion = 0;
-      RoomTracker = false;
+      RoomTrackerT = false;
+      RoomTrackerP = false;
+      RoomTrackerA = false;
+      RoomTrackerB = false;
+      RoomTrackerC = false;
+      RoomTrackerD = false;
+      RoomTrackerE = false;
       ResetBigBossData();
       ResetBossData();
     };
@@ -984,14 +997,14 @@ update {
       // cutscene > jejunum
       if (current.RoomCode == "w42a") {
         Debug("In the torture sequence: skipping the Jejunum > Stomach room change that occurs during it");
-        RoomTracker = true;
+        RoomTrackerP = true;
       }
       return 0;
     };
     Func<int> CallTortureCutscene2 = delegate() {
       // jejunum > stomach (in cutscene)
-      if ( (RoomTracker) && (current.RoomCode == "w41a") ) {
-        RoomTracker = false;
+      if ( (RoomTrackerP) && (current.RoomCode == "w41a") ) {
+        RoomTrackerP = false;
         return -1;
       }
       return 0;
@@ -1044,15 +1057,15 @@ update {
     // Big Shell Evil: Option to split when meeting Emma in Strut C
     Func<int> CallBSEStrutC1 = delegate() {
       if (current.RoomCode == "a16a") {
-        Debug("Entering Strut C from D: will skip pre-Guard Rush split if enabled in settings");
-        RoomTracker = true;
+        Debug("[BSE] Entering Strut C from D: will skip pre-Guard Rush split if enabled in settings");
+        RoomTrackerB = true;
       }
       return 0;
     };
     Func<int> CallBSEStrutC2 = delegate() {
       if (current.RoomCode == "tales") {
-        if (RoomTracker) {
-          RoomTracker = false;
+        if (RoomTrackerB) {
+          RoomTrackerB = false;
           return (settings["snaketales_b_pantry"]) ? 1 : -1; // pre-Guard Rush, split on setting
         }
         return 1; // post-Guard Rush, always split
@@ -1066,12 +1079,12 @@ update {
     // (with some extra stuff to tiptoe around the same sequence in External Gazer - this is a bit awkward
     //  because we can't really tweak the already-awkward Strut C situ in BSE)
     Func<int> CallEGStrutB = delegate() {
-      RoomTracker = true; // in reverse! set the tracker when we go to EG-only VR
+      RoomTrackerE = true; // in reverse! set the tracker when we go to EG-only VR
       return 0;
     };
     Func<int> CallBSEStrutB = delegate() {
-      if ( (!RoomTracker) && (current.RoomCode("tales")) ) {
-        RoomTracker = true;
+      if ( (!RoomTrackerE) && (current.RoomCode == "tales") ) {
+        RoomTrackerE = false;
         return (settings["snaketales_b_node"]) ? 1 : -1;
       }
       return 0;
