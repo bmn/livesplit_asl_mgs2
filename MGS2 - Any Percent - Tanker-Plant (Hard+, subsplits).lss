@@ -540,28 +540,7 @@
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>-Strut B Transformer Room</Name>
-      <Icon />
-      <SplitTimes />
-      <BestSegmentTime />
-      <SegmentHistory />
-    </Segment>
-    <Segment>
-      <Name>-BC connecting bridge</Name>
-      <Icon />
-      <SplitTimes />
-      <BestSegmentTime />
-      <SegmentHistory />
-    </Segment>
-    <Segment>
-      <Name>-Strut C Dining Hall</Name>
-      <Icon />
-      <SplitTimes />
-      <BestSegmentTime />
-      <SegmentHistory />
-    </Segment>
-    <Segment>
-      <Name>-CD connecting bridge</Name>
+      <Name>-DE connecting bridge</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
