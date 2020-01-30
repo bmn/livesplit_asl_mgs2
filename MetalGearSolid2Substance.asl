@@ -911,7 +911,7 @@ update {
           }
           
           string DebugDelta = "";
-          if (BossStamina != 99999) {
+          if ( (BossStamina != 99999) || (BossHealth != 99999) ) {
             if (NewHealth < BossHealth) DebugDelta = "[-" + (BossHealth - NewHealth) + "] ";
             else if (NewStamina < BossStamina) DebugDelta = "[-" + (BossStamina - NewStamina) + "] ";
           }
@@ -939,11 +939,14 @@ update {
           vars.PrevInfo = DebugString;
         }
         else if ( (!NoBoss) && (!BossActive) && (current.RoomTimer < 60) ) {
-          if ( (NewStamina == null) || (NewStamina == 0) ) {
+          if ( (NewStamina == null) || (NewStamina == 0) || (NewHealth == null) || (NewHealth == 0) ) {
             vars.Debug("No boss in this area");
             NoBoss = true;
           }
-          else BossActive = true;
+          else {
+            vars.Debug("Boss battle vs " + Name);
+            BossActive = true;
+          }
         }
       }
       // Reset our data and start again if the room has reloaded
@@ -957,7 +960,7 @@ update {
     
     // Olga
     Func<int> WatchOlga = delegate() {
-      int Stamina = (vars.BossRush == true) ? current.OlgaRushStamina : current.OlgaStamina;
+      int Stamina = (vars.BossRush) ? current.OlgaRushStamina : current.OlgaStamina;
       return WatchBoss("Olga", Stamina, 99999);
     };
     vars.SpecialWatchCallback.Add("w00b", WatchOlga);
@@ -972,6 +975,10 @@ update {
         if (WatchBoss("Fatman", current.FatmanStamina, C(current.FatmanHealth)) == 1) BossDefeated = true;
       }
       if (BossDefeated) {
+        if (HasContinued()) {
+          ResetBossData();
+          return 0;
+        }
         if (current.FatmanBombsActive == 0) {
           vars.InfoTimer = 180;
           DebugInfo("Boss defeated!");
@@ -1197,7 +1204,7 @@ update {
         // If has killed...
         if (vars.ASL_Kills > 0) PerfectStatus.Add(vars.ASL_Kills + ((settings["aslvv_boss_long"]) ? " Kills" : "K"));
         // If has eaten rations...
-        if (vars.ASL_Rations > 0) PerfectStatus.Add(vars.ASL_Rations + ((settings["aslvv_boss_long"]) ? " Rations" : "T"));
+        if (vars.ASL_Rations > 0) PerfectStatus.Add(vars.ASL_Rations + ((settings["aslvv_boss_long"]) ? " Rations" : "R"));
         
         // Big Boss-only stats
         if (!PerfectStats) {
