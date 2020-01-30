@@ -7,7 +7,7 @@ Bug reports are welcomed so they can be stamped out, as is discussion of locatio
 
 # Right now...
 * A small amount of split logic is untested, and it's missing some split options that some players may want to set
-* Boss health watching/splitting for Meryl (Confidential Legacy) is broken some of the time
+* Boss Survival does not work correctly with the instant splitter, and it does not split after Solidus at all.
 * The ARMSTREN ASL Var Viewer variable only works for Raiden
 
 # Features
@@ -31,14 +31,18 @@ Bug reports are welcomed so they can be stamped out, as is discussion of locatio
 
 # ASL Var Viewer
 The following variables are available in the Variables category:
+
+Analysis:
+* **ASL_BestCodeName** Shows the best codename available on the current difficulty, or the reason(s) you have already missed it. This can be used to keep track of Big Boss runs.
+* **ASL_Info** Shows info relevant to your current situation, including boss health values and grip/O2/chaff info. Can also be set to show your location (as *ASL_CurrentRoom*) when no contextual info is available.
+
+Other stats:
 * **ASL_Alerts** Number of Alerts
-* **ASL_BestCodeName** Shows the best codename available on the current difficulty (except for Very Easy). If you have already failed the requirements, it will instead show the first requirement missed. This can be used to keep track of Big Boss runs.
 * **ASL_Continues** Number of Continues
 * **ASL_CurrentRoom** The current game location
 * **ASL_CurrentRoomCode** The game's internal code for the current location
 * **ASL_DamageTaken** Amount of Damage taken [More info](https://metalgearspeedrunners.com/wiki/doku.php?id=mgs2_difficulty_differences#health_values)
 * **ASL_Difficulty** The name of the current difficulty
-* **ASL_Info** Shows info relevant to your current situation, including boss health values, and information on your grip (when hanging) and O2 (when swimming). Can also be set to show your location (as *ASL_CurrentRoom*) when no contextual info is available.
 * **ASL_MechsDestroyed** Number of mechs (Cyphers, etc.) destroyed. This was previously thought to contribute to your codename, but is not actually relevant.
 * **ASL_Kills** Number of people Killed
 * **ASL_Rations** Number of Rations used
