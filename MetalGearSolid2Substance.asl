@@ -520,6 +520,7 @@ startup {
   vars.ASL_Rations = 0;
   vars.ASL_Kills = 0;
   vars.ASL_DamageTaken = 0;
+  vars.ASL_LastDamage = 0;
   vars.ASL_Saves = 0;
   vars.ASL_MechsDestroyed = 0;
   vars.ASL_Strength = 0;
@@ -549,6 +550,7 @@ startup {
       settings.Add("aslvv_info_max", true, "ASL_Info: Show both the current and maximum value (raw values only)", "aslvv");
       settings.Add("aslvv_info_o2health", false, "ASL_Info -> O2: Also show the time remaining from Life", "aslvv");
       settings.Add("aslvv_boss_long", false, "ASL_BestCodeName -> Show full stat names instead of letters", "aslvv");
+      settings.SetToolTip("aslvv_boss_long", "This may result in a very long string if you fail multiple stats");
       
       settings.Add("snaketales_a", true, "A Wrongdoing", "options_snaketales");
       settings.Add("snaketales_b", true, "Big Shell Evil", "options_snaketales");
@@ -679,6 +681,11 @@ startup {
   // Never split when opening the underwater hatch in Shell 2 Core B1
   vars.SpecialNewRoom.Add("d053p01", new Dictionary<string, string>() { // B1 No.1 cutscenes
     { "old", "w31b" },
+    { "no_split", "true" }
+  });
+  // Never split immediately when starting Plant on it's own!
+  vars.SpecialRoomChange.Add("museum", new Dictionary<string, string>() {
+    { "old", "ending" },
     { "no_split", "true" }
   });
   /*
@@ -925,7 +932,7 @@ update {
           if (NewHealth != 99999) DebugHealth = " Life: " + ValueFormat(NewHealth, BossMaxHealth);
           string DebugString = Name + " |" + DebugStamina + DebugHealth;
           DebugInfo(DebugDelta + DebugString);
-          vars.InfoTimer = 180;
+          vars.InfoTimer = 300;
           if ( (NewStamina <= 0) || (NewHealth <= 0) ) {
             if (HasContinued()) { // making sure the no-health thing isn't just the game resetting health
               ResetBossData();
@@ -1226,9 +1233,9 @@ update {
         }
         if (PerfectStatus.Count > 0) {
           vars.ASL_BestCodeName = "";
-          Status = String.Join((settings["aslvv_boss_long"]) ? ", " : " ", PerfectStatus);
+          Status = String.Join((settings["aslvv_boss_long"]) ? ", " : " ", PerfectStatus) + " " + Status;
         }
-        if (Status != "") vars.ASL_BestCodeName = vars.ASL_BestCodeName + " " + Status;
+        if (Status != "") vars.ASL_BestCodeName = vars.ASL_BestCodeName + " " + Status.Trim();
       }
     };
     vars.UpdateBigBoss = UpdateBigBoss;
@@ -1246,12 +1253,15 @@ update {
         //vars.Debug(Snake ? "Snake" : "Raiden");
         //vars.Debug(C(current.GripMultiplier).ToString());
         
+        int CurrentDamage = C(current.Damage);
+        if (CurrentDamage > vars.ASL_DamageTaken) vars.ASL_LastDamage = (CurrentDamage - vars.ASL_DamageTaken);
+        
         vars.ASL_Shots = C(current.Shots);
         vars.ASL_Alerts = C(current.Alerts);
         vars.ASL_Continues = C(current.Continues);
         vars.ASL_Rations = C(current.Rations);
         vars.ASL_Kills = C(current.Kills);
-        vars.ASL_DamageTaken = C(current.Damage);
+        vars.ASL_DamageTaken = CurrentDamage;
         vars.ASL_Saves = C(current.Saves);
         vars.ASL_MechsDestroyed = C(current.Mechs);
         vars.ASL_Strength = C(current.StrengthRaiden); //C(Snake ? current.StrengthSnake : current.StrengthRaiden);
