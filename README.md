@@ -7,22 +7,21 @@ Bug reports are welcomed so they can be stamped out, as is discussion of locatio
 
 # Right now...
 * A small amount of split logic is untested, and it's missing some split options that some players may want to set
-* Boss Survival does not work correctly with the instant splitter, and it does not split after Solidus at all.
 * The ARMSTREN ASL Var Viewer variable only works for Raiden
+* In Boss Survival, instant split mode does not function for Olga, Guard Rush and Tengus (those splits will appear when the next battle begins), and in regular split mode there is no split after Solidus. It's recommended to use instant split mode.
 
 # Features
-* Automatic splitting for Tanker, Plant, Snake Tales, and VR Missions (per-category)
+* Automatic splitting for Tanker, Plant, Snake Tales, Boss Survival, and VR Missions (per-category)
 * Instant splitting when you defeat a boss
-* ASL Var Viewer support for room names, game stats, and live information including boss health
-* Big Boss (or equivalent) Tanker-Plant rank status for ASL Var Viewer
+* ASL Var Viewer support for room names, game stats, live information including boss health, and your current Big Boss/Perfect Stats status.
 
 ![Screenshot](README.png)
 
 # Notes
 * The LSL files included here will work with the default split location settings. See the mouseover tooltips on each split-related setting in Advanced Options for advice on what to add or remove from your splits.
   * If you want to only show major splits, or categorise splits, in your LiveSplit layout: open a "subsplits" LSL file, and use a Subsplits component and select "Always Hide Subsplits".
-  * The "Normal-" files exit Aft Deck to Deck-B, and go clockwise (starting at Strut D) for the early bomb hunt.
-  * The "Hard+" files exit Aft Deck to Deck-A, and go anticlockwise (starting at Strut B) for the early bomb hunt.
+  * The "Easy-Normal" files exit Aft Deck to Deck-B, and go clockwise (starting at Strut D) for the early bomb hunt. The "Very Easy" file also goes directly from Strut E to Shell 1 Core.
+  * The "Hard-EuEx" files exit Aft Deck to Deck-A, and go anticlockwise (starting at Strut B) for the early bomb hunt.
 * There are two modes for boss splits. If you would like to use the simpler mode that splits on fadeout, disable the autosplitter setting for it.
 * VR Missions splitting is done per-category, when you exit back to the missions menu. Visiting a mission (not beating it!) is usually sufficient to log it, so it's possible to trigger accidentally if you give up on a mission and exit out.
   * Raiden (Ninja), Pliskin, Tuxedo Snake and Snake (MGS1) have Variety categories that are entirely contained within the larger Variety mission set the other characters have. To avoid accidentally triggering the smaller categories, they're disabled in settings.
@@ -33,7 +32,7 @@ Bug reports are welcomed so they can be stamped out, as is discussion of locatio
 The following variables are available in the Variables category:
 
 Analysis:
-* **ASL_BestCodeName** Shows the best codename available on the current difficulty, or the reason(s) you have already missed it. This can be used to keep track of Big Boss runs.
+* **ASL_BestCodeName** Shows the best codename available on the current difficulty, or the reason(s) you have already missed it. This can be used to keep track of Big Boss runs. It updates every time you enter a new room.
 * **ASL_Info** Shows info relevant to your current situation, including boss health values and grip/O2/chaff info. Can also be set to show your location (as *ASL_CurrentRoom*) when no contextual info is available.
 
 Other stats:
@@ -45,6 +44,7 @@ Other stats:
 * **ASL_Difficulty** The name of the current difficulty
 * **ASL_MechsDestroyed** Number of mechs (Cyphers, etc.) destroyed. This was previously thought to contribute to your codename, but is not actually relevant.
 * **ASL_Kills** Number of people Killed
+* **ASL_LastDamage** Amount of Damage taken from the most recent damage event
 * **ASL_Rations** Number of Rations used
 * **ASL_RoomTimer** The number of frames (60/sec) spent in the current room. This can be used to aid in strategy finding.
 * **ASL_Saves** Number of Saves
