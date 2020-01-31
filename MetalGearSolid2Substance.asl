@@ -549,8 +549,8 @@ startup {
       settings.Add("aslvv_info_percent", true, "ASL_Info: Show numbers as percentages instead", "aslvv");
       settings.Add("aslvv_info_max", true, "ASL_Info: Show both the current and maximum value (raw values only)", "aslvv");
       settings.Add("aslvv_info_o2health", false, "ASL_Info -> O2: Also show the time remaining from Life", "aslvv");
-      settings.Add("aslvv_boss_long", false, "ASL_BestCodeName -> Show full stat names instead of letters", "aslvv");
-      settings.SetToolTip("aslvv_boss_long", "This may result in a very long string if you fail multiple stats");
+      settings.Add("aslvv_boss_short", false, "ASL_BestCodeName -> Show single letters for stat names", "aslvv");
+      settings.SetToolTip("aslvv_boss_short", "Enable this if the full stat names make the message too long");
       
       settings.Add("snaketales_a", true, "A Wrongdoing", "options_snaketales");
       settings.Add("snaketales_b", true, "Big Shell Evil", "options_snaketales");
@@ -884,9 +884,12 @@ update {
     };
     vars.ValueFormat = ValueFormat;
     
+    Func<int, string, string, string> Plural = (Var, Singular, Pluralular) => (Var != 1) ? Pluralular : Singular;
+    
 
-    /*
+    
     // Temporary boss watcher to examine what health values do
+    /*
     Func<string, int, int, int> WatchBoss = delegate(string Name, int CurrentStamina, int CurrentHealth) {
       if (Continues == -1) Continues = C(current.Continues);
       else if (HasContinued()) {
@@ -961,7 +964,7 @@ update {
       
       return 0;
     };
-    
+   
 
     // BOSSES
     
@@ -1205,35 +1208,35 @@ update {
         int DamageLimit = (vars.ASL_Difficulty == "European Extreme") ? 279 : 499; // prob incorrect for easier difficulties
       
         // If over 3 alerts (only allowing for the mandatory ones when they appear)...
-        if (vars.ASL_Alerts > BigBossAlertState) PerfectStatus.Add(vars.ASL_Alerts + "A");
+        if (vars.ASL_Alerts > BigBossAlertState) PerfectStatus.Add(vars.ASL_Alerts + ((settings["aslvv_boss_short"]) ? "A" : Plural(vars.ASL_Alerts, " Alert", " Alerts")) );
         // If has continued...
-        if (vars.ASL_Continues > 0) PerfectStatus.Add(vars.ASL_Continues + ((settings["aslvv_boss_long"]) ? " Continues" : "C"));
+        if (vars.ASL_Continues > 0) PerfectStatus.Add( vars.ASL_Continues + ((settings["aslvv_boss_short"]) ? "C" : Plural(vars.ASL_Continues, " Continue", " Continues")) );
         // If has killed...
-        if (vars.ASL_Kills > 0) PerfectStatus.Add(vars.ASL_Kills + ((settings["aslvv_boss_long"]) ? " Kills" : "K"));
+        if (vars.ASL_Kills > 0) PerfectStatus.Add( vars.ASL_Kills + ((settings["aslvv_boss_short"]) ? "K" : Plural(vars.ASL_Kills, " Kill", " Kills")) );
         // If has eaten rations...
-        if (vars.ASL_Rations > 0) PerfectStatus.Add(vars.ASL_Rations + ((settings["aslvv_boss_long"]) ? " Rations" : "R"));
+        if (vars.ASL_Rations > 0) PerfectStatus.Add( vars.ASL_Rations + ((settings["aslvv_boss_short"]) ? "R" : Plural(vars.ASL_Rations, " Ration", " Rations")) );
         
         // Big Boss-only stats
         if (!PerfectStats) {
           // If has saved more than 8 times...
-          if (vars.ASL_Saves > 8) BossStatus.Add(vars.ASL_Saves + ((settings["aslvv_boss_long"]) ? " Saves" : "S"));
+          if (vars.ASL_Saves > 8) BossStatus.Add( vars.ASL_Saves + ((settings["aslvv_boss_short"]) ? "S" : Plural(vars.ASL_Saves, " Save", " Saves")) );
           // If has taken too much damage...
-          if (vars.ASL_DamageTaken > DamageLimit) BossStatus.Add(vars.ASL_DamageTaken + ((settings["aslvv_boss_long"]) ? " Damage" : "D"));
+          if (vars.ASL_DamageTaken > DamageLimit) BossStatus.Add( vars.ASL_DamageTaken + ((settings["aslvv_boss_short"]) ? "D" : " Damage"));
           // If has shot a decent number of bullets...
-          if (vars.ASL_Shots > 700) BossStatus.Add(vars.ASL_Shots + ((settings["aslvv_boss_long"]) ? " Bullets" : "B"));
+          if (vars.ASL_Shots > 700) BossStatus.Add( vars.ASL_Shots + ((settings["aslvv_boss_short"]) ? "B" : Plural(vars.ASL_Shots, " Bullet", " Bullets")) );
           // If time is 3h00m01s or more
-          if (current.GameTime > ((60/*f*/ * 60/*s*/ * 60/*m*/ * 3/*h*/) + 59)) BossStatus.Add((settings["aslvv_boss_long"]) ? "Over 3 Hours" : "T>3h");
+          if (current.GameTime > ((60/*f*/ * 60/*s*/ * 60/*m*/ * 3/*h*/) + 59)) BossStatus.Add((settings["aslvv_boss_short"]) ? ">3h" : "Over 3 Hours");
         }
         
         // Create the info string
         string Status = "";
         if (BossStatus.Count > 0) {
           vars.ASL_BestCodeName = "Perfect Stats";
-          Status = String.Join((settings["aslvv_boss_long"]) ? ", " : " ", BossStatus);
+          Status = String.Join((settings["aslvv_boss_short"]) ? " " : ", ", BossStatus);
         }
         if (PerfectStatus.Count > 0) {
           vars.ASL_BestCodeName = "";
-          Status = String.Join((settings["aslvv_boss_long"]) ? ", " : " ", PerfectStatus) + " " + Status;
+          Status = String.Join((settings["aslvv_boss_short"]) ? " " : ", ", PerfectStatus) + " " + Status;
         }
         if (Status != "") vars.ASL_BestCodeName = vars.ASL_BestCodeName + " " + Status.Trim();
       }
@@ -1315,7 +1318,6 @@ update {
         // If there's a chaff grenade active, show that
         else if (CurrentChaff > 0) {
           int MaxChaff = 1024;
-          //if (CurrentChaff > MaxChaff) MaxChaff = CurrentChaff;
           string ChaffTimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentChaff / ChaffRate) );
           vars.ASL_Info = "Chaff: " + vars.ValueFormat(CurrentChaff, MaxChaff) + " (" + ChaffTimeLeft + " left)";
           vars.InfoTimer = 1; // the insta :O
@@ -1402,9 +1404,13 @@ split {
   }
   vars.Debug("[" + old.RoomCode + "] " + OldRoomName + " > [" + current.RoomCode + "] " + CurrentRoomName);
   
+  // Respect the individual settings for rooms
+  if ( (settings.ContainsKey(old.RoomCode)) && (!settings[old.RoomCode]) ) return false;
+  
   // Handle block/split requests from watchers
   if (vars.BlockNextRoom) {
     vars.BlockNextRoom = false;
+    vars.ResetBossData();
     return false; // something requested that we not split this time
   }
   if (vars.SplitNextRoom) {
@@ -1412,6 +1418,7 @@ split {
     vars.ResetBossData();
     return Split(); // the opposite happened!
   }
+  vars.ResetBossData();
   
   // If we're in VR Missions, this is the last thing that gets run
   if (vars.VRMissions) return vars.VRLogMission(current.RoomCode);
@@ -1474,7 +1481,6 @@ split {
   if (vars.IncludeOldRoom.ContainsKey(old.RoomCode)) DefinitelySplit = true;
   if (vars.IncludeCurrentRoom.ContainsKey(current.RoomCode)) DefinitelySplit = true;
  
-  if ( (settings.ContainsKey(old.RoomCode)) && (!settings[old.RoomCode]) ) return false;
   if ( (DefinitelySplit) || (!AvoidSplit) ) return Split();
   
   return false;
