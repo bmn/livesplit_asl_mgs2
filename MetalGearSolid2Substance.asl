@@ -53,6 +53,14 @@ state("mgs2_sse") {
   byte2     RaysTalesHealth: 0x652F30, 0x490;
 }
 
+isLoading {
+  return true;
+}
+
+gameTime {
+  return TimeSpan.FromMilliseconds((current.GameTime) * 1000 / 60);
+}
+
 reset {
   string CurrentRoomName, OldRoomName;
   
@@ -124,6 +132,7 @@ start {
 
 startup {
   vars.Initialised = false;
+  print("Beginning startup initialisation...");
   
   /* MAIN CONFIGURATION STARTS */
   
@@ -135,7 +144,8 @@ startup {
     { "sselect", "Snake Tales episode select" }
   };
   
-  List<string> Areas = new List<string>() {
+  // Note to self: T[] is preferable over List<T> when not modifying afterwards or doing random access
+  var Areas = new string[] {
     "tanker", "Tanker",
     "plant", "Plant",
     "snaketales", "Snake Tales"
@@ -146,8 +156,8 @@ startup {
   // (after the slower initial load) and ease of editing.
   // The dictionary vars.Rooms will be auto-populated from this
   // and should be used by other parts of the script
-  Dictionary< string, List<string> > Rooms = new Dictionary< string, List<string> >() {
-    { "tanker", new List<string> {
+  var Rooms = new Dictionary<string, string[]> {
+    { "tanker", new[] {
       "w00a", "Aft Deck",
       "w00b", "Navigational Deck, port wing (vs Olga)",
       "d05t", "Navigational Deck, port wing cutscenes",
@@ -169,7 +179,7 @@ startup {
       "w04c", "Hold No.3",
       "d12t", "Tanker ending: confrontation" // ending 1
     } },
-    { "plant", new List<string> {
+    { "plant", new[] {
       "w11a", "Strut A Deep Sea Dock",
       "d005p01", "Strut A elevator cutscene",
       "w11b", "Strut A Deep Sea Dock (with bomb)",
@@ -234,7 +244,7 @@ startup {
       "w61a", "Federal Hall (vs Solidus)",
       "d082p01", "Plant ending"
     } },
-    { "snaketales", new List<string>() {
+    { "snaketales", new[] {
       // Tanker
       "a00a", "Aft Deck",
       "a01f", "Deck-A, crew's quarters",
@@ -290,7 +300,7 @@ startup {
   
   // Old rooms to exclude splitting (typically cutscenes)
   // Even if not necessary (more cutscenes immediately after, for example) this also keeps them out of the settings
-  List<string> ExcludeOldRoom = new List<string>() {
+  var ExcludeOldRoom = new string[] {
     "d04t", // Deck E
     "d05t", // Post-Olga
     "d10t", // Post-Guard Rush
@@ -311,14 +321,14 @@ startup {
     "d082p01" // after solidus
   };
   // and new
-  List<string> ExcludeCurrentRoom = new List<string>() {
+  var ExcludeCurrentRoom = new string[] {
   };
   
   // Old rooms to explicitly include a split at, even when the next room is unknown
-  List<string> IncludeOldRoom = new List<string>() {
+  var IncludeOldRoom = new string[] {
   };
   // and new
-  List<string> IncludeCurrentRoom = new List<string>() {
+  var IncludeCurrentRoom = new string[] {
     "museum", // end of tanker in tanker-plant
     "ending" // results screen in tanker and plant
   };
@@ -326,53 +336,53 @@ startup {
   
   // VR Missions room sets
   // The basic idea: You go to every room in a set, then it splits when you exit to mselect
-  Dictionary< string, List<string> > VRMissionRoomSets = new Dictionary< string, List<string> >() {
+  var VRMissionRoomSets = new Dictionary< string, List<string> > {
     // Sneaking and Elim All
-    { "vr_sneaking", new List<string>() { "vs01a", "vs02a", "vs03a", "vs04a", "vs05a", "vs06a", "vs07a", "vs08a", "vs09a", "vs10a" } },
+    { "vr_sneaking", new List<string> { "vs01a", "vs02a", "vs03a", "vs04a", "vs05a", "vs06a", "vs07a", "vs08a", "vs09a", "vs10a" } },
     // Handgun
-    { "vr_handgun", new List<string>() { "wp01a", "wp02a", "wp03a", "wp04a", "wp05a" } },
+    { "vr_handgun", new List<string> { "wp01a", "wp02a", "wp03a", "wp04a", "wp05a" } },
     // Rifle
-    { "vr_rifle", new List<string>() { "wp11a", "wp12a", "wp13a", "wp14a", "wp15a" } },
+    { "vr_rifle", new List<string> { "wp11a", "wp12a", "wp13a", "wp14a", "wp15a" } },
     // C4
-    { "vr_c4", new List<string>() { "wp21a", "wp22a", "wp23a", "wp24a", "wp25a" } },
+    { "vr_c4", new List<string> { "wp21a", "wp22a", "wp23a", "wp24a", "wp25a" } },
     // Grenade
-    { "vr_grenade", new List<string>() { "wp31a", "wp32a", "wp33a", "wp34a", "wp35a" } },
+    { "vr_grenade", new List<string> { "wp31a", "wp32a", "wp33a", "wp34a", "wp35a" } },
     // PSG-1
-    { "vr_psg1", new List<string>() { "wp41a", "wp42a", "wp43a", "wp44a", "wp45a" } },
+    { "vr_psg1", new List<string> { "wp41a", "wp42a", "wp43a", "wp44a", "wp45a" } },
     // Stinger
-    { "vr_stinger", new List<string>() { "wp51a", "wp52a", "wp53a", "wp54a", "wp55a" } },
+    { "vr_stinger", new List<string> { "wp51a", "wp52a", "wp53a", "wp54a", "wp55a" } },
     // Nikita
-    { "vr_nikita", new List<string>() { "wp61a", "wp62a", "wp63a", "wp64a", "wp65a" } },
+    { "vr_nikita", new List<string> { "wp61a", "wp62a", "wp63a", "wp64a", "wp65a" } },
     // HF.Blade/No Weapon
-    { "vr_no_weapon", new List<string>() { "wp71a", "wp72a", "wp73a", "wp74a", "wp75a" } },
+    { "vr_no_weapon", new List<string> { "wp71a", "wp72a", "wp73a", "wp74a", "wp75a" } },
     // First Person
-    { "vr_first_person", new List<string>() { "sp21a", "sp22a", "sp24a", "sp25a" } },
+    { "vr_first_person", new List<string> { "sp21a", "sp22a", "sp24a", "sp25a" } },
     // Variety (will trigger Ninja Variety if only 8 is played before menu,
     //   MGS1 variety if 3/6/8 are played, or Pliskin/Tuxedo Variety is 6/8 are played)
-    { "vr_variety", new List<string>() { "sp01a", "sp02a", "sp03a", "sp06a", "sp07a", "sp08a" } },
+    { "vr_variety", new List<string> { "sp01a", "sp02a", "sp03a", "sp06a", "sp07a", "sp08a" } },
     // Bomb Disposal
-    { "vr_bomb_disposal", new List<string>() { "a31a", "a02a", "a41a", "a42a", "a43a", "a01f", "a01a", "a01b", "a01c", "a01d", "a14a", "a15b", "a16a", "a17a", "a18a" } },
+    { "vr_bomb_disposal", new List<string> { "a31a", "a02a", "a41a", "a42a", "a43a", "a01f", "a01a", "a01b", "a01c", "a01d", "a14a", "a15b", "a16a", "a17a", "a18a" } },
     // Elimination
-    { "vr_elimination", new List<string>() { "a23b", "a01a", "a19a", "a20a", "a24d", "a24a", "a31a", "a22a", "a42a", "a02a" } },
+    { "vr_elimination", new List<string> { "a23b", "a01a", "a19a", "a20a", "a24d", "a24a", "a31a", "a22a", "a42a", "a02a" } },
     // Hold Up
-    { "vr_hold_up", new List<string>() { "a15b", "a12a", "a24d", "a13b", "a14a", "a22a", "a01b", "a42a", "a20b", "a31a" } },
+    { "vr_hold_up", new List<string> { "a15b", "a12a", "a24d", "a13b", "a14a", "a22a", "a01b", "a42a", "a20b", "a31a" } },
     // Photograph
-    { "vr_photograph", new List<string>() { "a01a", "a01f", "a00c", "a00a", "a03a" } },
+    { "vr_photograph", new List<string> { "a01a", "a01f", "a00c", "a00a", "a03a" } },
     // Ninja Variety
-    { "vr_variety_ninja", new List<string>() { "sp08a" } },
+    { "vr_variety_ninja", new List<string> { "sp08a" } },
     // Streaking
-    { "vr_streaking", new List<string>() { "st01a", "st02a", "st03a", "st04a", "st05a" } },
+    { "vr_streaking", new List<string> { "st01a", "st02a", "st03a", "st04a", "st05a" } },
     // Snake Photograph
-    { "vr_photograph_snake", new List<string>() { "a01a", "a24g", "a24a", "a02b", "a41b", "a24f" } },
+    { "vr_photograph_snake", new List<string> { "a01a", "a24g", "a24a", "a02b", "a41b", "a24f" } },
     // Pliskin/Tuxedo Variety
-    { "vr_variety_pliskin", new List<string>() { "sp06a", "sp08a" } },
+    { "vr_variety_pliskin", new List<string> { "sp06a", "sp08a" } },
     // MGS1 Variety (see Variety caveats)
-    { "vr_variety_mgs1", new List<string>() { "sp03a", "sp06a", "sp08a" } }
+    { "vr_variety_mgs1", new List<string> { "sp03a", "sp06a", "sp08a" } }
   };
   
   
   // Rooms not considered for immediate splits (mostly cutscenes)
-  Dictionary<string, string> OtherRooms = new Dictionary<string, string>() {
+  var OtherRooms = new Dictionary<string, string> {
     // Menus
     { "init", "init" },
     { "select", "select" },
@@ -628,11 +638,11 @@ startup {
   vars.VRMissions = false;
   // Hash function
   Func< List<string>, string > VRMissionHash = delegate(List<string> roomset) {
-    string[] array = roomset.ToArray();
+    var array = roomset.ToArray();
     Array.Sort(array);
     return String.Join(";", array);
   };
-  Func< List<string>, int, string > VRMissionHashRange = delegate(List<string> roomset, int range) {
+  Func< List<string>, int, string> VRMissionHashRange = delegate(List<string> roomset, int range) {
     int length = roomset.Count();
     List<string> slice = roomset.GetRange(length - range, range).ToArray().ToList();
     return VRMissionHash(slice);
@@ -660,13 +670,13 @@ startup {
   string TempSetting = "d014p01";
   settings.Add(TempSetting, false, "Split when meeting Stillman", "options_plant");
   settings.SetToolTip(TempSetting, "You will need two Strut C splits if this is enabled");
-  vars.SpecialNewRoom.Add(TempSetting, new Dictionary<string, string>() {
+  vars.SpecialNewRoom.Add(TempSetting, new Dictionary<string, string> {
     { "old", "w16a" },
     { "setting_false", TempSetting },
     { "no_split", "true" }
   });
   // Never split when meeting Olga in Strut E heliport
-  vars.SpecialNewRoom.Add("d021p01", new Dictionary<string, string>() {
+  vars.SpecialNewRoom.Add("d021p01", new Dictionary<string, string> {
     { "old", "w20b" },
     { "no_split", "true" }
   });
@@ -674,17 +684,17 @@ startup {
   TempSetting = "w31a_prez";
   settings.Add(TempSetting, true, "Split when meeting Prez", "options_plant");
   settings.SetToolTip(TempSetting, "You will need two Shell 2 Core 1F splits if this is enabled");
-  vars.SpecialRoomChange.Add("w31a", new Dictionary<string, string>() {
+  vars.SpecialRoomChange.Add("w31a", new Dictionary<string, string> {
     { "current", "wmovie" },
     { "setting", TempSetting }
   });
   // Never split when opening the underwater hatch in Shell 2 Core B1
-  vars.SpecialNewRoom.Add("d053p01", new Dictionary<string, string>() { // B1 No.1 cutscenes
+  vars.SpecialNewRoom.Add("d053p01", new Dictionary<string, string> { // B1 No.1 cutscenes
     { "old", "w31b" },
     { "no_split", "true" }
   });
   // Never split immediately when starting Plant on it's own!
-  vars.SpecialRoomChange.Add("museum", new Dictionary<string, string>() {
+  vars.SpecialRoomChange.Add("museum", new Dictionary<string, string> {
     { "old", "ending" },
     { "no_split", "true" }
   });
@@ -693,7 +703,7 @@ startup {
   TempSetting = "w31f_emma";
   settings.Add(TempSetting, true, "Don't split when meeting Emma", "options_plant");
   settings.SetToolTip(TempSetting, "You will need two Shell 2 Core B1 FC2 splits if this is not enabled");
-  vars.SpecialRoomChange.Add("w31f", new Dictionary<string, string>() {
+  vars.SpecialRoomChange.Add("w31f", new Dictionary<string, string> {
     { "current", "d055p01" },
     { "setting", TempSetting },
     { "no_split", "true" }
@@ -705,7 +715,7 @@ startup {
   TempSetting = "snaketales_a_ames";
   settings.Add(TempSetting, false, "Split when meeting Ames", "snaketales_a");
   settings.SetToolTip(TempSetting, "You will need two Strut F splits if this is enabled");
-  vars.SpecialRoomChange.Add("a22a", new Dictionary<string, string>() {
+  vars.SpecialRoomChange.Add("a22a", new Dictionary<string, string> {
     { "current", "tales" },
     { "setting_false", TempSetting },
     { "no_split", "true" }
@@ -723,14 +733,14 @@ startup {
   TempSetting = "snaketales_b_emma";
   settings.Add(TempSetting, false, "Split when meeting Emma in Strut F", "snaketales_b");
   settings.SetToolTip(TempSetting, "You will need two Strut F splits if this is enabled");
-  vars.SpecialRoomChange.Add("a22b", new Dictionary<string, string>() {
+  vars.SpecialRoomChange.Add("a22b", new Dictionary<string, string> {
     { "current", "tales" },
     { "setting_false", TempSetting },
     { "no_split", "true" }
   });
   
   // Confidential Legacy: Never split when meeting Meryl in Deck E
-  vars.SpecialRoomChange.Add("a01e", new Dictionary<string, string>() {
+  vars.SpecialRoomChange.Add("a01e", new Dictionary<string, string> {
     { "current", "tales" },
     { "no_split", "true" }
   });
@@ -739,22 +749,25 @@ startup {
   
   
   
-  
+  print("Startup complete");
 }
 
 
 update {
   // Callbacks go here - they need access to current and old so startup won't do the job  
   if (!vars.Initialised) {
+    print("Beginning update initialisation...");
+    
     vars.Initialised = true;
+    int MaxVal = 99999;
     int Counter = 0;
     bool BossActive = false;
     bool NoBoss = false;
     int Continues = -1;
     bool BossDefeated = false;
-    int BossCounter = 99999;
-    int BossHealth = 99999;
-    int BossStamina = 99999;
+    int BossCounter = MaxVal;
+    int BossHealth = MaxVal;
+    int BossStamina = MaxVal;
     int BossMaxHealth = -1;
     int BossMaxStamina = -1;
     bool BigBossFailed = false;
@@ -769,6 +782,16 @@ update {
     bool RoomTrackerE = false;
     vars.PrevInfo = "";
     vars.BossRush = false;
+    
+    var ValidMaxHealth = new Dictionary<string, int[]> {
+      { "Olga", new[] {128, MaxVal} },
+      { "Meryl", new[] {128, MaxVal} },
+      { "Fatman", new[] {256, 384, 312} },
+      { "Harrier", new[] {2250, 3250, 3500, 4000, 4750, 4750, MaxVal} },
+      { "Vamp", new[] {100, 128} },
+      { "Rays", new[] {3072, 5120, 7168, 10240, 20480, MaxVal} },
+      { "Solidus", new[] {75, 95, 100} }
+    };
     
     // Debug message handler
     string DebugPath = System.IO.Path.GetDirectoryName(Application.ExecutablePath) + "\\mgs2_sse_debug.log";
@@ -801,8 +824,10 @@ update {
     vars.DebugInfo = DebugInfo;
     
     // Show debug a list of rooms
-    string rn = string.Join("\n  ", vars.Rooms);
-    Debug("List of rooms: " + "{\n  " + rn + "\n}");
+    /*
+    string RoomNames = string.Join("\n  ", vars.Rooms);
+    Debug("List of rooms: " + "{\n  " + RoomNames + "\n}");
+    */
     
     // Shortened name for the byte[]-to-int converter
     Func<byte[], int> C = delegate(byte[] input) {
@@ -823,7 +848,6 @@ update {
     // Check for new continues
     Func<bool> HasContinued = delegate() {
       int NewContinues = C(current.Continues);
-      //print("hc" + Continues.ToString() + " to " + NewContinues.ToString());
       if (NewContinues > Continues) {
         Debug("Detected continue during boss: " + Continues + " > " + NewContinues);
         Continues = NewContinues;
@@ -844,7 +868,7 @@ update {
       BossActive = false;
       NoBoss = false;
       BossDefeated = false;
-      BossCounter = 99999;
+      BossCounter = MaxVal;
       BossMaxHealth = -1;
       BossMaxStamina = -1;
       Continues = -1;
@@ -921,18 +945,18 @@ update {
           }
           
           string DebugDelta = "";
-          if ( (BossStamina != 99999) || (BossHealth != 99999) ) {
-            if (NewHealth < BossHealth) DebugDelta = "[-" + (BossHealth - NewHealth) + "] ";
-            else if (NewStamina < BossStamina) DebugDelta = "[-" + (BossStamina - NewStamina) + "] ";
-          }
+          if ( (BossHealth != MaxVal) && (NewHealth < BossHealth) )
+            DebugDelta = "[-" + (BossHealth - NewHealth) + "] ";
+          else if ( (BossStamina != MaxVal) && (NewStamina < BossStamina) )
+            DebugDelta = "[-" + (BossStamina - NewStamina) + "] ";
           
           BossStamina = NewStamina;
           BossHealth = NewHealth;
               
           string DebugStamina = "";
           string DebugHealth = "";
-          if (NewStamina != 99999) DebugStamina = " Stamina: " + ValueFormat(NewStamina, BossMaxStamina);
-          if (NewHealth != 99999) DebugHealth = " Life: " + ValueFormat(NewHealth, BossMaxHealth);
+          if (NewStamina != MaxVal) DebugStamina = " Stamina: " + ValueFormat(NewStamina, BossMaxStamina);
+          if (NewHealth != MaxVal) DebugHealth = " Life: " + ValueFormat(NewHealth, BossMaxHealth);
           string DebugString = Name + " |" + DebugStamina + DebugHealth;
           DebugInfo(DebugDelta + DebugString);
           vars.InfoTimer = 300;
@@ -949,7 +973,7 @@ update {
           vars.PrevInfo = DebugString;
         }
         else if ( (!NoBoss) && (!BossActive) && (current.RoomTimer < 60) ) {
-          if ( (NewStamina == null) || (NewStamina == 0) || (NewHealth == null) || (NewHealth == 0) ) {
+          if ( (NewStamina == null) || (!ValidMaxHealth[Name].Contains(NewStamina)) || (NewHealth == null) || (!ValidMaxHealth[Name].Contains(NewHealth)) ) {
             vars.Debug("No boss in this area");
             NoBoss = true;
           }
@@ -971,7 +995,7 @@ update {
     // Olga
     Func<int> WatchOlga = delegate() {
       int Stamina = (vars.BossRush) ? current.OlgaRushStamina : current.OlgaStamina;
-      return WatchBoss("Olga", Stamina, 99999);
+      return WatchBoss("Olga", Stamina, MaxVal);
     };
     vars.SpecialWatchCallback.Add("w00b", WatchOlga);
     
@@ -991,7 +1015,7 @@ update {
         }
         if (current.FatmanBombsActive == 0) {
           vars.InfoTimer = 180;
-          DebugInfo("Boss defeated!");
+          DebugInfo("Boss completed!");
           return 1; // not necesary to reset boss data as it'll happen in split
         }
         if (current.FatmanBombsActive < BossCounter) {
@@ -1006,7 +1030,7 @@ update {
     vars.SpecialWatchCallback.Add("a20c", WatchFatman); // A Wrongdoing
     
     // Harrier
-    Func<int> WatchHarrier = () => WatchBoss("Harrier", 99999, C(current.HarrierHealth));
+    Func<int> WatchHarrier = () => WatchBoss("Harrier", MaxVal, C(current.HarrierHealth));
     vars.SpecialWatchCallback.Add("w25a", WatchHarrier); // Sons of Liberty
     vars.SpecialWatchCallback.Add("a25a", WatchHarrier); // Big Shell Evil
     
@@ -1020,9 +1044,9 @@ update {
     vars.SpecialWatchCallback.Add("w32b", WatchVamp2);
     
     // Rays
-    Func<int> WatchRays = () => WatchBoss("Rays", 99999, C(current.RaysHealth));
+    Func<int> WatchRays = () => WatchBoss("Rays", MaxVal, C(current.RaysHealth));
     vars.SpecialWatchCallback.Add("w46a", WatchRays); // Sons of Liberty
-    Func<int> WatchRaysEG = () => WatchBoss("Rays", 99999, C(current.RaysTalesHealth));
+    Func<int> WatchRaysEG = () => WatchBoss("Rays", MaxVal, C(current.RaysTalesHealth));
     vars.SpecialWatchCallback.Add("a46a", WatchRaysEG); // External Gazer
     
     // Solidus
@@ -1066,9 +1090,9 @@ update {
       BigBossAlertState = 3;
       return 0;
     };
-    vars.SpecialRoomChangeCallback.Add("e32a", CallBigBossAlert1); // sniping
-    vars.SpecialRoomChangeCallback.Add("w44a", CallBigBossAlert2); // tengus 1
-    vars.SpecialRoomChangeCallback.Add("w45a", CallBigBossAlert3); // tengus 2
+    vars.SpecialRoomChangeCallback.Add("e32a", CallBigBossAlert1); // Oil Fence sniping
+    vars.SpecialRoomChangeCallback.Add("w44a", CallBigBossAlert2); // Tengus 1
+    vars.SpecialRoomChangeCallback.Add("w45a", CallBigBossAlert3); // Tengus 2
     
     
     // Snake Tales in general: Don't split if we're coming from storyline.
@@ -1286,7 +1310,7 @@ update {
         int CurrentO2 = C(current.CurrentO2);
         int CurrentGrip = (current.CurrentGrip != null) ? C(current.CurrentGrip) : -1;
         int CurrentChaff = C(current.CurrentChaff);
-        //int CurrentChaff = (current.CurrentChaff != null
+
         // If we're underwater, update the O2 status in ASL_Info
         if (CurrentO2 != PreviousO2) { // TODO get O2 + health info display working
           PreviousO2 = CurrentO2;
@@ -1484,12 +1508,4 @@ split {
   if ( (DefinitelySplit) || (!AvoidSplit) ) return Split();
   
   return false;
-}
-
-isLoading {
-  return true;
-}
-
-gameTime {
-  return TimeSpan.FromMilliseconds((current.GameTime) * 1000 / 60);
 }
