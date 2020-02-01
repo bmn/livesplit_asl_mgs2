@@ -1457,7 +1457,7 @@ split {
       // ...or if the new room isn't what we want
       if ( (SpecialCase.ContainsKey("current")) && (current.RoomCode != SpecialCase["current"]) ) break;
       // ...and specifically disable the split if required
-      if (SpecialCase["no_split"] == "true") {
+      if ( (SpecialCase.ContainsKey("current")) && (SpecialCase["no_split"] == "true") ) {
         AvoidSplit = true;
         break;
       }
