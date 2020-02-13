@@ -553,33 +553,36 @@ startup {
   
   // Add main settings
   settings.Add("options", true, "Advanced Options");
-  settings.Add("splits", true, "Split Locations");
-  
-    settings.Add("options_plant", true, "Plant", "options");
-    settings.Add("options_snaketales", true, "Snake Tales", "options");
-    settings.Add("options_vr", true, "VR Missions", "options");
   
     settings.Add("debug_file", true, "Save debug information to LiveSplit program directory", "options");
     settings.Add("resets", true, "Reset the timer when returning to menu", "options");
     settings.Add("boss_insta", true, "Split instantly when a boss is defeated", "options");
     settings.SetToolTip("boss_insta", "This also enables boss health information in ASL Var Viewer");
+    
     settings.Add("aslvv", true, "Enable ASL Var Viewer integration", "options");
     settings.SetToolTip("aslvv", "Disabling this may slightly improve performance");
-  
-      settings.Add("aslvv_info_room", false, "ASL_Info: Show the current location when there is no other info", "aslvv");
-      settings.SetToolTip("aslvv_info_room", "Location is provided on its own by ASL_CurrentRoom");
-      settings.Add("aslvv_info_percent", true, "ASL_Info: Show numbers as percentages instead", "aslvv");
-      settings.Add("aslvv_info_max", true, "ASL_Info: Show both the current and maximum value (raw values only)", "aslvv");
-      settings.Add("aslvv_info_o2health", false, "ASL_Info -> O2: Also show the time remaining from Life", "aslvv");
-      settings.Add("aslvv_boss_short", false, "ASL_BestCodeName -> Show single letters for stat names", "aslvv");
-      settings.SetToolTip("aslvv_boss_short", "Enable this if the full stat names make the message too long");
-      
+      settings.Add("aslvv_info", true, "ASL_Info (contextual information)", "aslvv");
+        settings.Add("aslvv_info_room", false, "Show the current location when there is no other info", "aslvv_info");
+        settings.SetToolTip("aslvv_info_room", "Location is provided on its own by ASL_CurrentRoom");
+        settings.Add("aslvv_info_percent", true, "Show percentages instead of raw values", "aslvv_info");
+        settings.Add("aslvv_info_max", true, "Also show the maximum value for raw values", "aslvv_info");
+        settings.Add("aslvv_info_o2health", false, "O2: Also show the time remaining from Life", "aslvv_info");
+      settings.Add("aslvv_boss", true, "ASL_BestCodeName (Perfect Stats attempt tracking)", "aslvv");
+        settings.Add("aslvv_boss_short", false, "Show single letters for stats instead of full titles", "aslvv_boss");
+        settings.SetToolTip("aslvv_boss_short", "Enable this if the full stat names make the message too long");
+      settings.Add("aslvv_tags", true, "ASL_DogTags (dog tag collection stats)", "aslvv");
+        settings.Add("aslvv_tags_max", true, "Also show the total number of available dog tags", "aslvv_tags");
+    
+    settings.Add("options_plant", true, "Plant", "options");
+    
+    settings.Add("options_snaketales", true, "Snake Tales", "options");  
       settings.Add("snaketales_a", true, "A Wrongdoing", "options_snaketales");
       settings.Add("snaketales_b", true, "Big Shell Evil", "options_snaketales");
       settings.Add("snaketales_c", true, "Confidential Legacy", "options_snaketales");
       settings.Add("snaketales_d", true, "Dead Man Whispers", "options_snaketales");
       settings.Add("snaketales_e", true, "External Gazer", "options_snaketales");
-      
+    
+    settings.Add("options_vr", true, "VR Missions", "options");    
       settings.Add("vr_variety_ninja", false, "Enable splits for Variety (Ninja)", "options_vr");
       settings.Add("vr_variety_pliskin", false, "Enable splits for Variety (Pliskin/Tuxedo)", "options_vr");
       settings.Add("vr_variety_mgs1", false, "Enable splits for Variety (MGS1)", "options_vr");
@@ -587,10 +590,8 @@ startup {
       settings.SetToolTip("vr_variety_ninja", Tooltip);
       settings.SetToolTip("vr_variety_pliskin", Tooltip);
       settings.SetToolTip("vr_variety_mgs1", Tooltip);
-  
     
-      
-  
+  settings.Add("splits", true, "Split Locations");
   
   
   // Build the old/current room exclusion/inclusion dictionaries
