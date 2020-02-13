@@ -796,6 +796,8 @@ update {
     bool RoomTrackerC = false;
     bool RoomTrackerD = false;
     bool RoomTrackerE = false;
+    vars.PreviousTagsSnake = -1;
+    vars.PreviousTagsRaiden = -1;
     vars.PrevInfo = "";
     vars.BossRush = false;
     
@@ -904,6 +906,8 @@ update {
       RoomTrackerC = false;
       RoomTrackerD = false;
       RoomTrackerE = false;
+      vars.PreviousTagsSnake = -1;
+      vars.PreviousTagsRaiden = -1;
       ResetBigBossData();
       ResetBossData();
     };
@@ -1289,9 +1293,6 @@ update {
     vars.UpdateBigBoss = UpdateBigBoss;
     
     // ASLVarViewer values
-    int PreviousTagsSnake = -1;
-    int PreviousTagsRaiden = -1;
-    int PreviousTags = -1;
     int PreviousO2 = 4000;
     int PreviousGrip = -1;
     int PreviousCaution = -1;
@@ -1333,10 +1334,13 @@ update {
         }
         
         // Update dog tag counters if we collect one
-        if ( (current.DogTagsRaiden > PreviousTagsRaiden) || (current.DogTagsSnake > PreviousTagsSnake) ) {
+        if ( (current.DogTagsRaiden > vars.PreviousTagsRaiden) || (current.DogTagsSnake > vars.PreviousTagsSnake) ) {
           vars.ASL_DogTags_Snake = current.DogTagsSnake + (settings["aslvv_tags_max"] ? "/" + vars.MaxDogTags[current.MaxHealth][0] : "");
           vars.ASL_DogTags_Raiden = current.DogTagsRaiden + (settings["aslvv_tags_max"] ? "/" + vars.MaxDogTags[current.MaxHealth][1] : "");
           vars.ASL_DogTags = current.DogTagsSnake + current.DogTagsRaiden + (settings["aslvv_tags_max"] ? "/" + vars.MaxDogTags[current.MaxHealth][2] : "");
+          
+          vars.PreviousTagsSnake = current.DogTagsSnake;
+          vars.PreviousTagsRaiden = current.DogTagsRaiden;
         }
 
         int CurrentO2 = C(current.CurrentO2);
