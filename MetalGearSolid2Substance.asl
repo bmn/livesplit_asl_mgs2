@@ -17,6 +17,8 @@ state("mgs2_sse") {
   byte2     Damage: 0x3E315E, 0x79;
   byte2     Saves: 0x3E315E, 0x69;
   byte2     Mechs: 0x3E315E, 0x8B;
+  byte      DogTagsSnake: 0xD8AFEE;
+  byte      DogTagsRaiden: 0xD8B13E;
   byte2     StrengthRaiden: 0x3E315E, 0x63;
   byte2     StrengthSnake: 0xD8AEEE;
   
@@ -504,6 +506,15 @@ startup {
     { 75, "Fox" },
     { 50, "Big Boss" },
     { 30, "Big Boss" }
+  };
+  
+  // Dog tag counts
+  vars.MaxDogTags = new Dictionary<int, int[]> {
+    { 200, new[] { 24, 43, 67 } },
+    { 120, new[] { 25, 44, 69 } }, // Nice
+    { 100, new[] { 33, 49, 82 } },
+    { 75, new[] { 35, 52, 87 } },
+    { 50, new[] { 34, 54, 88 } }
   };
   
   
@@ -1277,6 +1288,9 @@ update {
     vars.UpdateBigBoss = UpdateBigBoss;
     
     // ASLVarViewer values
+    int PreviousTagsSnake = -1;
+    int PreviousTagsRaiden = -1;
+    int PreviousTags = -1;
     int PreviousO2 = 4000;
     int PreviousGrip = -1;
     int PreviousCaution = -1;
@@ -1317,6 +1331,13 @@ update {
           }
         }
         
+        // Update dog tag counters if we collect one
+        if ( (current.DogTagsRaiden > PreviousTagsRaiden) || (current.DogTagsSnake > PreviousTagsSnake) ) {
+          vars.ASL_DogTags_Snake = current.DogTagsSnake + (settings["aslvv_tags_max"] ? "/" + vars.MaxDogTags[current.MaxHealth][0] : "");
+          vars.ASL_DogTags_Raiden = current.DogTagsRaiden + (settings["aslvv_tags_max"] ? "/" + vars.MaxDogTags[current.MaxHealth][1] : "");
+          vars.ASL_DogTags = current.DogTagsSnake + current.DogTagsRaiden + (settings["aslvv_tags_max"] ? "/" + vars.MaxDogTags[current.MaxHealth][2] : "");
+        }
+
         int CurrentO2 = C(current.CurrentO2);
         int CurrentGrip = (current.CurrentGrip != null) ? C(current.CurrentGrip) : -1;
         int CurrentChaff = C(current.CurrentChaff);
