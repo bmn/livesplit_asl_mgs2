@@ -25,6 +25,7 @@ state("mgs2_sse") {
   byte2     CurrentChaff: 0xB6DE4C;
   byte2     CurrentO2: 0x3E315E, 0x31;
   byte2     CurrentGrip: 0x618BAC, 0x80;
+  byte2     CurrentCaution: 0x6160C8;
   byte2     GripMultiplier: 0xD8F500; // This is meant to be 1800 for Snake, 3600 for Raiden, but isn't?
   byte      RadarOn: 0xF80DB, 0x4CA;
 
@@ -1262,12 +1263,12 @@ update {
         string Status = "";
         if (BossStatus.Count > 0) {
           vars.ASL_BestCodeName = "Perfect Stats";
-          Status = String.Join((settings["aslvv_boss_short"]) ? " " : "/", BossStatus);
+          Status = String.Join((settings["aslvv_boss_short"]) ? " " : ", ", BossStatus);
         }
         if (PerfectStatus.Count > 0) {
           vars.ASL_BestCodeName = "";
-          if (Status != "") Status = (settings["aslvv_boss_short"] ? " " : "/") + Status;
-          Status = String.Join((settings["aslvv_boss_short"]) ? " " : "/", PerfectStatus) + Status;
+          if (Status != "") Status = (settings["aslvv_boss_short"] ? " " : ", ") + Status;
+          Status = String.Join((settings["aslvv_boss_short"]) ? " " : ", ", PerfectStatus) + Status;
         }
         if (Status != "") vars.ASL_BestCodeName = vars.ASL_BestCodeName + " " + Status.Trim();
       }
@@ -1277,9 +1278,9 @@ update {
     // ASLVarViewer values
     int PreviousO2 = 4000;
     int PreviousGrip = -1;
+    int PreviousCaution = -1;
     int MaxGrip = -1;
     float ChaffRate = (1024.0f / 30);
-    //int MaxChaff = -1;
     Action UpdateASLVars = delegate() {
       if (settings["aslvv"]) {
       
@@ -1318,12 +1319,13 @@ update {
         int CurrentO2 = C(current.CurrentO2);
         int CurrentGrip = (current.CurrentGrip != null) ? C(current.CurrentGrip) : -1;
         int CurrentChaff = C(current.CurrentChaff);
+        int CurrentCaution = C(current.CurrentCaution);
 
         // If we're underwater, update the O2 status in ASL_Info
         if (CurrentO2 != PreviousO2) { // TODO get O2 + health info display working
           PreviousO2 = CurrentO2;
           if (current.RoomTimer > 5) {
-            int MaxO2 = 4000;
+            int MaxO2 = (current.MaxHealth == 30) ? 3600 : 4000;
             int O2Rate = (current.CurrentHealth == current.MaxHealth) ? 60 : 120;
             string O2TimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentO2 / O2Rate) );
             string HealthTimeLeft = "";
@@ -1353,6 +1355,14 @@ update {
           string ChaffTimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentChaff / ChaffRate) );
           vars.ASL_Info = "Chaff: " + vars.ValueFormat(CurrentChaff, MaxChaff) + " (" + ChaffTimeLeft + " left)";
           vars.InfoTimer = 1; // the insta :O
+        }
+        // If we're in caution, show that
+        else if (CurrentCaution != PreviousCaution) {
+          PreviousCaution = CurrentCaution;
+          int MaxCaution = 3600;
+          string CautionTimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentCaution / 60) );
+          vars.ASL_Info = "Caution: " + vars.ValueFormat(CurrentCaution, MaxCaution) + " (" + CautionTimeLeft + " left)";
+          vars.InfoTimer = 1;
         }
         
       }
