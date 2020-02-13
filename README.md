@@ -45,6 +45,7 @@ Other stats:
 * **ASL_CurrentRoom** The current game location
 * **ASL_CurrentRoomCode** The game's internal code for the current location
 * **ASL_DamageTaken** Amount of Damage taken [More info](https://metalgearspeedrunners.com/wiki/doku.php?id=mgs2_difficulty_differences#health_values)
+* **ASL_DogTags**, **ASL_DogTags_Snake**, **ASL_DogTags_Raiden** Number of dog tags collected (overall, or for each character)
 * **ASL_Difficulty** The name of the current difficulty
 * **ASL_MechsDestroyed** Number of mechs (Cyphers, etc.) destroyed. This was previously thought to contribute to your codename, but is not actually relevant.
 * **ASL_Kills** Number of people Killed
