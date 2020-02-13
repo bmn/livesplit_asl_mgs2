@@ -689,8 +689,12 @@ startup {
     { "setting", TempSetting }
   });
   // Never split when opening the underwater hatch in Shell 2 Core B1
+  TempSetting = "d053p01";
+  settings.Add(TempSetting, false, "Split when opening the underwater hatch in Shell 2 Core B1", "options_plant");
+  settings.SetToolTip(TempSetting, "You will need two Shell 2 Core B1 splits if this is enabled");
   vars.SpecialNewRoom.Add("d053p01", new Dictionary<string, string> { // B1 No.1 cutscenes
     { "old", "w31b" },
+    { "setting_false", TempSetting },
     { "no_split", "true" }
   });
   // Never split immediately when starting Plant on it's own!
@@ -799,6 +803,7 @@ update {
     vars.InfoTimer = 0;
     vars.DebugTimerStart = 120;
     Action<string> Debug = delegate(string message) {
+      message = "[" + current.GameTime + "] " + message;
       if (settings["debug_file"]) {
         using(System.IO.StreamWriter stream = new System.IO.StreamWriter(DebugPath, true)) {
           stream.WriteLine(message);
@@ -1080,20 +1085,22 @@ update {
     // Plant: Increment the Big Boss alert counters
     Func<int> CallBigBossAlert1 = delegate() {
       BigBossAlertState = 1;
+      Debug("Setting Big Boss alert allowance to 1");
       return 0;
     };
     Func<int> CallBigBossAlert2 = delegate() {
       BigBossAlertState = 2;
+      Debug("Setting Big Boss alert allowance to 2");
       return 0;
     };
     Func<int> CallBigBossAlert3 = delegate() {
       BigBossAlertState = 3;
+      Debug("Setting Big Boss alert allowance to 3");
       return 0;
     };
-    vars.SpecialRoomChangeCallback.Add("e32a", CallBigBossAlert1); // Oil Fence sniping
-    vars.SpecialRoomChangeCallback.Add("w44a", CallBigBossAlert2); // Tengus 1
-    vars.SpecialRoomChangeCallback.Add("w45a", CallBigBossAlert3); // Tengus 2
-    
+    vars.SpecialNewRoomCallback.Add("e32a", CallBigBossAlert1); // Oil Fence sniping
+    vars.SpecialNewRoomCallback.Add("w44a", CallBigBossAlert2); // Tengus 1
+    vars.SpecialNewRoomCallback.Add("w45a", CallBigBossAlert3); // Tengus 2
     
     // Snake Tales in general: Don't split if we're coming from storyline.
     Func<int> CallSnakeTales = delegate() {
@@ -1256,11 +1263,12 @@ update {
         string Status = "";
         if (BossStatus.Count > 0) {
           vars.ASL_BestCodeName = "Perfect Stats";
-          Status = String.Join((settings["aslvv_boss_short"]) ? " " : ", ", BossStatus);
+          Status = String.Join((settings["aslvv_boss_short"]) ? " " : "/", BossStatus);
         }
         if (PerfectStatus.Count > 0) {
           vars.ASL_BestCodeName = "";
-          Status = String.Join((settings["aslvv_boss_short"]) ? " " : ", ", PerfectStatus) + " " + Status;
+          if (Status != "") Status = (settings["aslvv_boss_short"] ? " " : "/") + Status;
+          Status = String.Join((settings["aslvv_boss_short"]) ? " " : "/", PerfectStatus) + Status;
         }
         if (Status != "") vars.ASL_BestCodeName = vars.ASL_BestCodeName + " " + Status.Trim();
       }
@@ -1293,6 +1301,7 @@ update {
         vars.ASL_MechsDestroyed = C(current.Mechs);
         vars.ASL_Strength = C(current.StrengthRaiden); //C(Snake ? current.StrengthSnake : current.StrengthRaiden);
         vars.ASL_RoomTimer = current.RoomTimer;
+        if ((current.RoomTimer % 60) == 0) vars.UpdateBigBoss();
         
         if (vars.DebugTimer > 0) {
           vars.DebugTimer--;
@@ -1412,7 +1421,6 @@ split {
   vars.ASL_CurrentRoomCode = current.RoomCode;
   vars.ASL_CurrentRoom = vars.GetRoomName(current.RoomCode);
   vars.ASL_Info = (settings["aslvv_info_room"]) ? vars.ASL_CurrentRoom : "";
-  vars.UpdateBigBoss();
   
   if (vars.DontWatch) vars.DontWatch = false; // reset the watch switch on new room
   
@@ -1474,7 +1482,7 @@ split {
       // ...or if the new room isn't what we want
       if ( (SpecialCase.ContainsKey("old")) && (old.RoomCode != SpecialCase["old"]) ) break;
       // ...and specifically disable the split if required
-      if (SpecialCase["no_split"] == "true") {
+      if ( (SpecialCase.ContainsKey("no_split")) && (SpecialCase["no_split"] == "true") ) {
         AvoidSplit = true;
         break;
       }
