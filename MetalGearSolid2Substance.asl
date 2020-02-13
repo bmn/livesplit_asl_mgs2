@@ -672,8 +672,7 @@ startup {
   settings.SetToolTip(TempSetting, "You will need two Strut C splits if this is enabled");
   vars.SpecialNewRoom.Add(TempSetting, new Dictionary<string, string> {
     { "old", "w16a" },
-    { "setting_false", TempSetting },
-    { "no_split", "true" }
+    { "setting", TempSetting }
   });
   // Never split when meeting Olga in Strut E heliport
   vars.SpecialNewRoom.Add("d021p01", new Dictionary<string, string> {
