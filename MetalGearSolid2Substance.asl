@@ -1215,6 +1215,7 @@ update {
         List<string> BossStatus = new List<string>();
         bool PerfectStats = false;
         string Difficulty = "";
+        string Prefix = "Still on course for ";
         
         // Stats that preclude Big Boss:
         // Not main game?
@@ -1228,9 +1229,9 @@ update {
           // On Very Easy?
           if (vars.ASL_Difficulty == "Very Easy") {
             PerfectStats = true;
-            vars.ASL_BestCodeName = "Perfect Stats";
+            vars.ASL_BestCodeName = Prefix + "Perfect Stats";
           }
-          else vars.ASL_BestCodeName = vars.BestCodeNames[current.MaxHealth];
+          else vars.ASL_BestCodeName = Prefix + vars.BestCodeNames[current.MaxHealth];
         }
         // Radar on?
         vars.ASL_RadarOn = (current.RadarOn == 32);
@@ -1262,7 +1263,7 @@ update {
         // Create the info string
         string Status = "";
         if (BossStatus.Count > 0) {
-          vars.ASL_BestCodeName = "Perfect Stats";
+          vars.ASL_BestCodeName = Prefix + "Perfect Stats";
           Status = String.Join((settings["aslvv_boss_short"]) ? " " : ", ", BossStatus);
         }
         if (PerfectStatus.Count > 0) {
