@@ -1334,7 +1334,7 @@ update {
         }
         
         // Update dog tag counters if we collect one
-        if ( (current.DogTagsRaiden > vars.PreviousTagsRaiden) || (current.DogTagsSnake > vars.PreviousTagsSnake) ) {
+        if ( (current.MaxHealth != 30) && ( (current.DogTagsRaiden > vars.PreviousTagsRaiden) || (current.DogTagsSnake > vars.PreviousTagsSnake) ) ) {
           vars.ASL_DogTags_Snake = current.DogTagsSnake + (settings["aslvv_tags_max"] ? "/" + vars.MaxDogTags[current.MaxHealth][0] : "");
           vars.ASL_DogTags_Raiden = current.DogTagsRaiden + (settings["aslvv_tags_max"] ? "/" + vars.MaxDogTags[current.MaxHealth][1] : "");
           vars.ASL_DogTags = current.DogTagsSnake + current.DogTagsRaiden + (settings["aslvv_tags_max"] ? "/" + vars.MaxDogTags[current.MaxHealth][2] : "");
