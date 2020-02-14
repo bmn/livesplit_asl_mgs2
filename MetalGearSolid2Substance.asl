@@ -1,5 +1,6 @@
 /*
   MGS2 Autosplitter
+  Main room configuration starts around line 140
   Main room configuration starts around line 115
 */
 
@@ -54,6 +55,7 @@ state("mgs2_sse") {
 
   byte2     RaysHealth: 0xAD4EA4, 0x54, 0x10, 0x10, 0x170, 0x7E0;
   byte2     RaysTalesHealth: 0x652F30, 0x490;
+  byte2     ChokeTimer: 0xAD4F6C, 0x40;
 }
 
 isLoading {
@@ -1070,6 +1072,17 @@ update {
     Func<int> WatchRaysEG = () => WatchBoss("Rays", MaxVal, C(current.RaysTalesHealth));
     vars.SpecialWatchCallback.Add("a46a", WatchRaysEG); // External Gazer
     
+    // Choke Boss (no split)
+    Func<int> WatchChoke = delegate() {
+      if (!settings["aslvv"]) return -1;
+      int FramesLeft = C(current.ChokeTimer);
+      if ( (FramesLeft < 1) || (FramesLeft > 3000) ) return 0;
+      vars.InfoTimer = 10;
+      Info("Time left: " + string.Format( "{00:0.0}", (decimal)((double)FramesLeft / 60) ));
+      return 0;
+    };
+    vars.SpecialWatchCallback.Add("w51a", WatchChoke);
+
     // Solidus
     Func<int> WatchSolidus = () => WatchBoss("Solidus", current.SolidusStamina, current.SolidusHealth);
     vars.SpecialWatchCallback.Add("w61a", WatchSolidus); // Sons of Liberty
@@ -1349,7 +1362,7 @@ update {
         int CurrentCaution = C(current.CurrentCaution);
 
         // If we're underwater, update the O2 status in ASL_Info
-        if (CurrentO2 != PreviousO2) { // TODO get O2 + health info display working
+        if ( (CurrentO2 != PreviousO2) && (current.RoomCode != "w51a") ) { // TODO get O2 + health info display working 
           PreviousO2 = CurrentO2;
           if (current.RoomTimer > 5) {
             int MaxO2 = (current.MaxHealth == 30) ? 3600 : 4000;
