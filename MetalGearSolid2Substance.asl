@@ -1138,19 +1138,36 @@ update {
       Debug("Setting Big Boss alert allowance to 1");
       return 0;
     };
-    Func<int> CallBigBossAlert2 = delegate() {
-      BigBossAlertState = 2;
-      Debug("Setting Big Boss alert allowance to 2");
+    Func<int> WatchBigBossAlert2 = delegate() {
+      // Trigger on the second instance of this room (after cutscene)
+      Debug(RoomTrackerInt.ToString());
+      if ( (RoomTrackerInt > 0) && (current.RoomTimer < RoomTrackerInt) ) {
+        RoomTrackerInt = 0;
+        BigBossAlertState = 2;
+        Debug("Setting Big Boss alert allowance to 2");
+        return -1;
+      }
+      if (current.RoomTimer < 30) RoomTrackerInt = current.RoomTimer;
       return 0;
     };
-    Func<int> CallBigBossAlert3 = delegate() {
-      BigBossAlertState = 3;
-      Debug("Setting Big Boss alert allowance to 3");
+    Func<int> WatchBigBossAlert3 = delegate() {
+      // Trigger on the third instance (after initial gameplay and cutscene)
+      if ( (RoomTrackerInt > 0) && (current.RoomTimer < RoomTrackerInt) ) {
+        if (RoomTrackerP) {
+          RoomTrackerP = false;
+          RoomTrackerInt = 0;
+          BigBossAlertState = 2;
+          Debug("Setting Big Boss alert allowance to 3");
+          return -1;
+        }
+        else RoomTrackerP = true;
+      }
+      if (current.RoomTimer < 30) RoomTrackerInt = current.RoomTimer;
       return 0;
     };
     vars.SpecialNewRoomCallback.Add("e32a", CallBigBossAlert1); // Oil Fence sniping
-    vars.SpecialNewRoomCallback.Add("w44a", CallBigBossAlert2); // Tengus 1
-    vars.SpecialNewRoomCallback.Add("w45a", CallBigBossAlert3); // Tengus 2
+    vars.SpecialWatchCallback.Add("w44a", WatchBigBossAlert2); // Tengus 1
+    vars.SpecialWatchCallback.Add("w45a", WatchBigBossAlert3); // Tengus 2
     
     // Snake Tales in general: Don't split if we're coming from storyline.
     Func<int> CallSnakeTales = delegate() {
