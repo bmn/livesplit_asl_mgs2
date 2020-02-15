@@ -571,6 +571,9 @@ startup {
         settings.Add("aslvv_info_vars", true, "Display these values:", "aslvv_info");
           settings.Add("aslvv_info_room", false, "Current location", "aslvv_info_vars");
           settings.SetToolTip("aslvv_info_room", "Use ASL_CurrentRoom if you only want the location");
+          settings.Add("aslvv_info_tags", true, "Dog tag progress", "aslvv_info_vars");
+          settings.SetToolTip("aslvv_info_tags", "Also see the options for ASL_DogTags");   
+            settings.Add("aslvv_info_tags_onlycurrent", false, "Show total only for the current character", "aslvv_info_tags");
           settings.Add("aslvv_info_caution", true, "Caution", "aslvv_info_vars");
           settings.Add("aslvv_info_chaff", true, "Chaff", "aslvv_info_vars");
           settings.Add("aslvv_info_grip", true, "Grip", "aslvv_info_vars");
@@ -579,7 +582,7 @@ startup {
           settings.Add("aslvv_info_boss", true, "Boss health", "aslvv_info_vars");
           settings.Add("aslvv_info_choke", true, "Choke torture progress", "aslvv_info_vars");
           settings.Add("aslvv_info_colon", true, "Ascending Colon tutorial progress", "aslvv_info_vars");
-          settings.Add("aslvv_info_max", true, "Also show the maximum value for raw values", "aslvv_info");
+        settings.Add("aslvv_info_max", true, "Also show the maximum value for raw values", "aslvv_info");
         settings.Add("aslvv_info_percent", true, "Show percentages instead of raw values", "aslvv_info");
       settings.Add("aslvv_boss", true, "ASL_BestCodeName (Perfect Stats attempt tracking)", "aslvv");
         settings.Add("aslvv_boss_short", false, "Show single letters for stats instead of full titles", "aslvv_boss");
@@ -810,8 +813,8 @@ update {
     bool RoomTrackerC = false;
     bool RoomTrackerD = false;
     bool RoomTrackerE = false;
-    vars.PreviousTagsSnake = -1;
-    vars.PreviousTagsRaiden = -1;
+    vars.PreviousTagsSnake = 0;
+    vars.PreviousTagsRaiden = 0;
     vars.PrevInfo = "";
     vars.BossRush = false;
     
@@ -920,8 +923,8 @@ update {
       RoomTrackerC = false;
       RoomTrackerD = false;
       RoomTrackerE = false;
-      vars.PreviousTagsSnake = -1;
-      vars.PreviousTagsRaiden = -1;
+      vars.PreviousTagsSnake = 0;
+      vars.PreviousTagsRaiden = 0;
       ResetBigBossData();
       ResetBossData();
     };
@@ -1398,13 +1401,26 @@ update {
         }
         
         // Update dog tag counters if we collect one
-        if ( (current.MaxHealth != 30) && ( (current.DogTagsRaiden > vars.PreviousTagsRaiden) || (current.DogTagsSnake > vars.PreviousTagsSnake) ) ) {
-          vars.ASL_DogTags_Snake = current.DogTagsSnake + (settings["aslvv_tags_max"] ? "/" + vars.MaxDogTags[current.MaxHealth][0] : "");
-          vars.ASL_DogTags_Raiden = current.DogTagsRaiden + (settings["aslvv_tags_max"] ? "/" + vars.MaxDogTags[current.MaxHealth][1] : "");
-          vars.ASL_DogTags = current.DogTagsSnake + current.DogTagsRaiden + (settings["aslvv_tags_max"] ? "/" + vars.MaxDogTags[current.MaxHealth][2] : "");
-          
-          vars.PreviousTagsSnake = current.DogTagsSnake;
-          vars.PreviousTagsRaiden = current.DogTagsRaiden;
+        if (current.MaxHealth != 30) {
+          bool CollectedTagRaiden = (current.DogTagsRaiden > vars.PreviousTagsRaiden);
+          bool CollectedTagSnake = (current.DogTagsSnake > vars.PreviousTagsSnake);
+          if (CollectedTagRaiden || CollectedTagSnake) {
+            vars.ASL_DogTags_Snake = current.DogTagsSnake + (settings["aslvv_tags_max"] ? "/" + vars.MaxDogTags[current.MaxHealth][0] : "");
+            vars.ASL_DogTags_Raiden = current.DogTagsRaiden + (settings["aslvv_tags_max"] ? "/" + vars.MaxDogTags[current.MaxHealth][1] : "");
+            vars.ASL_DogTags = current.DogTagsSnake + current.DogTagsRaiden + (settings["aslvv_tags_max"] ? "/" + vars.MaxDogTags[current.MaxHealth][2] : "");
+            
+            vars.PreviousTagsSnake = current.DogTagsSnake;
+            vars.PreviousTagsRaiden = current.DogTagsRaiden;
+            
+            if (settings["aslvv_info_tags"]) {
+              string TagStatus = "";
+              if (settings["aslvv_info_tags_onlycurrent"])
+                TagStatus = (CollectedTagRaiden) ? vars.ASL_DogTags_Raiden : vars.ASL_DogTags_Snake;
+              else TagStatus = vars.ASL_DogTags;
+              vars.ASL_Info = "Dog Tags: " + TagStatus;
+              vars.InfoTimer = 300;
+            }
+          }
         }
 
         int CurrentO2 = C(current.CurrentO2);
