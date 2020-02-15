@@ -1,7 +1,6 @@
 /*
   MGS2 Autosplitter
   Main room configuration starts around line 140
-  Main room configuration starts around line 115
 */
 
 state("mgs2_sse") {
@@ -310,6 +309,7 @@ startup {
     "d05t", // Post-Olga
     "d10t", // Post-Guard Rush
     "d11t", // Hold 3
+    "d12t", // Tanker ending
     "d005p01", // Strut A elevator
     "d012p01", // fortune bridge cutscene
     "d021p01", // fatman cutscenes
@@ -790,7 +790,7 @@ update {
     int BossMaxStamina = -1;
     bool BigBossFailed = false;
     int BigBossAlertState = 0;
-    int STCompletion = 0;
+    int RoomTrackerInt = 0;
     bool RoomTrackerT = false;
     bool RoomTrackerP = false;
     bool RoomTrackerA = false;
@@ -900,7 +900,7 @@ update {
     
     // Reset all counters
     Action ResetData = delegate() {
-      STCompletion = 0;
+      RoomTrackerInt = 0;
       RoomTrackerT = false;
       RoomTrackerP = false;
       RoomTrackerA = false;
@@ -1135,7 +1135,7 @@ update {
     Func<int> CallSnakeTales = delegate() {
       // Also set up for the results check
       if (current.RoomCode == "sselect") {
-        STCompletion = 1;
+        RoomTrackerInt = 1;
         Debug("Trying to figure out when this tale of snakes has ended.");
       }
       return -1; // don't split after tales
@@ -1144,11 +1144,11 @@ update {
     // And the results check.
     Func<int> WatchSnakeTalesCredits = delegate() {
       // it starts at 0, goes up...
-      if ( (STCompletion == 1) && (C(current.STCompletionCheck) != 0) ) STCompletion = 2;
+      if ( (RoomTrackerInt == 1) && (C(current.STCompletionCheck) != 0) ) RoomTrackerInt = 2;
       // ...then goes back to 0
-      else if ( (STCompletion == 2) && (C(current.STCompletionCheck) == 0) ) {
+      else if ( (RoomTrackerInt == 2) && (C(current.STCompletionCheck) == 0) ) {
         Debug("Moved briskly to the Snake Tales result screen!");
-        STCompletion = 0;
+        RoomTrackerInt = 0;
         return 1;
       }
       return 0;
@@ -1306,7 +1306,7 @@ update {
     vars.UpdateBigBoss = UpdateBigBoss;
     
     // ASLVarViewer values
-    int PreviousO2 = 4000;
+    int PreviousO2 = -1;
     int PreviousGrip = -1;
     int PreviousCaution = -1;
     int MaxGrip = -1;
@@ -1394,7 +1394,7 @@ update {
           int MaxChaff = 1024;
           string ChaffTimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentChaff / ChaffRate) );
           vars.ASL_Info = "Chaff: " + vars.ValueFormat(CurrentChaff, MaxChaff) + " (" + ChaffTimeLeft + " left)";
-          vars.InfoTimer = 1; // the insta :O
+          vars.InfoTimer = 10;
         }
         // If we're in caution, show that
         else if (CurrentCaution != PreviousCaution) {
@@ -1402,7 +1402,7 @@ update {
           int MaxCaution = 3600;
           string CautionTimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentCaution / 60) );
           vars.ASL_Info = "Caution: " + vars.ValueFormat(CurrentCaution, MaxCaution) + " (" + CautionTimeLeft + " left)";
-          vars.InfoTimer = 1;
+          vars.InfoTimer = 10;
         }
         
       }
