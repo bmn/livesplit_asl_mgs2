@@ -566,11 +566,19 @@ startup {
     settings.Add("aslvv", true, "Enable ASL Var Viewer integration", "options");
     settings.SetToolTip("aslvv", "Disabling this may slightly improve performance");
       settings.Add("aslvv_info", true, "ASL_Info (contextual information)", "aslvv");
-        settings.Add("aslvv_info_room", false, "Show the current location when there is no other info", "aslvv_info");
-        settings.SetToolTip("aslvv_info_room", "Location is provided on its own by ASL_CurrentRoom");
+        settings.Add("aslvv_info_vars", true, "Display these values:", "aslvv_info");
+          settings.Add("aslvv_info_room", false, "Current location", "aslvv_info_vars");
+          settings.SetToolTip("aslvv_info_room", "Use ASL_CurrentRoom if you only want the location");
+          settings.Add("aslvv_info_caution", true, "Caution", "aslvv_info_vars");
+          settings.Add("aslvv_info_chaff", true, "Chaff", "aslvv_info_vars");
+          settings.Add("aslvv_info_grip", true, "Grip", "aslvv_info_vars");
+          settings.Add("aslvv_info_o2", true, "O2", "aslvv_info_vars");
+            settings.Add("aslvv_info_o2health", false, "Also show the time remaining from Life", "aslvv_info_o2");
+          settings.Add("aslvv_info_boss", true, "Boss health", "aslvv_info_vars");
+          settings.Add("aslvv_info_choke", true, "Choke torture progress", "aslvv_info_vars");
+          settings.Add("aslvv_info_colon", true, "Ascending Colon tutorial progress", "aslvv_info_vars");
+          settings.Add("aslvv_info_max", true, "Also show the maximum value for raw values", "aslvv_info");
         settings.Add("aslvv_info_percent", true, "Show percentages instead of raw values", "aslvv_info");
-        settings.Add("aslvv_info_max", true, "Also show the maximum value for raw values", "aslvv_info");
-        settings.Add("aslvv_info_o2health", false, "O2: Also show the time remaining from Life", "aslvv_info");
       settings.Add("aslvv_boss", true, "ASL_BestCodeName (Perfect Stats attempt tracking)", "aslvv");
         settings.Add("aslvv_boss_short", false, "Show single letters for stats instead of full titles", "aslvv_boss");
         settings.SetToolTip("aslvv_boss_short", "Enable this if the full stat names make the message too long");
@@ -983,15 +991,21 @@ update {
           if (NewStamina != MaxVal) DebugStamina = " Stamina: " + ValueFormat(NewStamina, BossMaxStamina);
           if (NewHealth != MaxVal) DebugHealth = " Life: " + ValueFormat(NewHealth, BossMaxHealth);
           string DebugString = Name + " |" + DebugStamina + DebugHealth;
-          DebugInfo(DebugDelta + DebugString);
-          vars.InfoTimer = 300;
+          if (settings["aslvv_info_boss"]) {
+            DebugInfo(DebugDelta + DebugString);
+            vars.InfoTimer = 300;
+          }
+          else Debug(DebugDelta + DebugString);
           if ( (NewStamina <= 0) || (NewHealth <= 0) ) {
             if (HasContinued()) { // making sure the no-health thing isn't just the game resetting health
               ResetBossData();
               return 0;
             }
-            vars.PrevInfo = ""; // boss info will be out of fashion once the next message has timed out...
-            DebugInfo("Boss defeated!");
+            if (settings["aslvv_info_boss"]) {
+              vars.PrevInfo = ""; // boss info will be out of fashion once the next message has timed out...
+              DebugInfo("Boss defeated!");
+            }
+            else Debug("Boss defeated!");
             vars.BlockNextRoom = true;
             return 1;
           }
@@ -1039,14 +1053,19 @@ update {
           return 0;
         }
         if (current.FatmanBombsActive == 0) {
-          vars.InfoTimer = 180;
-          DebugInfo("Boss completed!");
+          if (settings["aslvv_info_boss"]) {
+            vars.InfoTimer = 180;
+            DebugInfo("Boss completed!");
+          }
+          else Debug("Boss completed!");
           return 1; // not necesary to reset boss data as it'll happen in split
         }
         if (current.FatmanBombsActive < BossCounter) {
           BossCounter = current.FatmanBombsActive;
           vars.InfoTimer = 0; // deactivate the "boss defeated" timeout
-          DebugInfo("Bombs remaining: " + Convert.ToString(BossCounter));
+          string DebugString = "Bombs remaining: " + Convert.ToString(BossCounter);
+          if (settings["aslvv_info_boss"]) DebugInfo(DebugString);
+          else Debug(DebugString);
         }
       }
       return 0;
@@ -1076,7 +1095,7 @@ update {
     
     // Choke Boss (no split)
     Func<int> WatchChoke = delegate() {
-      if (!settings["aslvv"]) return -1;
+      if (!settings["aslvv_info_choke"]) return -1;
       int FramesLeft = C(current.ChokeTimer);
       if ( (FramesLeft < 1) || (FramesLeft > 3000) ) return 0;
       vars.InfoTimer = 10;
@@ -1363,7 +1382,7 @@ update {
         int CurrentCaution = C(current.CurrentCaution);
 
         // If we're underwater, update the O2 status in ASL_Info
-        if ( (CurrentO2 != PreviousO2) && (current.RoomCode != "w51a") ) { // TODO get O2 + health info display working 
+        if ( (settings["aslvv_info_o2"]) && (CurrentO2 != PreviousO2) && (current.RoomCode != "w51a") ) { // TODO get O2 + health info display working 
           PreviousO2 = CurrentO2;
           if (current.RoomTimer > 5) {
             int MaxO2 = (current.MaxHealth == 30) ? 3600 : 4000;
@@ -1378,7 +1397,7 @@ update {
           }
         }
         // If we're hanging, update the grip status
-        else if ( (CurrentGrip != -1) && (CurrentGrip != PreviousGrip) ) {
+        else if ( (settings["aslvv_info_grip"]) && (CurrentGrip != -1) && (CurrentGrip != PreviousGrip) ) {
           if (current.RoomTimer > 5) {
             PreviousGrip = CurrentGrip;
             int MaxGrip = C(current.MaxGrip);
@@ -1389,14 +1408,14 @@ update {
           }
         }
         // If there's a chaff grenade active, show that
-        else if (CurrentChaff > 0) {
+        else if ( (settings["aslvv_info_chaff"]) && (CurrentChaff > 0) ) {
           int MaxChaff = 1024;
           string ChaffTimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentChaff / ChaffRate) );
           vars.ASL_Info = "Chaff: " + vars.ValueFormat(CurrentChaff, MaxChaff) + " (" + ChaffTimeLeft + " left)";
           vars.InfoTimer = 10;
         }
         // If we're in caution, show that
-        else if (CurrentCaution != PreviousCaution) {
+        else if ( (settings["aslvv_info_caution"]) && (CurrentCaution != PreviousCaution) ) {
           PreviousCaution = CurrentCaution;
           string CautionTimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentCaution / 60) );
           vars.ASL_Info = "Caution: " + vars.ValueFormat(CurrentCaution, C(current.MaxCaution)) + " (" + CautionTimeLeft + " left)";
