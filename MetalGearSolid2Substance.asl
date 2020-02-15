@@ -27,7 +27,9 @@ state("mgs2_sse") {
   byte2     CurrentChaff: 0xB6DE4C;
   byte2     CurrentO2: 0x3E315E, 0x31;
   byte2     CurrentGrip: 0x618BAC, 0x80;
+  byte2     MaxGrip: 0x618BAC, 0x82;
   byte2     CurrentCaution: 0x6160C8;
+  byte2     MaxCaution: 0xD8F508; // D8D908 B60000
   byte2     GripMultiplier: 0xD8F500; // This is meant to be 1800 for Snake, 3600 for Raiden, but isn't?
   byte      RadarOn: 0xF80DB, 0x4CA;
 
@@ -1309,7 +1311,6 @@ update {
     int PreviousO2 = -1;
     int PreviousGrip = -1;
     int PreviousCaution = -1;
-    int MaxGrip = -1;
     float ChaffRate = (1024.0f / 30);
     Action UpdateASLVars = delegate() {
       if (settings["aslvv"]) {
@@ -1378,11 +1379,9 @@ update {
         }
         // If we're hanging, update the grip status
         else if ( (CurrentGrip != -1) && (CurrentGrip != PreviousGrip) ) {
-          PreviousGrip = CurrentGrip;
           if (current.RoomTimer > 5) {
-            // Quick fix, won't change immediately when leveling up at low CurrentGrip
-            if (CurrentGrip > MaxGrip) MaxGrip = (int)Math.Ceiling((double)CurrentGrip / 1800) * 1800;
-            int StrengthLevel = (int)Math.Floor((double)vars.ASL_Strength / 100);
+            PreviousGrip = CurrentGrip;
+            int MaxGrip = C(current.MaxGrip);
             int GripRate = (current.CurrentHealth == current.MaxHealth) ? 60 : 120;
             string GripTimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentGrip / GripRate) );
             vars.ASL_Info = "Grip: " + vars.ValueFormat(CurrentGrip, MaxGrip) + " (" + GripTimeLeft + " left)";
@@ -1399,9 +1398,8 @@ update {
         // If we're in caution, show that
         else if (CurrentCaution != PreviousCaution) {
           PreviousCaution = CurrentCaution;
-          int MaxCaution = 3600;
           string CautionTimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentCaution / 60) );
-          vars.ASL_Info = "Caution: " + vars.ValueFormat(CurrentCaution, MaxCaution) + " (" + CautionTimeLeft + " left)";
+          vars.ASL_Info = "Caution: " + vars.ValueFormat(CurrentCaution, C(current.MaxCaution)) + " (" + CautionTimeLeft + " left)";
           vars.InfoTimer = 10;
         }
         
