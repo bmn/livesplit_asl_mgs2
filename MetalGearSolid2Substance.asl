@@ -57,6 +57,8 @@ state("mgs2_sse") {
   byte2     RaysHealth: 0xAD4EA4, 0x54, 0x10, 0x10, 0x170, 0x7E0;
   byte2     RaysTalesHealth: 0x652F30, 0x490;
   byte2     ChokeTimer: 0xAD4F6C, 0x40;
+  byte      AscendingColonActive: 0xD8E105;
+  byte2     AscendingColonTimer: 0xAD4F08, 0x40;
 }
 
 isLoading {
@@ -1131,6 +1133,18 @@ update {
     };
     vars.SpecialRoomChangeCallback.Add("d070px9", CallTortureCutscene);
     vars.SpecialRoomChangeCallback.Add("w42a", CallTortureCutscene2);
+    
+    // Plant: Show the 45-second timer for Ascending Colon
+    Func<int> WatchAscendingColon = delegate() {
+      if (!settings["aslvv_info_colon"]) return -1;
+      if (current.AscendingColonActive == 0) return 0;
+      int FramesLeft = C(current.AscendingColonTimer);
+      if (FramesLeft == 0) return -1;
+      vars.InfoTimer = 10;
+      Info("Time left: " + string.Format( "{00:0.0}", (decimal)((double)FramesLeft / 60) ));
+      return 0;
+    };
+    vars.SpecialWatchCallback.Add("w43a", WatchAscendingColon);
     
     // Plant: Increment the Big Boss alert counters
     Func<int> CallBigBossAlert1 = delegate() {
