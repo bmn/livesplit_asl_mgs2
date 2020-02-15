@@ -339,7 +339,6 @@ startup {
   // and new
   var IncludeCurrentRoom = new string[] {
     "museum", // end of tanker in tanker-plant
-    "ending" // results screen in tanker and plant
   };
   
   
@@ -806,6 +805,7 @@ update {
     bool BigBossFailed = false;
     int BigBossAlertState = 0;
     int RoomTrackerInt = 0;
+    uint RoomTrackerUint = 0;
     bool RoomTrackerT = false;
     bool RoomTrackerP = false;
     bool RoomTrackerA = false;
@@ -916,6 +916,7 @@ update {
     // Reset all counters
     Action ResetData = delegate() {
       RoomTrackerInt = 0;
+      RoomTrackerUint = 0;
       RoomTrackerT = false;
       RoomTrackerP = false;
       RoomTrackerA = false;
@@ -1247,6 +1248,17 @@ update {
     };
     vars.SpecialRoomChangeCallback.Add("ta02a", CallEGStrutB);
     vars.SpecialRoomChangeCallback.Add("a14a", CallBSEStrutB);
+    
+    // Split at the right time (or at least, a frame or two after the right time - this won't affect IGT) on the results screen
+    Func<int> WatchEnding = delegate() {
+      if (current.GameTime == RoomTrackerUint) {
+        RoomTrackerUint = 0;
+        return 1;
+      }
+      RoomTrackerUint = current.GameTime;
+      return 0;
+    };
+    vars.SpecialWatchCallback.Add("ending", WatchEnding);
     
     
     // Scary VR Missions stuff
