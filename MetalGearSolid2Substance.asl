@@ -109,11 +109,11 @@ start {
   
   if (current.RoomCode == old.RoomCode) return false; // room is unchanged
     
-  // was the old room a menu?
-  if (!vars.Menus.TryGetValue(old.RoomCode, out OldRoomName)) return false;
+  // was the old room a menu (or the "this is a fictional story" screen)?
+  if ( (!vars.Menus.TryGetValue(old.RoomCode, out OldRoomName)) && (old.RoomCode != "ending") ) return false;
   
-  // is the new room NOT a menu?
-  if (vars.Menus.TryGetValue(current.RoomCode, out CurrentRoomName)) return false;
+  // is the new room NOT a menu (and not that screen)?
+  if ( (vars.Menus.TryGetValue(current.RoomCode, out CurrentRoomName)) || (current.RoomCode == "ending") ) return false;
   
   CurrentRoomName = vars.GetRoomName(current.RoomCode);
   if (OldRoomName == "") OldRoomName = vars.GetRoomName(old.RoomCode);
