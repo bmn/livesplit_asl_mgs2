@@ -70,72 +70,84 @@ gameTime {
 }
 
 reset {
-  string CurrentRoomName, OldRoomName;
-  
-  if (!settings["resets"]) return false; // resets not enabled anyway!
-  
-  if (current.RoomCode == old.RoomCode) return false; // room is unchanged
-  
-  // reset right away if we're going to main menu from missions
-  if ( (current.RoomCode == "n_title") && (old.RoomCode == "mselect") ) {
-    vars.VRMissions = false;
+  try {
+    string CurrentRoomName, OldRoomName;
+    
+    if (!settings["resets"]) return false; // resets not enabled anyway!
+    
+    if (current.RoomCode == old.RoomCode) return false; // room is unchanged
+    
+    // reset right away if we're going to main menu from missions
+    if ( (current.RoomCode == "n_title") && (old.RoomCode == "mselect") ) {
+      vars.VRMissions = false;
+      return true;
+    }
+    
+    // otherwise... was the old room NOT a menu?
+    if (vars.Menus.TryGetValue(old.RoomCode, out OldRoomName)) return false;
+    
+    // is the new room a menu?
+    if (!vars.Menus.TryGetValue(current.RoomCode, out CurrentRoomName)) return false;
+    
+    // just to be sure, we didn't just complete a Snake Tales mission, did we?
+    if (old.RoomCode == "tales") return false;
+    
+    // and we're not currently on the missions menu?
+    if (current.RoomCode == "mselect") return false;
+    
+    OldRoomName = vars.GetRoomName(old.RoomCode);
+    if (CurrentRoomName == "") CurrentRoomName = vars.GetRoomName(current.RoomCode);
+    
+    vars.Debug("In-game [" + old.RoomCode + "] " + OldRoomName + " > Menu [" + current.RoomCode + "] " + CurrentRoomName);
     return true;
   }
-  
-  // otherwise... was the old room NOT a menu?
-  if (vars.Menus.TryGetValue(old.RoomCode, out OldRoomName)) return false;
-  
-  // is the new room a menu?
-  if (!vars.Menus.TryGetValue(current.RoomCode, out CurrentRoomName)) return false;
-  
-  // just to be sure, we didn't just complete a Snake Tales mission, did we?
-  if (old.RoomCode == "tales") return false;
-  
-  // and we're not currently on the missions menu?
-  if (current.RoomCode == "mselect") return false;
-  
-  OldRoomName = vars.GetRoomName(old.RoomCode);
-  if (CurrentRoomName == "") CurrentRoomName = vars.GetRoomName(current.RoomCode);
-  
-  vars.Debug("In-game [" + old.RoomCode + "] " + OldRoomName + " > Menu [" + current.RoomCode + "] " + CurrentRoomName);
-  return true;
+  catch (Exception e) {
+    vars.LogException(e, "reset");
+    return false;
+  }
 }
 
 start {
-  int i;
-  string CurrentRoomName, OldRoomName;
-  
-  if ( (old.RoomCode == null) || (old.RoomCode == "") ) return false;
-  
-  if (current.RoomCode == old.RoomCode) return false; // room is unchanged
+  try {
+    int i;
+    string CurrentRoomName, OldRoomName;
     
-  // was the old room a menu (or the "this is a fictional story" screen)?
-  if ( (!vars.Menus.TryGetValue(old.RoomCode, out OldRoomName)) && (old.RoomCode != "ending") ) return false;
-  
-  // is the new room NOT a menu (and not that screen)?
-  if ( (vars.Menus.TryGetValue(current.RoomCode, out CurrentRoomName)) || (current.RoomCode == "ending") ) return false;
-  
-  CurrentRoomName = vars.GetRoomName(current.RoomCode);
-  if (OldRoomName == "") OldRoomName = vars.GetRoomName(old.RoomCode);
-  
-  vars.Debug("Menu [" + old.RoomCode + "] " + OldRoomName + " > In-game [" + current.RoomCode + "] " + CurrentRoomName);
-  
-  // Enable VR Missions mode if coming from the missions menu
-  if (old.RoomCode == "mselect") vars.VRMissionsEnable();
-  else if (vars.VRMissions) vars.VRMissions = false;
-  
-  // Enable Boss Rush mode if going into the boss screen (necessary for Olga's different memaddress)
-  if (current.RoomCode == "boss") {
-    vars.Debug("Starting Boss Rush");
-    vars.BossRush = true;
+    if ( (old.RoomCode == null) || (old.RoomCode == "") ) return false;
+    
+    if (current.RoomCode == old.RoomCode) return false; // room is unchanged
+      
+    // was the old room a menu (or the "this is a fictional story" screen)?
+    if ( (!vars.Menus.TryGetValue(old.RoomCode, out OldRoomName)) && (old.RoomCode != "ending") ) return false;
+    
+    // is the new room NOT a menu (and not that screen)?
+    if ( (vars.Menus.TryGetValue(current.RoomCode, out CurrentRoomName)) || (current.RoomCode == "ending") ) return false;
+    
+    CurrentRoomName = vars.GetRoomName(current.RoomCode);
+    if (OldRoomName == "") OldRoomName = vars.GetRoomName(old.RoomCode);
+    
+    vars.Debug("Menu [" + old.RoomCode + "] " + OldRoomName + " > In-game [" + current.RoomCode + "] " + CurrentRoomName);
+    
+    // Enable VR Missions mode if coming from the missions menu
+    if (old.RoomCode == "mselect") vars.VRMissionsEnable();
+    else if (vars.VRMissions) vars.VRMissions = false;
+    
+    // Enable Boss Rush mode if going into the boss screen (necessary for Olga's different memaddress)
+    if (current.RoomCode == "boss") {
+      vars.Debug("Starting Boss Rush");
+      vars.BossRush = true;
+    }
+    else if (vars.BossRush) vars.BossRush = false;
+    
+    // Might as well!
+    vars.ResetData(); // resetting on an unbeaten boss can cause some really bad things to happen in insta
+    vars.UpdateBigBoss();
+    
+    return true;
   }
-  else if (vars.BossRush) vars.BossRush = false;
-  
-  // Might as well!
-  vars.ResetData(); // resetting on an unbeaten boss can cause some really bad things to happen in insta
-  vars.UpdateBigBoss();
-  
-  return true;
+  catch (Exception e) {
+    vars.LogException(e, "start");
+    return false;
+  }
 } 
 
 startup {
@@ -786,714 +798,750 @@ startup {
 
 
 update {
-  // Callbacks go here - they need access to current and old so startup won't do the job  
-  if (!vars.Initialised) {
-    print("Beginning update initialisation...");
-    
-    vars.Initialised = true;
-    int MaxVal = 99999;
-    int Counter = 0;
-    bool BossActive = false;
-    bool NoBoss = false;
-    int Continues = -1;
-    bool BossDefeated = false;
-    int BossCounter = MaxVal;
-    int BossHealth = MaxVal;
-    int BossStamina = MaxVal;
-    int BossMaxHealth = -1;
-    int BossMaxStamina = -1;
-    bool BigBossFailed = false;
-    int BigBossAlertState = 0;
-    int RoomTrackerInt = 0;
-    uint RoomTrackerUint = 0;
-    bool RoomTrackerT = false;
-    bool RoomTrackerP = false;
-    bool RoomTrackerA = false;
-    bool RoomTrackerB = false;
-    bool RoomTrackerC = false;
-    bool RoomTrackerD = false;
-    bool RoomTrackerE = false;
-    vars.PreviousTagsSnake = 0;
-    vars.PreviousTagsRaiden = 0;
-    vars.PrevInfo = "";
-    vars.BossRush = false;
-    
-    var ValidMaxHealth = new Dictionary<string, int[]> {
-      { "Olga", new[] {128, MaxVal} },
-      { "Meryl", new[] {128, MaxVal} },
-      { "Fatman", new[] {256, 384, 312} },
-      { "Harrier", new[] {2250, 3250, 3500, 4000, 4750, 4750, MaxVal} },
-      { "Vamp", new[] {100, 128} },
-      { "Rays", new[] {3072, 5120, 7168, 10240, 20480, MaxVal} },
-      { "Solidus", new[] {75, 95, 100} }
-    };
-    
-    // Debug message handler
-    string DebugPath = System.IO.Path.GetDirectoryName(Application.ExecutablePath) + "\\mgs2_sse_debug.log";
-    vars.DebugTimer = 0;
-    vars.InfoTimer = 0;
-    vars.DebugTimerStart = 120;
-    Action<string> Debug = delegate(string message) {
-      message = "[" + current.GameTime + "] " + message;
-      if (settings["debug_file"]) {
-        using(System.IO.StreamWriter stream = new System.IO.StreamWriter(DebugPath, true)) {
-          stream.WriteLine(message);
-          stream.Close();
-        }
-      }
-      print("[MGS2AS] " + message);
-      vars.ASL_Debug = message;
-      // also overwrite the previous message if we're already showing the "splitting now" message
-      if (vars.DebugTimer != vars.DebugTimerStart) vars.PrevDebug = message;
-    };
-    vars.Debug = Debug;
-    
-    Action<string> Info = delegate(string message) {
-      vars.ASL_Info = message;
-    };
-    vars.Info = Info;
-    
-    Action<string> DebugInfo = delegate(string message) {
-      Debug(message);
-      Info(message);
-    };
-    vars.DebugInfo = DebugInfo;
-    
-    // Show debug a list of rooms
-    /*
-    string RoomNames = string.Join("\n  ", vars.Rooms);
-    Debug("List of rooms: " + "{\n  " + RoomNames + "\n}");
-    */
-    
-    // Shortened name for the byte[]-to-int converter
-    Func<byte[], int> C = delegate(byte[] input) {
-      if (input == null) return 0;
-      return BitConverter.ToInt16(input, 0);
-    };
-    vars.C = C;
-    
-    // Confirm a split
-    Func<bool> Split = delegate() {
-      vars.DebugTimer = vars.DebugTimerStart;
-      vars.PrevDebug = vars.ASL_Debug;
-      vars.Debug("Splitting now");
-      return true;
-    };
-    vars.Split = Split;
-    
-    // Check for new continues
-    Func<bool> HasContinued = delegate() {
-      int NewContinues = C(current.Continues);
-      if (NewContinues > Continues) {
-        Debug("Detected continue during boss: " + Continues + " > " + NewContinues);
-        Continues = NewContinues;
-        return true;
-      }
-      return false;
-    };
-    
-    // Reset Big Boss alert counters
-    Action ResetBigBossData = delegate() {
-      BigBossFailed = false;
-      BigBossAlertState = 0;
-    };
-    vars.ResetBigBossData = ResetBigBossData;
-    
-    // Reset counters used to track bosses
-    Action ResetBossData = delegate() {
-      BossActive = false;
-      NoBoss = false;
-      BossDefeated = false;
-      BossCounter = MaxVal;
-      BossMaxHealth = -1;
-      BossMaxStamina = -1;
-      Continues = -1;
-      vars.SplitNextRoom = false;
-      vars.BlockNextRoom = false;
-    };
-    vars.ResetBossData = ResetBossData;
-    
-    // Reset all counters
-    Action ResetData = delegate() {
-      RoomTrackerInt = 0;
-      RoomTrackerUint = 0;
-      RoomTrackerT = false;
-      RoomTrackerP = false;
-      RoomTrackerA = false;
-      RoomTrackerB = false;
-      RoomTrackerC = false;
-      RoomTrackerD = false;
-      RoomTrackerE = false;
+  try {
+    // Callbacks go here - they need access to current and old so startup won't do the job  
+    if (!vars.Initialised) {
+      print("Beginning update initialisation...");
+      
+      vars.Initialised = true;
+      int MaxVal = 99999;
+      int Counter = 0;
+      bool BossActive = false;
+      bool NoBoss = false;
+      int Continues = -1;
+      bool BossDefeated = false;
+      int BossCounter = MaxVal;
+      int BossHealth = MaxVal;
+      int BossStamina = MaxVal;
+      int BossMaxHealth = -1;
+      int BossMaxStamina = -1;
+      bool BigBossFailed = false;
+      int BigBossAlertState = 0;
+      int RoomTrackerInt = 0;
+      uint RoomTrackerUint = 0;
+      bool RoomTrackerT = false;
+      bool RoomTrackerP = false;
+      bool RoomTrackerA = false;
+      bool RoomTrackerB = false;
+      bool RoomTrackerC = false;
+      bool RoomTrackerD = false;
+      bool RoomTrackerE = false;
       vars.PreviousTagsSnake = 0;
       vars.PreviousTagsRaiden = 0;
-      ResetBigBossData();
-      ResetBossData();
-    };
-    vars.ResetData = ResetData;
-    
-    Func<int, int, int, bool> Between = (input, lower, upper) => ( (input <= lower) && (input >= upper) );
-    
-    Func<int, int, int> Percent = delegate(int cur, int max) {
-      double percentage = (100.0 * cur / max);
-      return Convert.ToInt16( Math.Round(percentage) );
-    };
-    
-    Func<int, int, string> ValueFormat = delegate(int cur, int max) {
-      if (settings["aslvv_info_percent"]) return string.Format("{0,2}%", Percent(cur, max));
+      vars.PrevInfo = "";
+      vars.BossRush = false;
+      var ExceptionCount = new Dictionary<string, int> {
+        { "reset", 0 },
+        { "start", 0 },
+        { "update", 0 },
+        { "split", 0 }
+      };
       
-      int MaxLen = (int)Math.Floor(Math.Log10(max) + 1);
-      if (settings["aslvv_info_max"]) return string.Format("{0," + MaxLen + "}/{1," + MaxLen + "}", cur, max);
-      return string.Format("{0," + MaxLen + "}", cur);
-    };
-    vars.ValueFormat = ValueFormat;
-    
-    Func<int, string, string, string> Plural = (Var, Singular, Pluralular) => (Var != 1) ? Pluralular : Singular;
-    
-
-    
-    // Temporary boss watcher to examine what health values do
-    /*
-    Func<string, int, int, int> WatchBoss = delegate(string Name, int CurrentStamina, int CurrentHealth) {
-      if (Continues == -1) Continues = C(current.Continues);
-      else if (HasContinued()) {
-        ResetBossData();
-        vars.Debug(current.RoomTimer +" | Continued");
-      }
-      if (CurrentStamina != BossStamina) {
-        vars.Debug(current.RoomTimer +" | "+ Name +": Stamina "+ BossStamina +" > "+ CurrentStamina);
-        BossStamina = CurrentStamina;
-      }
-      if (CurrentHealth != BossHealth) {
-        vars.Debug(current.RoomTimer +" | "+ Name +": Health "+ BossHealth +" > "+ CurrentHealth);
-        BossHealth = CurrentHealth;
-      }
-      return 0;
-    };
-    */
-    // New snazzy boss watcher
-    Func<string, int, int, int> WatchBoss = delegate(string Name, int NewStamina, int NewHealth) {
-      if (!settings["boss_insta"]) return -1; // stop watching if insta-splits are disabled
+      var ValidMaxHealth = new Dictionary<string, int[]> {
+        { "Olga", new[] {128, MaxVal} },
+        { "Meryl", new[] {128, MaxVal} },
+        { "Fatman", new[] {256, 384, 312} },
+        { "Harrier", new[] {2250, 3250, 3500, 4000, 4750, 4750, MaxVal} },
+        { "Vamp", new[] {100, 128} },
+        { "Rays", new[] {3072, 5120, 7168, 10240, 20480, MaxVal} },
+        { "Solidus", new[] {75, 95, 100} }
+      };
       
-      if (Continues == -1) Continues = C(current.Continues);
+      // Debug message handler
+      string DebugPath = System.IO.Path.GetDirectoryName(Application.ExecutablePath) + "\\mgs2_sse_debug.log";
+      vars.DebugTimer = 0;
+      vars.InfoTimer = 0;
+      vars.DebugTimerStart = 120;
+      Action<string> Debug = delegate(string message) {
+        message = "[" + current.GameTime + "] " + message;
+        if (settings["debug_file"]) {
+          using(System.IO.StreamWriter stream = new System.IO.StreamWriter(DebugPath, true)) {
+            stream.WriteLine(message);
+            stream.Close();
+          }
+        }
+        print("[MGS2AS] " + message);
+        vars.ASL_Debug = message;
+        // also overwrite the previous message if we're already showing the "splitting now" message
+        if (vars.DebugTimer != vars.DebugTimerStart) vars.PrevDebug = message;
+      };
+      vars.Debug = Debug;
       
-      if (current.RoomTimer > 5) {
-        if ( (BossActive) && ( (NewStamina != BossStamina) || (NewHealth != BossHealth) ) ) {
-          if (BossMaxStamina <= 0) {
-            BossMaxStamina = NewStamina;
-            BossMaxHealth = NewHealth;
-          }
-          
-          string DebugDelta = "";
-          if ( (BossHealth != MaxVal) && (NewHealth < BossHealth) )
-            DebugDelta = "[-" + (BossHealth - NewHealth) + "] ";
-          else if ( (BossStamina != MaxVal) && (NewStamina < BossStamina) )
-            DebugDelta = "[-" + (BossStamina - NewStamina) + "] ";
-          
-          BossStamina = NewStamina;
-          BossHealth = NewHealth;
-              
-          string DebugStamina = "";
-          string DebugHealth = "";
-          if (NewStamina != MaxVal) DebugStamina = " Stamina: " + ValueFormat(NewStamina, BossMaxStamina);
-          if (NewHealth != MaxVal) DebugHealth = " Life: " + ValueFormat(NewHealth, BossMaxHealth);
-          string DebugString = Name + " |" + DebugStamina + DebugHealth;
-          if (settings["aslvv_info_boss"]) {
-            DebugInfo(DebugDelta + DebugString);
-            vars.InfoTimer = 300;
-          }
-          else Debug(DebugDelta + DebugString);
-          if ( (NewStamina <= 0) || (NewHealth <= 0) ) {
-            if (HasContinued()) { // making sure the no-health thing isn't just the game resetting health
-              ResetBossData();
-              return 0;
-            }
-            if (settings["aslvv_info_boss"]) {
-              vars.PrevInfo = ""; // boss info will be out of fashion once the next message has timed out...
-              DebugInfo("Boss defeated!");
-            }
-            else Debug("Boss defeated!");
-            vars.BlockNextRoom = true;
-            return 1;
-          }
-          vars.PrevInfo = DebugString;
+      Action<Exception, string> LogException = delegate(Exception e, string source) {
+        if (ExceptionCount[source] < 10) { // only log the first 10 of a particular type per run
+          ExceptionCount[source] = ExceptionCount[source] + 1;
+          Debug("Error in " + source + ":\n" + e.ToString());
+          if (ExceptionCount[source] == 10) Debug("Reached error limit for " + source + ", will not log again until next run");
         }
-        else if ( (!NoBoss) && (!BossActive) && (current.RoomTimer < 60) ) {
-          if ( (NewStamina == null) || (!ValidMaxHealth[Name].Contains(NewStamina)) || (NewHealth == null) || (!ValidMaxHealth[Name].Contains(NewHealth)) ) {
-            vars.Debug("No boss in this area");
-            NoBoss = true;
-          }
-          else {
-            vars.Debug("Boss battle vs " + Name);
-            BossActive = true;
-          }
-        }
-      }
-      // Reset our data and start again if the room has reloaded
-      else if ( (NoBoss) || (BossActive) ) ResetBossData(); 
+        print(e.ToString());
+      };
+      vars.LogException = LogException;
       
-      return 0;
-    };
-   
-
-    // BOSSES
-    
-    // Olga
-    Func<int> WatchOlga = delegate() {
-      int Stamina = (vars.BossRush) ? current.OlgaRushStamina : current.OlgaStamina;
-      return WatchBoss("Olga", Stamina, MaxVal);
-    };
-    vars.SpecialWatchCallback.Add("w00b", WatchOlga);
-    
-    // Meryl (Confidential Legacy)
-    Func<int> WatchMeryl = () => WatchBoss("Meryl", current.OlgaStamina, current.MerylHealth);
-    vars.SpecialWatchCallback.Add("a00b", WatchMeryl);
-
-    // Fatman the troublemaker
-    Func<int> WatchFatman = delegate() {
-      if (!BossDefeated) {
-        if (WatchBoss("Fatman", current.FatmanStamina, C(current.FatmanHealth)) == 1) BossDefeated = true;
-      }
-      if (BossDefeated) {
-        if (HasContinued()) {
-          ResetBossData();
-          return 0;
-        }
-        if (current.FatmanBombsActive == 0) {
-          if (settings["aslvv_info_boss"]) {
-            vars.InfoTimer = 180;
-            DebugInfo("Boss completed!");
-          }
-          else Debug("Boss completed!");
-          return 1; // not necesary to reset boss data as it'll happen in split
-        }
-        if (current.FatmanBombsActive < BossCounter) {
-          BossCounter = current.FatmanBombsActive;
-          vars.InfoTimer = 0; // deactivate the "boss defeated" timeout
-          string DebugString = "Bombs remaining: " + Convert.ToString(BossCounter);
-          if (settings["aslvv_info_boss"]) DebugInfo(DebugString);
-          else Debug(DebugString);
-        }
-      }
-      return 0;
-    };
-    vars.SpecialWatchCallback.Add("w20c", WatchFatman); // Sons of Liberty
-    vars.SpecialWatchCallback.Add("a20c", WatchFatman); // A Wrongdoing
-    
-    // Harrier
-    Func<int> WatchHarrier = () => WatchBoss("Harrier", MaxVal, C(current.HarrierHealth));
-    vars.SpecialWatchCallback.Add("w25a", WatchHarrier); // Sons of Liberty
-    vars.SpecialWatchCallback.Add("a25a", WatchHarrier); // Big Shell Evil
-    
-    // Vamp
-    Func<int> WatchVamp = () => WatchBoss("Vamp", C(current.VampStamina), C(current.VampHealth));
-    vars.SpecialWatchCallback.Add("w31c", WatchVamp); // Sons of Liberty
-    vars.SpecialWatchCallback.Add("a31c", WatchVamp); // Dead Man Whispers
-    
-    // Vamp 2
-    Func<int> WatchVamp2 = () => WatchBoss("Vamp", C(current.Vamp2Stamina), C(current.Vamp2Health));
-    vars.SpecialWatchCallback.Add("w32b", WatchVamp2);
-    
-    // Rays
-    Func<int> WatchRays = () => WatchBoss("Rays", MaxVal, C(current.RaysHealth));
-    vars.SpecialWatchCallback.Add("w46a", WatchRays); // Sons of Liberty
-    Func<int> WatchRaysEG = () => WatchBoss("Rays", MaxVal, C(current.RaysTalesHealth));
-    vars.SpecialWatchCallback.Add("a46a", WatchRaysEG); // External Gazer
-    
-    // Choke Boss (no split)
-    Func<int> WatchChoke = delegate() {
-      if (!settings["aslvv_info_choke"]) return -1;
-      int FramesLeft = C(current.ChokeTimer);
-      if ( (FramesLeft < 1) || (FramesLeft > 3000) ) return 0;
-      vars.InfoTimer = 10;
-      Info("Time left: " + string.Format( "{00:0.0}", (decimal)((double)FramesLeft / 60) ));
-      return 0;
-    };
-    vars.SpecialWatchCallback.Add("w51a", WatchChoke);
-
-    // Solidus
-    Func<int> WatchSolidus = () => WatchBoss("Solidus", current.SolidusStamina, current.SolidusHealth);
-    vars.SpecialWatchCallback.Add("w61a", WatchSolidus); // Sons of Liberty
-    vars.SpecialWatchCallback.Add("a61a", WatchSolidus); // External Gazer
-    
-    // BOSSES END
-
-    
-    // Plant: Filter out the "valid" room change that happens during the torture cutscenes
-    Func<int> CallTortureCutscene = delegate() {
-      // cutscene > jejunum
-      if (current.RoomCode == "w42a") {
-        Debug("In the torture sequence: skipping the Jejunum > Stomach room change that occurs during it");
-        RoomTrackerP = true;
-      }
-      return 0;
-    };
-    Func<int> CallTortureCutscene2 = delegate() {
-      // jejunum > stomach (in cutscene)
-      if ( (RoomTrackerP) && (current.RoomCode == "w41a") ) {
-        RoomTrackerP = false;
-        return -1;
-      }
-      return 0;
-    };
-    vars.SpecialRoomChangeCallback.Add("d070px9", CallTortureCutscene);
-    vars.SpecialRoomChangeCallback.Add("w42a", CallTortureCutscene2);
-    
-    // Plant: Show the 45-second timer for Ascending Colon
-    Func<int> WatchAscendingColon = delegate() {
-      if (!settings["aslvv_info_colon"]) return -1;
-      if (current.AscendingColonActive == 0) return 0;
-      int FramesLeft = C(current.AscendingColonTimer);
-      if (FramesLeft == 0) return -1;
-      vars.InfoTimer = 10;
-      Info("Time left: " + string.Format( "{00:0.0}", (decimal)((double)FramesLeft / 60) ));
-      return 0;
-    };
-    vars.SpecialWatchCallback.Add("w43a", WatchAscendingColon);
-    
-    // Plant: Increment the Big Boss alert counters
-    Func<int> CallBigBossAlert1 = delegate() {
-      BigBossAlertState = 1;
-      Debug("Setting Big Boss alert allowance to 1");
-      return 0;
-    };
-    Func<int> WatchBigBossAlert2 = delegate() {
-      // Trigger on the second instance of this room (after cutscene)
-      Debug(RoomTrackerInt.ToString());
-      if ( (RoomTrackerInt > 0) && (current.RoomTimer < RoomTrackerInt) ) {
-        RoomTrackerInt = 0;
-        BigBossAlertState = 2;
-        Debug("Setting Big Boss alert allowance to 2");
-        return -1;
-      }
-      if (current.RoomTimer < 30) RoomTrackerInt = current.RoomTimer;
-      return 0;
-    };
-    Func<int> WatchBigBossAlert3 = delegate() {
-      // Trigger on the third instance (after initial gameplay and cutscene)
-      if ( (RoomTrackerInt > 0) && (current.RoomTimer < RoomTrackerInt) ) {
-        if (RoomTrackerP) {
-          RoomTrackerP = false;
-          RoomTrackerInt = 0;
-          BigBossAlertState = 2;
-          Debug("Setting Big Boss alert allowance to 3");
-          return -1;
-        }
-        else RoomTrackerP = true;
-      }
-      if (current.RoomTimer < 30) RoomTrackerInt = current.RoomTimer;
-      return 0;
-    };
-    vars.SpecialNewRoomCallback.Add("e32a", CallBigBossAlert1); // Oil Fence sniping
-    vars.SpecialWatchCallback.Add("w44a", WatchBigBossAlert2); // Tengus 1
-    vars.SpecialWatchCallback.Add("w45a", WatchBigBossAlert3); // Tengus 2
-    
-    // Snake Tales in general: Don't split if we're coming from storyline.
-    Func<int> CallSnakeTales = delegate() {
-      // Also set up for the results check
-      if (current.RoomCode == "sselect") {
-        RoomTrackerInt = 1;
-        Debug("Trying to figure out when this tale of snakes has ended.");
-      }
-      return -1; // don't split after tales
-    };
-    vars.SpecialRoomChangeCallback.Add("tales", CallSnakeTales);
-    // And the results check.
-    Func<int> WatchSnakeTalesCredits = delegate() {
-      // it starts at 0, goes up...
-      if ( (RoomTrackerInt == 1) && (C(current.STCompletionCheck) != 0) ) RoomTrackerInt = 2;
-      // ...then goes back to 0
-      else if ( (RoomTrackerInt == 2) && (C(current.STCompletionCheck) == 0) ) {
-        Debug("Moved briskly to the Snake Tales result screen!");
-        RoomTrackerInt = 0;
-        return 1;
-      }
-      return 0;
-    };
-    vars.SpecialWatchCallback.Add("sselect", WatchSnakeTalesCredits);
-    
-    // Big Shell Evil: Option to split when meeting Emma in Strut C
-    Func<int> CallBSEStrutC1 = delegate() {
-      if (current.RoomCode == "a16a") {
-        Debug("[BSE] Entering Strut C from D: will skip pre-Guard Rush split if enabled in settings");
-        RoomTrackerB = true;
-      }
-      return 0;
-    };
-    Func<int> CallBSEStrutC2 = delegate() {
-      if (current.RoomCode == "tales") {
-        if (RoomTrackerB) {
-          RoomTrackerB = false;
-          return (settings["snaketales_b_pantry"]) ? 1 : -1; // pre-Guard Rush, split on setting
-        }
-        return 1; // post-Guard Rush, always split
-      }
-      return 0; // defer otherwise
-    };
-    vars.SpecialRoomChangeCallback.Add("a17a", CallBSEStrutC1);
-    vars.SpecialRoomChangeCallback.Add("a16a", CallBSEStrutC2);
-    
-    // Big Shell Evil: Option to split when accessing the node in Strut B
-    // (with some extra stuff to tiptoe around the same sequence in External Gazer - this is a bit awkward
-    //  because we can't really tweak the already-awkward Strut C situ in BSE)
-    Func<int> CallEGStrutB = delegate() {
-      RoomTrackerE = true; // in reverse! set the tracker when we go to EG-only VR
-      return 0;
-    };
-    Func<int> CallBSEStrutB = delegate() {
-      if ( (!RoomTrackerE) && (current.RoomCode == "tales") ) {
-        RoomTrackerE = false;
-        return (settings["snaketales_b_node"]) ? 1 : -1;
-      }
-      return 0;
-    };
-    vars.SpecialRoomChangeCallback.Add("ta02a", CallEGStrutB);
-    vars.SpecialRoomChangeCallback.Add("a14a", CallBSEStrutB);
-    
-    // Split at the right time (or at least, a frame or two after the right time - this won't affect IGT) on the results screen
-    Func<int> WatchEnding = delegate() {
-      if (current.GameTime == RoomTrackerUint) {
-        RoomTrackerUint = 0;
-        return 1;
-      }
-      RoomTrackerUint = current.GameTime;
-      return 0;
-    };
-    vars.SpecialWatchCallback.Add("ending", WatchEnding);
-    
-    
-    // Scary VR Missions stuff
-    List<string> VRMissionsCurrentRooms = new List<string>();
-    Func<string, bool> VRLogMission = delegate(string RoomCode) {
-      // If going to mission select, try to find a completed roomset
-      if (RoomCode == "mselect") {
-        int CurrentLen = VRMissionsCurrentRooms.Count();
-        // Loop through the possible roomset lengths and try to find any match from the latest rooms
-        foreach (int VRLength in vars.VRMissionLengths) {
-          if (VRLength > CurrentLen) continue; // no point if the roomset is already bigger than our current one
-          string Hash = vars.VRMissionHashRange(VRMissionsCurrentRooms, VRLength); // current hash with appropriate length
-          vars.Debug("Checking hash " + Hash);
-          string VRCategory = "";
-          if (vars.VRMissionSignatures.TryGetValue(Hash, out VRCategory)) {
-            if ( (!settings.ContainsKey(VRCategory)) || (settings[VRCategory]) ) {
-              Debug("Found completed VR roomset " + VRCategory + " = " + Hash);
-              VRMissionsCurrentRooms.Clear();
-              return true;
-            }
-            Debug("Found completed VR roomset " + VRCategory + " = " + Hash + ", but it is disabled in settings");
-          }
+      Action<string> Info = delegate(string message) {
+        vars.ASL_Info = message;
+      };
+      vars.Info = Info;
+      
+      Action<string> DebugInfo = delegate(string message) {
+        Debug(message);
+        Info(message);
+      };
+      vars.DebugInfo = DebugInfo;
+      
+      // Show debug a list of rooms
+      /*
+      string RoomNames = string.Join("\n  ", vars.Rooms);
+      Debug("List of rooms: " + "{\n  " + RoomNames + "\n}");
+      */
+      
+      // Shortened name for the byte[]-to-int converter
+      Func<byte[], int> C = delegate(byte[] input) {
+        if (input == null) return 0;
+        return BitConverter.ToInt16(input, 0);
+      };
+      vars.C = C;
+      
+      // Confirm a split
+      Func<bool> Split = delegate() {
+        vars.DebugTimer = vars.DebugTimerStart;
+        vars.PrevDebug = vars.ASL_Debug;
+        vars.Debug("Splitting now");
+        return true;
+      };
+      vars.Split = Split;
+      
+      // Check for new continues
+      Func<bool> HasContinued = delegate() {
+        int NewContinues = C(current.Continues);
+        if (NewContinues > Continues) {
+          Debug("Detected continue during boss: " + Continues + " > " + NewContinues);
+          Continues = NewContinues;
+          return true;
         }
         return false;
       };
-      // Otherwise, add the current room to the list:
-      // Do nothing if we just did this room
-      int VRCount = VRMissionsCurrentRooms.Count;
-      if ( (VRCount > 0) && (VRMissionsCurrentRooms[VRCount - 1] == RoomCode) ) return false; 
-      // Remove the duplicate if it's not the most recent
-      if (VRMissionsCurrentRooms.Contains(RoomCode)) VRMissionsCurrentRooms.Remove(RoomCode);
-      // Add this room as most recent
-      VRMissionsCurrentRooms.Add(RoomCode);
-      Debug("Entered [" + RoomCode + "] " + vars.GetRoomName(current.RoomCode) + ", adding to current roomset > " + vars.VRMissionHash(VRMissionsCurrentRooms));
-      return false;
-    };
-    Action VRMissionsEnable = delegate() {
-      Debug("VR Missions mode on!");
-      vars.VRMissions = true;
-      VRMissionsCurrentRooms.Clear();
-      VRLogMission(current.RoomCode); // we need to log the first room here
-    };
-    vars.VRMissionsEnable = VRMissionsEnable;
-    vars.VRLogMission = VRLogMission;
-    
-    // Big Boss status for ASLVarViewer
-    Action UpdateBigBoss = delegate() {
-      if (settings["aslvv"]) {
-        List<string> PerfectStatus = new List<string>();
-        List<string> BossStatus = new List<string>();
-        bool PerfectStats = false;
-        string Difficulty = "";
-        string Prefix = "Still on course for ";
-        
-        // Stats that preclude Big Boss:
-        // Not main game?
-        if (!vars.DifficultyHealth.TryGetValue(current.MaxHealth, out Difficulty)) {
-          PerfectStats = true;
-          vars.ASL_Difficulty = "";
-          vars.ASL_BestCodeName = "";
-        }
-        else {
-          vars.ASL_Difficulty = Difficulty;
-          // On Very Easy?
-          if (vars.ASL_Difficulty == "Very Easy") {
-            PerfectStats = true;
-            vars.ASL_BestCodeName = Prefix + "Perfect Stats";
-          }
-          else vars.ASL_BestCodeName = Prefix + vars.BestCodeNames[current.MaxHealth];
-        }
-        // Radar on?
-        vars.ASL_RadarOn = (current.RadarOn == 32);
-        if (vars.ASL_RadarOn) PerfectStats = true;
-        
-        int DamageLimit = (vars.ASL_Difficulty == "European Extreme") ? 279 : 499; // prob incorrect for easier difficulties
       
-        // If over 3 alerts (only allowing for the mandatory ones when they appear)...
-        if (vars.ASL_Alerts > BigBossAlertState) PerfectStatus.Add(vars.ASL_Alerts + ((settings["aslvv_boss_short"]) ? "A" : Plural(vars.ASL_Alerts, " Alert", " Alerts")) );
-        // If has continued...
-        if (vars.ASL_Continues > 0) PerfectStatus.Add( vars.ASL_Continues + ((settings["aslvv_boss_short"]) ? "C" : Plural(vars.ASL_Continues, " Continue", " Continues")) );
-        // If has killed...
-        if (vars.ASL_Kills > 0) PerfectStatus.Add( vars.ASL_Kills + ((settings["aslvv_boss_short"]) ? "K" : Plural(vars.ASL_Kills, " Kill", " Kills")) );
-        // If has eaten rations...
-        if (vars.ASL_Rations > 0) PerfectStatus.Add( vars.ASL_Rations + ((settings["aslvv_boss_short"]) ? "R" : Plural(vars.ASL_Rations, " Ration", " Rations")) );
-        
-        // Big Boss-only stats
-        if (!PerfectStats) {
-          // If has saved more than 8 times...
-          if (vars.ASL_Saves > 8) BossStatus.Add( vars.ASL_Saves + ((settings["aslvv_boss_short"]) ? "S" : Plural(vars.ASL_Saves, " Save", " Saves")) );
-          // If has taken too much damage...
-          if (vars.ASL_DamageTaken > DamageLimit) BossStatus.Add( vars.ASL_DamageTaken + ((settings["aslvv_boss_short"]) ? "D" : " Damage"));
-          // If has shot a decent number of bullets...
-          if (vars.ASL_Shots > 700) BossStatus.Add( vars.ASL_Shots + ((settings["aslvv_boss_short"]) ? "B" : Plural(vars.ASL_Shots, " Bullet", " Bullets")) );
-          // If time is 3h00m01s or more
-          if (current.GameTime > ((60/*f*/ * 60/*s*/ * 60/*m*/ * 3/*h*/) + 59)) BossStatus.Add((settings["aslvv_boss_short"]) ? ">3h" : "Over 3 Hours");
-        }
-        
-        // Create the info string
-        string Status = "";
-        if (BossStatus.Count > 0) {
-          vars.ASL_BestCodeName = Prefix + "Perfect Stats";
-          Status = String.Join((settings["aslvv_boss_short"]) ? " " : ", ", BossStatus);
-        }
-        if (PerfectStatus.Count > 0) {
-          vars.ASL_BestCodeName = "";
-          if (Status != "") Status = (settings["aslvv_boss_short"] ? " " : ", ") + Status;
-          Status = String.Join((settings["aslvv_boss_short"]) ? " " : ", ", PerfectStatus) + Status;
-        }
-        if (Status != "") vars.ASL_BestCodeName = vars.ASL_BestCodeName + " " + Status.Trim();
-      }
-    };
-    vars.UpdateBigBoss = UpdateBigBoss;
-    
-    // ASLVarViewer values
-    int PreviousO2 = -1;
-    int PreviousGrip = -1;
-    int PreviousCaution = -1;
-    float ChaffRate = (1024.0f / 30);
-    Action UpdateASLVars = delegate() {
-      if (settings["aslvv"]) {
+      // Reset Big Boss alert counters
+      Action ResetBigBossData = delegate() {
+        BigBossFailed = false;
+        BigBossAlertState = 0;
+      };
+      vars.ResetBigBossData = ResetBigBossData;
       
-        bool Snake = (C(current.GripMultiplier) == 1800); // Raiden's is 3600 - but this doesn't work
-        //vars.Debug(Snake ? "Snake" : "Raiden");
-        //vars.Debug(C(current.GripMultiplier).ToString());
+      // Reset counters used to track bosses
+      Action ResetBossData = delegate() {
+        BossActive = false;
+        NoBoss = false;
+        BossDefeated = false;
+        BossCounter = MaxVal;
+        BossMaxHealth = -1;
+        BossMaxStamina = -1;
+        Continues = -1;
+        vars.SplitNextRoom = false;
+        vars.BlockNextRoom = false;
+      };
+      vars.ResetBossData = ResetBossData;
+      
+      // Reset all counters
+      Action ResetData = delegate() {
+        RoomTrackerInt = 0;
+        RoomTrackerUint = 0;
+        RoomTrackerT = false;
+        RoomTrackerP = false;
+        RoomTrackerA = false;
+        RoomTrackerB = false;
+        RoomTrackerC = false;
+        RoomTrackerD = false;
+        RoomTrackerE = false;
+        vars.PreviousTagsSnake = 0;
+        vars.PreviousTagsRaiden = 0;
+        ExceptionCount = new Dictionary<string, int> {
+          { "reset", 0 },
+          { "start", 0 },
+          { "update", 0 },
+          { "split", 0 }
+        };
+        ResetBigBossData();
+        ResetBossData();
+      };
+      vars.ResetData = ResetData;
+      
+      Func<int, int, int, bool> Between = (input, lower, upper) => ( (input <= lower) && (input >= upper) );
+      
+      Func<int, int, int> Percent = delegate(int cur, int max) {
+        double percentage = (100.0 * cur / max);
+        return Convert.ToInt16( Math.Round(percentage) );
+      };
+      
+      Func<int, int, string> ValueFormat = delegate(int cur, int max) {
+        if (settings["aslvv_info_percent"]) return string.Format("{0,2}%", Percent(cur, max));
         
-        int CurrentDamage = C(current.Damage);
-        if (CurrentDamage > vars.ASL_DamageTaken) vars.ASL_LastDamage = (CurrentDamage - vars.ASL_DamageTaken);
-        
-        vars.ASL_Shots = C(current.Shots);
-        vars.ASL_Alerts = C(current.Alerts);
-        vars.ASL_Continues = C(current.Continues);
-        vars.ASL_Rations = C(current.Rations);
-        vars.ASL_Kills = C(current.Kills);
-        vars.ASL_DamageTaken = CurrentDamage;
-        vars.ASL_Saves = C(current.Saves);
-        vars.ASL_MechsDestroyed = C(current.Mechs);
-        vars.ASL_Strength = C(current.StrengthRaiden); //C(Snake ? current.StrengthSnake : current.StrengthRaiden);
-        vars.ASL_RoomTimer = current.RoomTimer;
-        if ((current.RoomTimer % 60) == 0) vars.UpdateBigBoss();
-        
-        if (vars.DebugTimer > 0) {
-          vars.DebugTimer--;
-          if (vars.DebugTimer == 0) vars.ASL_Debug = vars.PrevDebug;
+        int MaxLen = Math.Max((int)Math.Floor(Math.Log10(max) + 1), 1);
+        if (settings["aslvv_info_max"]) return string.Format("{0," + MaxLen + "}/{1," + MaxLen + "}", cur, max);
+        return string.Format("{0," + MaxLen + "}", cur);
+      };
+      vars.ValueFormat = ValueFormat;
+      
+      Func<int, string, string, string> Plural = (Var, Singular, Pluralular) => (Var != 1) ? Pluralular : Singular;
+      
+
+      
+      // Temporary boss watcher to examine what health values do
+      /*
+      Func<string, int, int, int> WatchBoss = delegate(string Name, int CurrentStamina, int CurrentHealth) {
+        if (Continues == -1) Continues = C(current.Continues);
+        else if (HasContinued()) {
+          ResetBossData();
+          vars.Debug(current.RoomTimer +" | Continued");
         }
-        
-        if (vars.InfoTimer > 0) {
-          vars.InfoTimer--;
-          if (vars.InfoTimer == 0) {
-            if (vars.PrevInfo != "") vars.ASL_Info = vars.PrevInfo;
-            else vars.ASL_Info = (settings["aslvv_info_room"]) ? vars.ASL_CurrentRoom : "";
-          }
+        if (CurrentStamina != BossStamina) {
+          vars.Debug(current.RoomTimer +" | "+ Name +": Stamina "+ BossStamina +" > "+ CurrentStamina);
+          BossStamina = CurrentStamina;
         }
+        if (CurrentHealth != BossHealth) {
+          vars.Debug(current.RoomTimer +" | "+ Name +": Health "+ BossHealth +" > "+ CurrentHealth);
+          BossHealth = CurrentHealth;
+        }
+        return 0;
+      };
+      */
+      // New snazzy boss watcher
+      Func<string, int, int, int> WatchBoss = delegate(string Name, int NewStamina, int NewHealth) {
+        if (!settings["boss_insta"]) return -1; // stop watching if insta-splits are disabled
         
-        // Update dog tag counters if we collect one
-        if (current.MaxHealth != 30) {
-          bool CollectedTagRaiden = (current.DogTagsRaiden > vars.PreviousTagsRaiden);
-          bool CollectedTagSnake = (current.DogTagsSnake > vars.PreviousTagsSnake);
-          if (CollectedTagRaiden || CollectedTagSnake) {
-            vars.ASL_DogTags_Snake = current.DogTagsSnake + (settings["aslvv_tags_max"] ? "/" + vars.MaxDogTags[current.MaxHealth][0] : "");
-            vars.ASL_DogTags_Raiden = current.DogTagsRaiden + (settings["aslvv_tags_max"] ? "/" + vars.MaxDogTags[current.MaxHealth][1] : "");
-            vars.ASL_DogTags = current.DogTagsSnake + current.DogTagsRaiden + (settings["aslvv_tags_max"] ? "/" + vars.MaxDogTags[current.MaxHealth][2] : "");
+        if (Continues == -1) Continues = C(current.Continues);
+        
+        if (current.RoomTimer > 5) {
+          if ( (BossActive) && ( (NewStamina != BossStamina) || (NewHealth != BossHealth) ) ) {
+            if (BossMaxStamina <= 0) {
+              BossMaxStamina = NewStamina;
+              BossMaxHealth = NewHealth;
+            }
             
-            vars.PreviousTagsSnake = current.DogTagsSnake;
-            vars.PreviousTagsRaiden = current.DogTagsRaiden;
+            string DebugDelta = "";
+            if ( (BossHealth != MaxVal) && (NewHealth < BossHealth) )
+              DebugDelta = "[-" + (BossHealth - NewHealth) + "] ";
+            else if ( (BossStamina != MaxVal) && (NewStamina < BossStamina) )
+              DebugDelta = "[-" + (BossStamina - NewStamina) + "] ";
             
-            if (settings["aslvv_info_tags"]) {
-              string TagStatus = "";
-              if (settings["aslvv_info_tags_onlycurrent"])
-                TagStatus = (CollectedTagRaiden) ? vars.ASL_DogTags_Raiden : vars.ASL_DogTags_Snake;
-              else TagStatus = vars.ASL_DogTags;
-              vars.ASL_Info = "Dog Tags: " + TagStatus;
+            BossStamina = NewStamina;
+            BossHealth = NewHealth;
+                
+            string DebugStamina = "";
+            string DebugHealth = "";
+            if (NewStamina != MaxVal) DebugStamina = " Stamina: " + ValueFormat(NewStamina, BossMaxStamina);
+            if (NewHealth != MaxVal) DebugHealth = " Life: " + ValueFormat(NewHealth, BossMaxHealth);
+            string DebugString = Name + " |" + DebugStamina + DebugHealth;
+            if (settings["aslvv_info_boss"]) {
+              DebugInfo(DebugDelta + DebugString);
               vars.InfoTimer = 300;
             }
-          }
-        }
-
-        int CurrentO2 = C(current.CurrentO2);
-        int CurrentGrip = (current.CurrentGrip != null) ? C(current.CurrentGrip) : -1;
-        int CurrentChaff = C(current.CurrentChaff);
-        int CurrentCaution = C(current.CurrentCaution);
-
-        // If we're underwater, update the O2 status in ASL_Info
-        if ( (settings["aslvv_info_o2"]) && (CurrentO2 != PreviousO2) && (current.RoomCode != "w51a") ) { // TODO get O2 + health info display working 
-          PreviousO2 = CurrentO2;
-          if (current.RoomTimer > 5) {
-            int MaxO2 = (current.MaxHealth == 30) ? 3600 : 4000;
-            int O2Rate = (current.CurrentHealth == current.MaxHealth) ? 60 : 120;
-            string O2TimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentO2 / O2Rate) );
-            string HealthTimeLeft = "";
-            if (settings["aslvv_info_o2health"]) {
-              HealthTimeLeft = " + " + string.Format( "{00:0.0}", (decimal)((double)current.CurrentHealth / 4) );
+            else Debug(DebugDelta + DebugString);
+            if ( (NewStamina <= 0) || (NewHealth <= 0) ) {
+              if (HasContinued()) { // making sure the no-health thing isn't just the game resetting health
+                ResetBossData();
+                return 0;
+              }
+              if (settings["aslvv_info_boss"]) {
+                vars.PrevInfo = ""; // boss info will be out of fashion once the next message has timed out...
+                DebugInfo("Boss defeated!");
+              }
+              else Debug("Boss defeated!");
+              vars.BlockNextRoom = true;
+              return 1;
             }
-            vars.ASL_Info = "O2: " + vars.ValueFormat(CurrentO2, MaxO2) + " (" + O2TimeLeft + HealthTimeLeft + " left)";
-            vars.InfoTimer = 60;
+            vars.PrevInfo = DebugString;
+          }
+          else if ( (!NoBoss) && (!BossActive) && (current.RoomTimer < 60) ) {
+            if ( (NewStamina == null) || (!ValidMaxHealth[Name].Contains(NewStamina)) || (NewHealth == null) || (!ValidMaxHealth[Name].Contains(NewHealth)) ) {
+              vars.Debug("No boss in this area");
+              NoBoss = true;
+            }
+            else {
+              vars.Debug("Boss battle vs " + Name);
+              BossActive = true;
+            }
           }
         }
-        // If we're hanging, update the grip status
-        else if ( (settings["aslvv_info_grip"]) && (CurrentGrip != -1) && (CurrentGrip != PreviousGrip) ) {
-          if (current.RoomTimer > 5) {
-            PreviousGrip = CurrentGrip;
-            int MaxGrip = C(current.MaxGrip);
-            int GripRate = (current.CurrentHealth == current.MaxHealth) ? 60 : 120;
-            string GripTimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentGrip / GripRate) );
-            vars.ASL_Info = "Grip: " + vars.ValueFormat(CurrentGrip, MaxGrip) + " (" + GripTimeLeft + " left)";
-            vars.InfoTimer = 60;
+        // Reset our data and start again if the room has reloaded
+        else if ( (NoBoss) || (BossActive) ) ResetBossData(); 
+        
+        return 0;
+      };
+     
+
+      // BOSSES
+      
+      // Olga
+      Func<int> WatchOlga = delegate() {
+        int Stamina = (vars.BossRush) ? current.OlgaRushStamina : current.OlgaStamina;
+        return WatchBoss("Olga", Stamina, MaxVal);
+      };
+      vars.SpecialWatchCallback.Add("w00b", WatchOlga);
+      
+      // Meryl (Confidential Legacy)
+      Func<int> WatchMeryl = () => WatchBoss("Meryl", current.OlgaStamina, current.MerylHealth);
+      vars.SpecialWatchCallback.Add("a00b", WatchMeryl);
+
+      // Fatman the troublemaker
+      Func<int> WatchFatman = delegate() {
+        if (!BossDefeated) {
+          if (WatchBoss("Fatman", current.FatmanStamina, C(current.FatmanHealth)) == 1) BossDefeated = true;
+        }
+        if (BossDefeated) {
+          if (HasContinued()) {
+            ResetBossData();
+            return 0;
+          }
+          if (current.FatmanBombsActive == 0) {
+            if (settings["aslvv_info_boss"]) {
+              vars.InfoTimer = 180;
+              DebugInfo("Boss completed!");
+            }
+            else Debug("Boss completed!");
+            return 1; // not necesary to reset boss data as it'll happen in split
+          }
+          if (current.FatmanBombsActive < BossCounter) {
+            BossCounter = current.FatmanBombsActive;
+            vars.InfoTimer = 0; // deactivate the "boss defeated" timeout
+            string DebugString = "Bombs remaining: " + Convert.ToString(BossCounter);
+            if (settings["aslvv_info_boss"]) DebugInfo(DebugString);
+            else Debug(DebugString);
           }
         }
-        // If there's a chaff grenade active, show that
-        else if ( (settings["aslvv_info_chaff"]) && (CurrentChaff > 0) ) {
-          int MaxChaff = 1024;
-          string ChaffTimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentChaff / ChaffRate) );
-          vars.ASL_Info = "Chaff: " + vars.ValueFormat(CurrentChaff, MaxChaff) + " (" + ChaffTimeLeft + " left)";
-          vars.InfoTimer = 10;
+        return 0;
+      };
+      vars.SpecialWatchCallback.Add("w20c", WatchFatman); // Sons of Liberty
+      vars.SpecialWatchCallback.Add("a20c", WatchFatman); // A Wrongdoing
+      
+      // Harrier
+      Func<int> WatchHarrier = () => WatchBoss("Harrier", MaxVal, C(current.HarrierHealth));
+      vars.SpecialWatchCallback.Add("w25a", WatchHarrier); // Sons of Liberty
+      vars.SpecialWatchCallback.Add("a25a", WatchHarrier); // Big Shell Evil
+      
+      // Vamp
+      Func<int> WatchVamp = () => WatchBoss("Vamp", C(current.VampStamina), C(current.VampHealth));
+      vars.SpecialWatchCallback.Add("w31c", WatchVamp); // Sons of Liberty
+      vars.SpecialWatchCallback.Add("a31c", WatchVamp); // Dead Man Whispers
+      
+      // Vamp 2
+      Func<int> WatchVamp2 = () => WatchBoss("Vamp", C(current.Vamp2Stamina), C(current.Vamp2Health));
+      vars.SpecialWatchCallback.Add("w32b", WatchVamp2);
+      
+      // Rays
+      Func<int> WatchRays = () => WatchBoss("Rays", MaxVal, C(current.RaysHealth));
+      vars.SpecialWatchCallback.Add("w46a", WatchRays); // Sons of Liberty
+      Func<int> WatchRaysEG = () => WatchBoss("Rays", MaxVal, C(current.RaysTalesHealth));
+      vars.SpecialWatchCallback.Add("a46a", WatchRaysEG); // External Gazer
+      
+      // Choke Boss (no split)
+      Func<int> WatchChoke = delegate() {
+        if (!settings["aslvv_info_choke"]) return -1;
+        int FramesLeft = C(current.ChokeTimer);
+        if ( (FramesLeft < 1) || (FramesLeft > 3000) ) return 0;
+        vars.InfoTimer = 10;
+        Info("Time left: " + string.Format( "{00:0.0}", (decimal)((double)FramesLeft / 60) ));
+        return 0;
+      };
+      vars.SpecialWatchCallback.Add("w51a", WatchChoke);
+
+      // Solidus
+      Func<int> WatchSolidus = () => WatchBoss("Solidus", current.SolidusStamina, current.SolidusHealth);
+      vars.SpecialWatchCallback.Add("w61a", WatchSolidus); // Sons of Liberty
+      vars.SpecialWatchCallback.Add("a61a", WatchSolidus); // External Gazer
+      
+      // BOSSES END
+
+      
+      // Plant: Filter out the "valid" room change that happens during the torture cutscenes
+      Func<int> CallTortureCutscene = delegate() {
+        // cutscene > jejunum
+        if (current.RoomCode == "w42a") {
+          Debug("In the torture sequence: skipping the Jejunum > Stomach room change that occurs during it");
+          RoomTrackerP = true;
         }
-        // If we're in caution, show that
-        else if ( (settings["aslvv_info_caution"]) && (CurrentCaution != PreviousCaution) ) {
-          PreviousCaution = CurrentCaution;
-          string CautionTimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentCaution / 60) );
-          vars.ASL_Info = "Caution: " + vars.ValueFormat(CurrentCaution, C(current.MaxCaution)) + " (" + CautionTimeLeft + " left)";
-          vars.InfoTimer = 10;
+        return 0;
+      };
+      Func<int> CallTortureCutscene2 = delegate() {
+        // jejunum > stomach (in cutscene)
+        if ( (RoomTrackerP) && (current.RoomCode == "w41a") ) {
+          RoomTrackerP = false;
+          return -1;
+        }
+        return 0;
+      };
+      vars.SpecialRoomChangeCallback.Add("d070px9", CallTortureCutscene);
+      vars.SpecialRoomChangeCallback.Add("w42a", CallTortureCutscene2);
+      
+      // Plant: Show the 45-second timer for Ascending Colon
+      Func<int> WatchAscendingColon = delegate() {
+        if (!settings["aslvv_info_colon"]) return -1;
+        if (current.AscendingColonActive == 0) return 0;
+        int FramesLeft = C(current.AscendingColonTimer);
+        if (FramesLeft == 0) return 0;
+        vars.InfoTimer = 10;
+        Info("Time left: " + string.Format( "{00:0.0}", (decimal)((double)FramesLeft / 60) ));
+        return 0;
+      };
+      vars.SpecialWatchCallback.Add("w43a", WatchAscendingColon);
+      
+      // Plant: Increment the Big Boss alert counters
+      Func<int> CallBigBossAlert1 = delegate() {
+        BigBossAlertState = 1;
+        Debug("Setting Big Boss alert allowance to 1");
+        return 0;
+      };
+      Func<int> WatchBigBossAlert2 = delegate() {
+        // Trigger on the second instance of this room (after cutscene)
+        if ( (RoomTrackerInt > 0) && (current.RoomTimer < RoomTrackerInt) ) {
+          RoomTrackerInt = 0;
+          BigBossAlertState = 2;
+          Debug("Setting Big Boss alert allowance to 2");
+          return -1;
+        }
+        if (current.RoomTimer < 30) RoomTrackerInt = current.RoomTimer;
+        return 0;
+      };
+      Func<int> WatchBigBossAlert3 = delegate() {
+        // Trigger on the third instance (after initial gameplay and cutscene)
+        if ( (RoomTrackerInt > 0) && (current.RoomTimer < RoomTrackerInt) ) {
+          if (RoomTrackerP) {
+            RoomTrackerP = false;
+            RoomTrackerInt = 0;
+            BigBossAlertState = 2;
+            Debug("Setting Big Boss alert allowance to 3");
+            return -1;
+          }
+          else RoomTrackerP = true;
+        }
+        if (current.RoomTimer < 30) RoomTrackerInt = current.RoomTimer;
+        return 0;
+      };
+      vars.SpecialNewRoomCallback.Add("e32a", CallBigBossAlert1); // Oil Fence sniping
+      vars.SpecialWatchCallback.Add("w44a", WatchBigBossAlert2); // Tengus 1
+      vars.SpecialWatchCallback.Add("w45a", WatchBigBossAlert3); // Tengus 2
+      
+      // Snake Tales in general: Don't split if we're coming from storyline.
+      Func<int> CallSnakeTales = delegate() {
+        // Also set up for the results check
+        if (current.RoomCode == "sselect") {
+          RoomTrackerInt = 1;
+          Debug("Trying to figure out when this tale of snakes has ended.");
+        }
+        return -1; // don't split after tales
+      };
+      vars.SpecialRoomChangeCallback.Add("tales", CallSnakeTales);
+      // And the results check.
+      Func<int> WatchSnakeTalesCredits = delegate() {
+        // it starts at 0, goes up...
+        if ( (RoomTrackerInt == 1) && (C(current.STCompletionCheck) != 0) ) RoomTrackerInt = 2;
+        // ...then goes back to 0
+        else if ( (RoomTrackerInt == 2) && (C(current.STCompletionCheck) == 0) ) {
+          Debug("Moved briskly to the Snake Tales result screen!");
+          RoomTrackerInt = 0;
+          return 1;
+        }
+        return 0;
+      };
+      vars.SpecialWatchCallback.Add("sselect", WatchSnakeTalesCredits);
+      
+      // Big Shell Evil: Option to split when meeting Emma in Strut C
+      Func<int> CallBSEStrutC1 = delegate() {
+        if (current.RoomCode == "a16a") {
+          Debug("[BSE] Entering Strut C from D: will skip pre-Guard Rush split if enabled in settings");
+          RoomTrackerB = true;
+        }
+        return 0;
+      };
+      Func<int> CallBSEStrutC2 = delegate() {
+        if (current.RoomCode == "tales") {
+          if (RoomTrackerB) {
+            RoomTrackerB = false;
+            return (settings["snaketales_b_pantry"]) ? 1 : -1; // pre-Guard Rush, split on setting
+          }
+          return 1; // post-Guard Rush, always split
+        }
+        return 0; // defer otherwise
+      };
+      vars.SpecialRoomChangeCallback.Add("a17a", CallBSEStrutC1);
+      vars.SpecialRoomChangeCallback.Add("a16a", CallBSEStrutC2);
+      
+      // Big Shell Evil: Option to split when accessing the node in Strut B
+      // (with some extra stuff to tiptoe around the same sequence in External Gazer - this is a bit awkward
+      //  because we can't really tweak the already-awkward Strut C situ in BSE)
+      Func<int> CallEGStrutB = delegate() {
+        RoomTrackerE = true; // in reverse! set the tracker when we go to EG-only VR
+        return 0;
+      };
+      Func<int> CallBSEStrutB = delegate() {
+        if ( (!RoomTrackerE) && (current.RoomCode == "tales") ) {
+          RoomTrackerE = false;
+          return (settings["snaketales_b_node"]) ? 1 : -1;
+        }
+        return 0;
+      };
+      vars.SpecialRoomChangeCallback.Add("ta02a", CallEGStrutB);
+      vars.SpecialRoomChangeCallback.Add("a14a", CallBSEStrutB);
+      
+      // Split at the right time (or at least, a frame or two after the right time - this won't affect IGT) on the results screen
+      Func<int> WatchEnding = delegate() {
+        if (current.GameTime == RoomTrackerUint) {
+          RoomTrackerUint = 0;
+          return 1;
+        }
+        RoomTrackerUint = current.GameTime;
+        return 0;
+      };
+      vars.SpecialWatchCallback.Add("ending", WatchEnding);
+      
+      
+      // Scary VR Missions stuff
+      List<string> VRMissionsCurrentRooms = new List<string>();
+      Func<string, bool> VRLogMission = delegate(string RoomCode) {
+        // If going to mission select, try to find a completed roomset
+        if (RoomCode == "mselect") {
+          int CurrentLen = VRMissionsCurrentRooms.Count();
+          // Loop through the possible roomset lengths and try to find any match from the latest rooms
+          foreach (int VRLength in vars.VRMissionLengths) {
+            if (VRLength > CurrentLen) continue; // no point if the roomset is already bigger than our current one
+            string Hash = vars.VRMissionHashRange(VRMissionsCurrentRooms, VRLength); // current hash with appropriate length
+            vars.Debug("Checking hash " + Hash);
+            string VRCategory = "";
+            if (vars.VRMissionSignatures.TryGetValue(Hash, out VRCategory)) {
+              if ( (!settings.ContainsKey(VRCategory)) || (settings[VRCategory]) ) {
+                Debug("Found completed VR roomset " + VRCategory + " = " + Hash);
+                VRMissionsCurrentRooms.Clear();
+                return true;
+              }
+              Debug("Found completed VR roomset " + VRCategory + " = " + Hash + ", but it is disabled in settings");
+            }
+          }
+          return false;
+        };
+        // Otherwise, add the current room to the list:
+        // Do nothing if we just did this room
+        int VRCount = VRMissionsCurrentRooms.Count;
+        if ( (VRCount > 0) && (VRMissionsCurrentRooms[VRCount - 1] == RoomCode) ) return false; 
+        // Remove the duplicate if it's not the most recent
+        if (VRMissionsCurrentRooms.Contains(RoomCode)) VRMissionsCurrentRooms.Remove(RoomCode);
+        // Add this room as most recent
+        VRMissionsCurrentRooms.Add(RoomCode);
+        Debug("Entered [" + RoomCode + "] " + vars.GetRoomName(current.RoomCode) + ", adding to current roomset > " + vars.VRMissionHash(VRMissionsCurrentRooms));
+        return false;
+      };
+      Action VRMissionsEnable = delegate() {
+        Debug("VR Missions mode on!");
+        vars.VRMissions = true;
+        VRMissionsCurrentRooms.Clear();
+        VRLogMission(current.RoomCode); // we need to log the first room here
+      };
+      vars.VRMissionsEnable = VRMissionsEnable;
+      vars.VRLogMission = VRLogMission;
+      
+      // Big Boss status for ASLVarViewer
+      Action UpdateBigBoss = delegate() {
+        if (settings["aslvv"]) {
+          List<string> PerfectStatus = new List<string>();
+          List<string> BossStatus = new List<string>();
+          bool PerfectStats = false;
+          string Difficulty = "";
+          string Prefix = "Still on course for ";
+          
+          // Stats that preclude Big Boss:
+          // Not main game?
+          if (!vars.DifficultyHealth.TryGetValue(current.MaxHealth, out Difficulty)) {
+            PerfectStats = true;
+            vars.ASL_Difficulty = "";
+            vars.ASL_BestCodeName = "";
+          }
+          else {
+            vars.ASL_Difficulty = Difficulty;
+            // On Very Easy?
+            if (vars.ASL_Difficulty == "Very Easy") {
+              PerfectStats = true;
+              vars.ASL_BestCodeName = Prefix + "Perfect Stats";
+            }
+            else vars.ASL_BestCodeName = Prefix + vars.BestCodeNames[current.MaxHealth];
+          }
+          // Radar on?
+          vars.ASL_RadarOn = (current.RadarOn == 32);
+          if (vars.ASL_RadarOn) PerfectStats = true;
+          
+          int DamageLimit = (vars.ASL_Difficulty == "European Extreme") ? 279 : 499; // prob incorrect for easier difficulties
+        
+          // If over 3 alerts (only allowing for the mandatory ones when they appear)...
+          if (vars.ASL_Alerts > BigBossAlertState) PerfectStatus.Add(vars.ASL_Alerts + ((settings["aslvv_boss_short"]) ? "A" : Plural(vars.ASL_Alerts, " Alert", " Alerts")) );
+          // If has continued...
+          if (vars.ASL_Continues > 0) PerfectStatus.Add( vars.ASL_Continues + ((settings["aslvv_boss_short"]) ? "C" : Plural(vars.ASL_Continues, " Continue", " Continues")) );
+          // If has killed...
+          if (vars.ASL_Kills > 0) PerfectStatus.Add( vars.ASL_Kills + ((settings["aslvv_boss_short"]) ? "K" : Plural(vars.ASL_Kills, " Kill", " Kills")) );
+          // If has eaten rations...
+          if (vars.ASL_Rations > 0) PerfectStatus.Add( vars.ASL_Rations + ((settings["aslvv_boss_short"]) ? "R" : Plural(vars.ASL_Rations, " Ration", " Rations")) );
+          
+          // Big Boss-only stats
+          if (!PerfectStats) {
+            // If has saved more than 8 times...
+            if (vars.ASL_Saves > 8) BossStatus.Add( vars.ASL_Saves + ((settings["aslvv_boss_short"]) ? "S" : Plural(vars.ASL_Saves, " Save", " Saves")) );
+            // If has taken too much damage...
+            if (vars.ASL_DamageTaken > DamageLimit) BossStatus.Add( vars.ASL_DamageTaken + ((settings["aslvv_boss_short"]) ? "D" : " Damage"));
+            // If has shot a decent number of bullets...
+            if (vars.ASL_Shots > 700) BossStatus.Add( vars.ASL_Shots + ((settings["aslvv_boss_short"]) ? "B" : Plural(vars.ASL_Shots, " Bullet", " Bullets")) );
+            // If time is 3h00m01s or more
+            if (current.GameTime > ((60/*f*/ * 60/*s*/ * 60/*m*/ * 3/*h*/) + 59)) BossStatus.Add((settings["aslvv_boss_short"]) ? ">3h" : "Over 3 Hours");
+          }
+          
+          // Create the info string
+          string Status = "";
+          if (BossStatus.Count > 0) {
+            vars.ASL_BestCodeName = Prefix + "Perfect Stats";
+            Status = String.Join((settings["aslvv_boss_short"]) ? " " : ", ", BossStatus);
+          }
+          if (PerfectStatus.Count > 0) {
+            vars.ASL_BestCodeName = "";
+            if (Status != "") Status = (settings["aslvv_boss_short"] ? " " : ", ") + Status;
+            Status = String.Join((settings["aslvv_boss_short"]) ? " " : ", ", PerfectStatus) + Status;
+          }
+          if (Status != "") vars.ASL_BestCodeName = vars.ASL_BestCodeName + " " + Status.Trim();
+        }
+      };
+      vars.UpdateBigBoss = UpdateBigBoss;
+      
+      // ASLVarViewer values
+      int PreviousO2 = -1;
+      int PreviousGrip = -1;
+      int PreviousCaution = -1;
+      float ChaffRate = (1024.0f / 30);
+      Action UpdateASLVars = delegate() {
+        if (settings["aslvv"]) {
+
+          vars.ASL_RoomTimer = current.RoomTimer;
+
+          // Update less-critical values at a lower rate
+          if ((current.GameTime % 10) == 0) {
+            vars.ASL_Alerts = C(current.Alerts);
+            vars.ASL_Continues = C(current.Continues);
+            vars.ASL_Shots = C(current.Shots);
+            vars.ASL_Rations = C(current.Rations);
+            vars.ASL_Kills = C(current.Kills);
+            vars.ASL_Saves = C(current.Saves);
+            vars.ASL_MechsDestroyed = C(current.Mechs);
+            vars.ASL_Strength = C(current.StrengthRaiden);
+            vars.ASL_AlertAllowance = BigBossAlertState;
+            
+            int CurrentDamage = C(current.Damage);
+            if (CurrentDamage > vars.ASL_DamageTaken) vars.ASL_LastDamage = (CurrentDamage - vars.ASL_DamageTaken);
+            vars.ASL_DamageTaken = CurrentDamage;
+            
+            // Update dog tag counters if we collect one
+            if (current.MaxHealth != 30) {
+              bool CollectedTagRaiden = (current.DogTagsRaiden > vars.PreviousTagsRaiden);
+              bool CollectedTagSnake = (current.DogTagsSnake > vars.PreviousTagsSnake);
+              if (CollectedTagRaiden || CollectedTagSnake) {
+                vars.ASL_DogTags_Snake = current.DogTagsSnake + (settings["aslvv_tags_max"] ? "/" + vars.MaxDogTags[current.MaxHealth][0] : "");
+                vars.ASL_DogTags_Raiden = current.DogTagsRaiden + (settings["aslvv_tags_max"] ? "/" + vars.MaxDogTags[current.MaxHealth][1] : "");
+                vars.ASL_DogTags = current.DogTagsSnake + current.DogTagsRaiden + (settings["aslvv_tags_max"] ? "/" + vars.MaxDogTags[current.MaxHealth][2] : "");
+                
+                vars.PreviousTagsSnake = current.DogTagsSnake;
+                vars.PreviousTagsRaiden = current.DogTagsRaiden;
+                
+                if (settings["aslvv_info_tags"]) {
+                  string TagStatus = "";
+                  if (settings["aslvv_info_tags_onlycurrent"])
+                    TagStatus = (CollectedTagRaiden) ? vars.ASL_DogTags_Raiden : vars.ASL_DogTags_Snake;
+                  else TagStatus = vars.ASL_DogTags;
+                  vars.ASL_Info = "Dog Tags: " + TagStatus;
+                  vars.InfoTimer = 300;
+                }
+              }
+            }
+          }
+          
+          if ((current.RoomTimer % 60) == 0) vars.UpdateBigBoss();
+        
+          //bool Snake = (C(current.GripMultiplier) == 1800); // Raiden's is 3600 - but this doesn't work
+          //vars.Debug(Snake ? "Snake" : "Raiden");
+          //vars.Debug(C(current.GripMultiplier).ToString());
+          
+          if (vars.DebugTimer > 0) {
+            vars.DebugTimer--;
+            if (vars.DebugTimer == 0) vars.ASL_Debug = vars.PrevDebug;
+          }
+          
+          if (vars.InfoTimer > 0) {
+            vars.InfoTimer--;
+            if (vars.InfoTimer == 0) {
+              if (vars.PrevInfo != "") vars.ASL_Info = vars.PrevInfo;
+              else vars.ASL_Info = (settings["aslvv_info_room"]) ? vars.ASL_CurrentRoom : "";
+            }
+          }
+
+          int CurrentO2 = C(current.CurrentO2);
+          int CurrentGrip = (current.CurrentGrip != null) ? C(current.CurrentGrip) : -1;
+          int CurrentChaff = C(current.CurrentChaff);
+          int CurrentCaution = C(current.CurrentCaution);
+
+          // If we're underwater, update the O2 status in ASL_Info
+          if (
+            (settings["aslvv_info_o2"]) && (CurrentO2 != PreviousO2) &&
+            (current.RoomCode != "w51a") && (current.RoomCode != "w41a")
+          ) {
+            PreviousO2 = CurrentO2;
+            if (current.RoomTimer > 5) {
+              int MaxO2 = (current.MaxHealth == 30) ? 3600 : 4000;
+              int O2Rate = (current.CurrentHealth == current.MaxHealth) ? 60 : 120;
+              string O2TimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentO2 / O2Rate) );
+              string HealthTimeLeft = "";
+              if (settings["aslvv_info_o2health"]) {
+                HealthTimeLeft = " + " + string.Format( "{00:0.0}", (decimal)((double)current.CurrentHealth / 4) );
+              }
+              vars.ASL_Info = "O2: " + vars.ValueFormat(CurrentO2, MaxO2) + " (" + O2TimeLeft + HealthTimeLeft + " left)";
+              vars.InfoTimer = 60;
+            }
+          }
+          // If we're hanging, update the grip status
+          else if ( (settings["aslvv_info_grip"]) && (CurrentGrip != -1) && (CurrentGrip != PreviousGrip) ) {
+            if (current.RoomTimer > 5) {
+              PreviousGrip = CurrentGrip;
+              int MaxGrip = C(current.MaxGrip);
+              int GripRate = (current.CurrentHealth == current.MaxHealth) ? 60 : 120;
+              string GripTimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentGrip / GripRate) );
+              vars.ASL_Info = "Grip: " + vars.ValueFormat(CurrentGrip, MaxGrip) + " (" + GripTimeLeft + " left)";
+              vars.InfoTimer = 60;
+            }
+          }
+          // If there's a chaff grenade active, show that
+          else if ( (settings["aslvv_info_chaff"]) && (CurrentChaff > 0) ) {
+            int MaxChaff = 1024;
+            string ChaffTimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentChaff / ChaffRate) );
+            vars.ASL_Info = "Chaff: " + vars.ValueFormat(CurrentChaff, MaxChaff) + " (" + ChaffTimeLeft + " left)";
+            vars.InfoTimer = 10;
+          }
+          // If we're in caution, show that
+          else if ( (settings["aslvv_info_caution"]) && (CurrentCaution != PreviousCaution) ) {
+            PreviousCaution = CurrentCaution;
+            string CautionTimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentCaution / 60) );
+            vars.ASL_Info = "Caution: " + vars.ValueFormat(CurrentCaution, C(current.MaxCaution)) + " (" + CautionTimeLeft + " left)";
+            vars.InfoTimer = 10;
+          }
+          
         }
         
-      }
+      };
+      vars.UpdateASLVars = UpdateASLVars;
       
-    };
-    vars.UpdateASLVars = UpdateASLVars;
+      
+      Debug("Finished initialising script. It's all up to you now.");
+    }
     
+    vars.UpdateASLVars();
     
-    Debug("Finished initialising script. It's all up to you now.");
+    // pausing the game won't help you...
+    if (current.GameTime != 0) return true;
   }
-  
-  vars.UpdateASLVars();
-  
-  // pausing the game won't help you...
-  if (current.GameTime != 0) return true;
+  catch (Exception e) {
+    vars.LogException(e, "update");
+    return true;
+  }
 }
 
 
@@ -1522,123 +1570,129 @@ update {
         is enabled in settings)
 */
 split {
-  bool DefinitelySplit = false;
-  bool AvoidSplit = false;
-  int CallbackResult = 0;
-  bool BoolResult = false;
-  Dictionary<string, string> SpecialCase = null;
-  Func<bool> Split = vars.Split;
-  
-  // Watching special cases
-  if ( (!vars.DontWatch) && (vars.SpecialWatchCallback.ContainsKey(current.RoomCode)) ) {
-    CallbackResult = vars.SpecialWatchCallback[current.RoomCode]();
-    if (CallbackResult == 1) {
-      vars.DontWatch = true;
-      return Split();
-    }
-    else if (CallbackResult == -1) vars.DontWatch = true;
-  }
-  
-  // if (current.RoomTimer == 0) vars.ResetBossData(); // messes up split/blocknextroom
-  
-  if (current.RoomCode == old.RoomCode) return false; // room is unchanged
-  
-  vars.ASL_CurrentRoomCode = current.RoomCode;
-  vars.ASL_CurrentRoom = vars.GetRoomName(current.RoomCode);
-  vars.ASL_Info = (settings["aslvv_info_room"]) ? vars.ASL_CurrentRoom : "";
-  
-  if (vars.DontWatch) vars.DontWatch = false; // reset the watch switch on new room
-  
-  // get the friendly room names for logging
-  string CurrentRoomName, OldRoomName;
-  if (!vars.Rooms.TryGetValue(current.RoomCode, out CurrentRoomName)) {
-    AvoidSplit = true; // Avoid splitting if we're going to an unknown room
-    CurrentRoomName = vars.GetRoomName(current.RoomCode);
-  }
-  if (!vars.Rooms.TryGetValue(old.RoomCode, out OldRoomName)) {
-    AvoidSplit = true; // Avoid splitting if we're coming from an unknown room
-    OldRoomName = vars.GetRoomName(old.RoomCode);
-  }
-  vars.Debug("[" + old.RoomCode + "] " + OldRoomName + " > [" + current.RoomCode + "] " + CurrentRoomName);
-  
-  // Respect the individual settings for rooms
-  if ( (settings.ContainsKey(old.RoomCode)) && (!settings[old.RoomCode]) ) return false;
-  
-  // Handle block/split requests from watchers
-  if (vars.BlockNextRoom) {
-    vars.BlockNextRoom = false;
-    vars.ResetBossData();
-    return false; // something requested that we not split this time
-  }
-  if (vars.SplitNextRoom) {
-    vars.SplitNextRoom = false;
-    vars.ResetBossData();
-    return Split(); // the opposite happened!
-  }
-  vars.ResetBossData();
-  
-  // If we're in VR Missions, this is the last thing that gets run
-  if (vars.VRMissions) return vars.VRLogMission(current.RoomCode);
-  
-  // Special cases
-  do {
-    // Parameter-based room change cases
-    if (vars.SpecialRoomChange.TryGetValue(old.RoomCode, out SpecialCase)) {
-      // Break out if a setting is required but not true (or a false setting required but true)
-      if ( (SpecialCase.ContainsKey("setting")) && (!settings[ SpecialCase["setting"] ]) ) break;
-      if ( (SpecialCase.ContainsKey("setting_false")) && (settings[ SpecialCase["setting_false"] ]) ) break;
-      // ...or if the new room isn't what we want
-      if ( (SpecialCase.ContainsKey("current")) && (current.RoomCode != SpecialCase["current"]) ) break;
-      // ...and specifically disable the split if required
-      if ( (SpecialCase.ContainsKey("no_split")) && (SpecialCase["no_split"] == "true") ) {
-        AvoidSplit = true;
-        break;
+  try {
+    bool DefinitelySplit = false;
+    bool AvoidSplit = false;
+    int CallbackResult = 0;
+    bool BoolResult = false;
+    Dictionary<string, string> SpecialCase = null;
+    Func<bool> Split = vars.Split;
+    
+    // Watching special cases
+    if ( (!vars.DontWatch) && (vars.SpecialWatchCallback.ContainsKey(current.RoomCode)) ) {
+      CallbackResult = vars.SpecialWatchCallback[current.RoomCode]();
+      if (CallbackResult == 1) {
+        vars.DontWatch = true;
+        return Split();
       }
-      return Split();
+      else if (CallbackResult == -1) vars.DontWatch = true;
     }
-  } while (false); // yes, I am in fact using a do-while-false "loop" just so I can use break
-  
-  do {
-    // Parameter-based room change cases (new room)
-    if (vars.SpecialNewRoom.TryGetValue(current.RoomCode, out SpecialCase)) {
-      // Break out if a setting is required but not true (or a false setting required but true)
-      if ( (SpecialCase.ContainsKey("setting")) && (!settings[ SpecialCase["setting"] ]) ) break;
-      if ( (SpecialCase.ContainsKey("setting_false")) && (settings[ SpecialCase["setting_false"] ]) ) break;
-      // ...or if the new room isn't what we want
-      if ( (SpecialCase.ContainsKey("old")) && (old.RoomCode != SpecialCase["old"]) ) break;
-      // ...and specifically disable the split if required
-      if ( (SpecialCase.ContainsKey("no_split")) && (SpecialCase["no_split"] == "true") ) {
-        AvoidSplit = true;
-        break;
+    
+    // if (current.RoomTimer == 0) vars.ResetBossData(); // messes up split/blocknextroom
+    
+    if (current.RoomCode == old.RoomCode) return false; // room is unchanged
+    
+    vars.ASL_CurrentRoomCode = current.RoomCode;
+    vars.ASL_CurrentRoom = vars.GetRoomName(current.RoomCode);
+    vars.ASL_Info = (settings["aslvv_info_room"]) ? vars.ASL_CurrentRoom : "";
+    
+    if (vars.DontWatch) vars.DontWatch = false; // reset the watch switch on new room
+    
+    // get the friendly room names for logging
+    string CurrentRoomName, OldRoomName;
+    if (!vars.Rooms.TryGetValue(current.RoomCode, out CurrentRoomName)) {
+      AvoidSplit = true; // Avoid splitting if we're going to an unknown room
+      CurrentRoomName = vars.GetRoomName(current.RoomCode);
+    }
+    if (!vars.Rooms.TryGetValue(old.RoomCode, out OldRoomName)) {
+      AvoidSplit = true; // Avoid splitting if we're coming from an unknown room
+      OldRoomName = vars.GetRoomName(old.RoomCode);
+    }
+    vars.Debug("[" + old.RoomCode + "] " + OldRoomName + " > [" + current.RoomCode + "] " + CurrentRoomName);
+    
+    // Respect the individual settings for rooms
+    if ( (settings.ContainsKey(old.RoomCode)) && (!settings[old.RoomCode]) ) return false;
+    
+    // Handle block/split requests from watchers
+    if (vars.BlockNextRoom) {
+      vars.BlockNextRoom = false;
+      vars.ResetBossData();
+      return false; // something requested that we not split this time
+    }
+    if (vars.SplitNextRoom) {
+      vars.SplitNextRoom = false;
+      vars.ResetBossData();
+      return Split(); // the opposite happened!
+    }
+    vars.ResetBossData();
+    
+    // If we're in VR Missions, this is the last thing that gets run
+    if (vars.VRMissions) return vars.VRLogMission(current.RoomCode);
+    
+    // Special cases
+    do {
+      // Parameter-based room change cases
+      if (vars.SpecialRoomChange.TryGetValue(old.RoomCode, out SpecialCase)) {
+        // Break out if a setting is required but not true (or a false setting required but true)
+        if ( (SpecialCase.ContainsKey("setting")) && (!settings[ SpecialCase["setting"] ]) ) break;
+        if ( (SpecialCase.ContainsKey("setting_false")) && (settings[ SpecialCase["setting_false"] ]) ) break;
+        // ...or if the new room isn't what we want
+        if ( (SpecialCase.ContainsKey("current")) && (current.RoomCode != SpecialCase["current"]) ) break;
+        // ...and specifically disable the split if required
+        if ( (SpecialCase.ContainsKey("no_split")) && (SpecialCase["no_split"] == "true") ) {
+          AvoidSplit = true;
+          break;
+        }
+        return Split();
       }
-      return Split();
+    } while (false); // yes, I am in fact using a do-while-false "loop" just so I can use break
+    
+    do {
+      // Parameter-based room change cases (new room)
+      if (vars.SpecialNewRoom.TryGetValue(current.RoomCode, out SpecialCase)) {
+        // Break out if a setting is required but not true (or a false setting required but true)
+        if ( (SpecialCase.ContainsKey("setting")) && (!settings[ SpecialCase["setting"] ]) ) break;
+        if ( (SpecialCase.ContainsKey("setting_false")) && (settings[ SpecialCase["setting_false"] ]) ) break;
+        // ...or if the new room isn't what we want
+        if ( (SpecialCase.ContainsKey("old")) && (old.RoomCode != SpecialCase["old"]) ) break;
+        // ...and specifically disable the split if required
+        if ( (SpecialCase.ContainsKey("no_split")) && (SpecialCase["no_split"] == "true") ) {
+          AvoidSplit = true;
+          break;
+        }
+        return Split();
+      }
+    } while (false);
+    
+    // Method-based room change cases
+    if (vars.SpecialRoomChangeCallback.ContainsKey(old.RoomCode)) {
+      CallbackResult = vars.SpecialRoomChangeCallback[old.RoomCode]();
+      if (CallbackResult == 1) DefinitelySplit = true;
+      else if (CallbackResult == -1) AvoidSplit = true;
     }
-  } while (false);
-  
-  // Method-based room change cases
-  if (vars.SpecialRoomChangeCallback.ContainsKey(old.RoomCode)) {
-    CallbackResult = vars.SpecialRoomChangeCallback[old.RoomCode]();
-    if (CallbackResult == 1) DefinitelySplit = true;
-    else if (CallbackResult == -1) AvoidSplit = true;
-  }
 
-  // Method-based room change cases (checking the new room, not the old one)
-  // This isn't used anywhere yet - checking the old room is usually more useful
-  if (vars.SpecialNewRoomCallback.ContainsKey(current.RoomCode)) {
-    CallbackResult = vars.SpecialNewRoomCallback[current.RoomCode]();
-    if (CallbackResult == 1) DefinitelySplit = true;
-    else if (CallbackResult == -1) AvoidSplit = true;
-  }
+    // Method-based room change cases (checking the new room, not the old one)
+    // This isn't used anywhere yet - checking the old room is usually more useful
+    if (vars.SpecialNewRoomCallback.ContainsKey(current.RoomCode)) {
+      CallbackResult = vars.SpecialNewRoomCallback[current.RoomCode]();
+      if (CallbackResult == 1) DefinitelySplit = true;
+      else if (CallbackResult == -1) AvoidSplit = true;
+    }
 
-  // Rooms to exclude (typically cutscenes)
-  if (vars.ExcludeOldRoom.ContainsKey(old.RoomCode)) AvoidSplit = true;
-  if (vars.ExcludeCurrentRoom.ContainsKey(current.RoomCode)) AvoidSplit = true;
-  
-  // Rooms to include
-  if (vars.IncludeOldRoom.ContainsKey(old.RoomCode)) DefinitelySplit = true;
-  if (vars.IncludeCurrentRoom.ContainsKey(current.RoomCode)) DefinitelySplit = true;
- 
-  if ( (DefinitelySplit) || (!AvoidSplit) ) return Split();
-  
-  return false;
+    // Rooms to exclude (typically cutscenes)
+    if (vars.ExcludeOldRoom.ContainsKey(old.RoomCode)) AvoidSplit = true;
+    if (vars.ExcludeCurrentRoom.ContainsKey(current.RoomCode)) AvoidSplit = true;
+    
+    // Rooms to include
+    if (vars.IncludeOldRoom.ContainsKey(old.RoomCode)) DefinitelySplit = true;
+    if (vars.IncludeCurrentRoom.ContainsKey(current.RoomCode)) DefinitelySplit = true;
+   
+    if ( (DefinitelySplit) || (!AvoidSplit) ) return Split();
+    
+    return false;
+  }
+  catch (Exception e) {
+    vars.LogException(e, "split");
+    return false;
+  }
 }
