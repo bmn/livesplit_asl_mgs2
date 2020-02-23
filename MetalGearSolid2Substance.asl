@@ -1208,7 +1208,7 @@ update {
           if (RoomTrackerP) {
             RoomTrackerP = false;
             RoomTrackerInt = 0;
-            BigBossAlertState = 2;
+            BigBossAlertState = 3;
             Debug("Setting Big Boss alert allowance to 3");
             return -1;
           }
@@ -1217,7 +1217,7 @@ update {
         if (current.RoomTimer < 30) RoomTrackerInt = current.RoomTimer;
         return 0;
       };
-      vars.SpecialNewRoomCallback.Add("e32a", CallBigBossAlert1); // Oil Fence sniping
+      vars.SpecialNewRoomCallback.Add("w32a", CallBigBossAlert1); // Oil Fence sniping
       vars.SpecialWatchCallback.Add("w44a", WatchBigBossAlert2); // Tengus 1
       vars.SpecialWatchCallback.Add("w45a", WatchBigBossAlert3); // Tengus 2
       
