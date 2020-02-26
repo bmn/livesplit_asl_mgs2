@@ -1,3 +1,5 @@
+⚠️ _If you were previously using the variable_ ___ASL_BestCodeName___ _be aware that it is now called_ ___ASL_CodeNameStatus___.
+
 # livesplit_asl_mgs2
 A LiveSplit autosplitter for Metal Gear Solid 2 Substance on PC
 
