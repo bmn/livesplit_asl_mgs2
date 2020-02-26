@@ -17,6 +17,9 @@ state("mgs2_sse") {
   byte2     Damage: 0x3E315E, 0x79;
   byte2     Saves: 0x3E315E, 0x69;
   byte2     Mechs: 0x3E315E, 0x8B;
+  byte2     Clearings: 0xD8C352;
+  byte      SeaLouce: 0x615B1C;
+  byte2     Extra: 0x601F34, 0x1596; // & 0x2000 = radar, & 0x20 = sp item
   byte      DogTagsSnake: 0xD8AFEE;
   byte      DogTagsRaiden: 0xD8B13E;
   byte2     StrengthRaiden: 0x3E315E, 0x63;
@@ -31,8 +34,9 @@ state("mgs2_sse") {
   byte2     CurrentCaution: 0x6160C8;
   byte2     MaxCaution: 0xD8F508; // D8D908 B60000
   byte2     GripMultiplier: 0xD8F500; // This is meant to be 1800 for Snake, 3600 for Raiden, but isn't?
-  byte      RadarOn: 0xF80DB, 0x4CA;
-
+  byte      Difficulty: 0x601F34, 0x10; // 10 = VE, 60 = EEx, increments in 10s
+  byte2     Level: 0x601F34, 0x158A; // 0x1800 + 0xD (Tanker), 0xE (Plant), 0xF (T-P)
+  
   byte2     STCompletionCheck: 0x13A178C; // This value rises slowly from 0 during credits to about 260, then goes back to 0 at results
 
   byte      OlgaStamina: 0xAD4F6C, 0x0, 0x1E0, 0x44, 0x1F8, 0x13C;
@@ -140,7 +144,7 @@ start {
     
     // Might as well!
     vars.ResetData(); // resetting on an unbeaten boss can cause some really bad things to happen in insta
-    vars.UpdateBigBoss();
+    vars.UpdateCodeNameStatus();
     
     return true;
   }
@@ -580,6 +584,7 @@ startup {
     settings.SetToolTip("aslvv", "Disabling this may slightly improve performance");
       settings.Add("aslvv_info", true, "ASL_Info (contextual information)", "aslvv");
         settings.Add("aslvv_info_vars", true, "Display these values:", "aslvv_info");
+          settings.Add("aslvv_info_codename", true, "Codename changes", "aslvv_info_vars");
           settings.Add("aslvv_info_room", false, "Current location", "aslvv_info_vars");
           settings.SetToolTip("aslvv_info_room", "Use ASL_CurrentRoom if you only want the location");
           settings.Add("aslvv_info_tags", true, "Dog tag progress", "aslvv_info_vars");
@@ -595,7 +600,9 @@ startup {
           settings.Add("aslvv_info_colon", true, "Ascending Colon tutorial progress", "aslvv_info_vars");
         settings.Add("aslvv_info_max", true, "Also show the maximum value for raw values", "aslvv_info");
         settings.Add("aslvv_info_percent", true, "Show percentages instead of raw values", "aslvv_info");
-      settings.Add("aslvv_boss", true, "ASL_BestCodeName (Perfect Stats attempt tracking)", "aslvv");
+      settings.Add("aslvv_boss", true, "ASL_CodeNameStatus (Perfect Stats attempt tracking)", "aslvv");
+        settings.Add("aslvv_boss_specific", true, "Also show the top-rank-specific stats if they are broken", "aslvv_boss");
+        settings.SetToolTip("aslvv_boss_specific", "Disable this if you're going for Perfect Stats rather than a top rank such as Big Boss");
         settings.Add("aslvv_boss_short", false, "Show single letters for stats instead of full titles", "aslvv_boss");
         settings.SetToolTip("aslvv_boss_short", "Enable this if the full stat names make the message too long");
       settings.Add("aslvv_tags", true, "ASL_DogTags (dog tag collection stats)", "aslvv");
@@ -804,6 +811,7 @@ update {
       print("Beginning update initialisation...");
       
       vars.Initialised = true;
+      var Vars = (IDictionary<string, object>)vars;
       int MaxVal = 99999;
       int Counter = 0;
       bool BossActive = false;
@@ -900,6 +908,29 @@ update {
         return BitConverter.ToInt16(input, 0);
       };
       vars.C = C;
+      
+      // Code for current difficulty (0 = VE, 6 = EuEx)
+      Func<int> Difficulty = () => current.Difficulty / 10 - 1;
+      vars.Difficulty = Difficulty;
+      
+      // Name of current difficulty
+      var DifficultyTexts = new string[] { "Very Easy", "Easy", "Normal", "Hard", "Extreme", "European Extreme" };
+      Func<string> DifficultyText = () => DifficultyTexts[Difficulty()];
+      vars.DifficultyText = DifficultyText;
+      
+      // Code for current level
+      Func<int> Level = () => (C(current.Level) & 3) % 3;
+      vars.Level = Level;
+      
+      // Name of current level
+      var LevelTexts = new string[] { "Tanker-Plant", "Tanker", "Plant" };
+      Func<string> LevelText = () => LevelTexts[Level()];
+      
+      // Is Radar enabled?
+      Func<bool> RadarEnabled = () => ((C(current.Extra) & 0x2000) != 0);
+      
+      // Has a special item been used?
+      Func<bool> SpItemUsed = () => ((C(current.Extra) & 0x20) != 0);
       
       // Confirm a split
       Func<bool> Split = delegate() {
@@ -1338,37 +1369,113 @@ update {
       vars.VRMissionsEnable = VRMissionsEnable;
       vars.VRLogMission = VRLogMission;
       
-      // Big Boss status for ASLVarViewer
-      Action UpdateBigBoss = delegate() {
-        if (settings["aslvv"]) {
-          List<string> PerfectStatus = new List<string>();
-          List<string> BossStatus = new List<string>();
-          bool PerfectStats = false;
-          string Difficulty = "";
-          string Prefix = "Still on course for ";
-          
-          // Stats that preclude Big Boss:
-          // Not main game?
-          if (!vars.DifficultyHealth.TryGetValue(current.MaxHealth, out Difficulty)) {
-            PerfectStats = true;
-            vars.ASL_Difficulty = "";
-            vars.ASL_BestCodeName = "";
-          }
-          else {
-            vars.ASL_Difficulty = Difficulty;
-            // On Very Easy?
-            if (vars.ASL_Difficulty == "Very Easy") {
-              PerfectStats = true;
-              vars.ASL_BestCodeName = Prefix + "Perfect Stats";
-            }
-            else vars.ASL_BestCodeName = Prefix + vars.BestCodeNames[current.MaxHealth];
-          }
-          // Radar on?
-          vars.ASL_RadarOn = (current.RadarOn == 32);
-          if (vars.ASL_RadarOn) PerfectStats = true;
-          
-          int DamageLimit = (vars.ASL_Difficulty == "European Extreme") ? 279 : 499; // prob incorrect for easier difficulties
+
+
+      // New codename functionality
+      bool PerfectStatsOnly = false;
+      bool TopCodeName = false;
+      Func<string> CurrentCodeName = delegate() {
+        int Category = -1;
+        PerfectStatsOnly = false;
+        TopCodeName = false;
         
+        int DifficultyCode = Difficulty();
+        var DifficultyModifiers = new int[] { 3, 3, 2, 1, 0, 0 };
+        int DifficultyModifier = DifficultyModifiers[DifficultyCode];
+        vars.ASL_Difficulty = DifficultyText();
+        
+        int CurrentLevel = Level();
+        vars.ASL_Level = LevelText();
+        
+        var Ranks = new string[] { "", "", "", "" };
+        
+        // Tanker-Plant only stuff
+        if (CurrentLevel == 0) {
+          // Top ranks
+          // Shared by all top ranks
+          if ( (!SpItemUsed()) && (vars.ASL_Kills == 0) && (vars.ASL_Continues == 0) ) {
+            // Shared by ranks 1/2
+            if ( (vars.ASL_Alerts <= BigBossAlertState) && (vars.ASL_Rations == 0) && (vars.ASL_Minutes < 181) ) {
+              // Rank 1 only
+              int DamageLimit = (11 * current.MaxHealth) - 50;
+              if ( (!RadarEnabled()) && (vars.ASL_Saves < 9) && (vars.ASL_Shots < 701) && (vars.ASL_DamageTaken < DamageLimit) ) {
+                TopCodeName = true;
+                Category = 0;
+              }
+              // Rank 2
+              else if (vars.ASL_Saves < 17) Category = 1;
+            }
+            else if ( (vars.ASL_Alerts <= (BigBossAlertState + 1)) && (vars.ASL_Rations < 4) && (vars.ASL_Minutes < 195) ) {
+              Category = 2;
+            }
+            else if ( (vars.ASL_Alerts <= (BigBossAlertState + 2)) && (vars.ASL_Minutes < 210) ) {
+              Category = 3;
+            }
+          }
+          if (Category != -1) {
+            int Result = Category + new int[] { 4, 3, 2, 1, 0, 0 }[DifficultyCode];
+            if (Result < 4) return new string[] { "Big Boss", "Fox", "Doberman", "Hound" }[Result];
+          }
+          // Bottom rank
+          else if ( (vars.ASL_Alerts > BigBossAlertState + 246) && (vars.ASL_Kills > 249) && (vars.ASL_Rations > 30) && (vars.ASL_Saves > 99) && (vars.ASL_Continues > 59) && (vars.ASL_Minutes > 1799) ) {
+            return new string[] { "Ostrich", "Rabbit", "Mouse", "Chicken" }[DifficultyModifier];
+          }
+        }
+        else PerfectStatsOnly = true;
+        
+        // Individual stats
+        if ( (CurrentLevel != 0) && (current.SeaLouce == 1) ) return "Sea Louce";
+        if (vars.ASL_Alerts <= new int[] { BigBossAlertState, 0, BigBossAlertState }[CurrentLevel]) {
+          return new string[] { "Night Owl", "Flying Fox", "Bat", "Flying Squirrel" }[DifficultyModifier];
+        }
+        if (vars.ASL_Kills == 0) return "Pigeon";
+        if (vars.ASL_Minutes < new int[] { 181, 19, 166 }[CurrentLevel]) {
+          return new string[] { "Eagle", "Hawk", "Falcon", "Swallow" }[DifficultyModifier];
+        }
+        if (vars.ASL_ClearingEscapes > new int[] { 149, 49, 99 }[CurrentLevel]) return "Gazelle";
+        if (vars.ASL_Alerts > new int[] { BigBossAlertState + 246, 49, BigBossAlertState + 196 }[CurrentLevel]) return "Cow";
+        if (vars.ASL_Kills > new int[] { 249, 49, 199 }[CurrentLevel]) {
+          return new string[] { "Orca", "Jaws", "Shark", "Piranha" }[DifficultyModifier];
+        }
+        if (vars.ASL_Rations > 30) {
+          return new string[] { "Whale", "Mammoth", "Elephant", "Pig" }[DifficultyModifier];
+        }
+        if (vars.ASL_Minutes > new int[] { 1799, 299, 1499 }[CurrentLevel]) {
+          return new string[] { "Giant Panda", "Sloth", "Capybara", "Koala" }[DifficultyModifier];
+        }
+        if (vars.ASL_Saves > new int[] { 99, 24, 74 }[CurrentLevel]) {
+          return new string[] { "Hippopotamus", "Zebra", "Deer", "Cat" }[DifficultyModifier];
+        }
+        
+        // The rest
+        string[,,] TheRest = new string[2, 2, 4] {
+          { // 0 = <C
+            { "Scorpion", "Jaguar", "Jackal", "Iguana" }, // 0 = <K
+            { "Tarantula", "Panther", "Tasmanian Devil", "Crocodile" } // 1 = >K
+          },
+          { // 1 = >C
+            { "Centipede", "Leopard", "Mongoose", "Comodo Dragon" }, // 0 = <K
+            { "Spider", "Puma", "Hyena", "Alligator" } // 1 = >K
+          }
+        };
+        int TestContinues = (vars.ASL_Continues > new int[] { 40, 10, 30 }[CurrentLevel]) ? 1 : 0;
+        int TestKills = (vars.ASL_Kills > new int[] { 70, 15, 60 }[CurrentLevel]) ? 1 : 0;
+        return TheRest[TestContinues, TestKills, DifficultyModifier];
+
+      };
+      vars.CurrentCodeName = CurrentCodeName;
+      
+      
+      
+      // ASL_CodeNameStatus for ASLVarViewer
+      Action UpdateCodeNameStatus = delegate() {
+        List<string> PerfectStatus = new List<string>();
+        List<string> BossStatus = new List<string>();
+        string Status = "";
+        
+        string Prefix = "Still on course for ";
+
+        if (!TopCodeName) {
           // If over 3 alerts (only allowing for the mandatory ones when they appear)...
           if (vars.ASL_Alerts > BigBossAlertState) PerfectStatus.Add(vars.ASL_Alerts + ((settings["aslvv_boss_short"]) ? "A" : Plural(vars.ASL_Alerts, " Alert", " Alerts")) );
           // If has continued...
@@ -1378,46 +1485,57 @@ update {
           // If has eaten rations...
           if (vars.ASL_Rations > 0) PerfectStatus.Add( vars.ASL_Rations + ((settings["aslvv_boss_short"]) ? "R" : Plural(vars.ASL_Rations, " Ration", " Rations")) );
           
-          // Big Boss-only stats
-          if (!PerfectStats) {
+          if ( (!PerfectStatsOnly) && (settings["aslvv_boss_specific"]) ) {
+            // If the radar's enabled
+            if (RadarEnabled()) BossStatus.Add((settings["aslvv_boss_short"]) ? "R!" : "Radar On");
             // If has saved more than 8 times...
             if (vars.ASL_Saves > 8) BossStatus.Add( vars.ASL_Saves + ((settings["aslvv_boss_short"]) ? "S" : Plural(vars.ASL_Saves, " Save", " Saves")) );
             // If has taken too much damage...
-            if (vars.ASL_DamageTaken > DamageLimit) BossStatus.Add( vars.ASL_DamageTaken + ((settings["aslvv_boss_short"]) ? "D" : " Damage"));
+            if (vars.ASL_DamageTaken >= (current.MaxHealth * 11) - 50) BossStatus.Add( vars.ASL_DamageTaken + ((settings["aslvv_boss_short"]) ? "D" : " Damage"));
             // If has shot a decent number of bullets...
-            if (vars.ASL_Shots > 700) BossStatus.Add( vars.ASL_Shots + ((settings["aslvv_boss_short"]) ? "B" : Plural(vars.ASL_Shots, " Bullet", " Bullets")) );
+            if (vars.ASL_Shots > 700) BossStatus.Add( vars.ASL_Shots + ((settings["aslvv_boss_short"]) ? "B" : Plural(vars.ASL_Shots, " Shot", " Shots")) );
             // If time is 3h00m01s or more
             if (current.GameTime > ((60/*f*/ * 60/*s*/ * 60/*m*/ * 3/*h*/) + 59)) BossStatus.Add((settings["aslvv_boss_short"]) ? ">3h" : "Over 3 Hours");
+            
+            if (BossStatus.Count > 0) {
+              Status = String.Join((settings["aslvv_boss_short"]) ? " " : ", ", BossStatus);
+            }
           }
           
-          // Create the info string
-          string Status = "";
-          if (BossStatus.Count > 0) {
-            vars.ASL_BestCodeName = Prefix + "Perfect Stats";
-            Status = String.Join((settings["aslvv_boss_short"]) ? " " : ", ", BossStatus);
-          }
           if (PerfectStatus.Count > 0) {
-            vars.ASL_BestCodeName = "";
-            if (Status != "") Status = (settings["aslvv_boss_short"] ? " " : ", ") + Status;
+            if (Status != "") Status = ((settings["aslvv_boss_short"]) ? " " : ", ") + Status;
             Status = String.Join((settings["aslvv_boss_short"]) ? " " : ", ", PerfectStatus) + Status;
           }
-          if (Status != "") vars.ASL_BestCodeName = vars.ASL_BestCodeName + " " + Status.Trim();
+          
+          if (Status != "") Status = Status + " [" + vars.ASL_CodeName + "]";
+          else if (PerfectStatsOnly) Status = Prefix + "Perfect Stats";
         }
+        
+        vars.ASL_CodeNameStatus = (Status == "") ? Prefix + vars.ASL_CodeName : Status; 
       };
-      vars.UpdateBigBoss = UpdateBigBoss;
+      vars.UpdateCodeNameStatus = UpdateCodeNameStatus;
       
       // ASLVarViewer values
+      var ListOfStats = new string[] { "Minutes", "Alerts", "Continues", "Shots", "Rations", "Kills", "Saves", "MechsDestroyed", "ClearingEscapes", "DamageTaken" };
+      var Previous = new Dictionary<string, int>();
+      foreach (string stat in ListOfStats) Previous.Add(stat, 0);
+
       int PreviousO2 = -1;
       int PreviousGrip = -1;
       int PreviousCaution = -1;
+      uint LastCodeNameCheck = 0;
+      int WarmUpTimer = 5;
       float ChaffRate = (1024.0f / 30);
+      
+      vars.ASL_CodeName = "";
+      
       Action UpdateASLVars = delegate() {
         if (settings["aslvv"]) {
 
           vars.ASL_RoomTimer = current.RoomTimer;
 
           // Update less-critical values at a lower rate
-          if ((current.GameTime % 10) == 0) {
+          if ((current.RoomTimer % 15) == 0) {
             vars.ASL_Alerts = C(current.Alerts);
             vars.ASL_Continues = C(current.Continues);
             vars.ASL_Shots = C(current.Shots);
@@ -1425,6 +1543,7 @@ update {
             vars.ASL_Kills = C(current.Kills);
             vars.ASL_Saves = C(current.Saves);
             vars.ASL_MechsDestroyed = C(current.Mechs);
+            vars.ASL_ClearingEscapes = C(current.Clearings);
             vars.ASL_Strength = C(current.StrengthRaiden);
             vars.ASL_AlertAllowance = BigBossAlertState;
             
@@ -1454,10 +1573,33 @@ update {
                 }
               }
             }
+            
+            // Update the codename if a stat has changed (max once per second)
+            if ( (current.GameTime > (LastCodeNameCheck + 60)) || (current.GameTime < LastCodeNameCheck) ) {
+              vars.ASL_Minutes = (int)Math.Floor(( ((float)current.GameTime / 60) - 1 ) / 60);
+              foreach (string stat in ListOfStats) {
+                int statvalue = Convert.ToInt32(Vars["ASL_" + stat]);
+                if (statvalue != Previous[stat]) {
+                  print("Checking for new codename...");
+                  string NewCodeName = CurrentCodeName();
+                  if (NewCodeName != vars.ASL_CodeName) {
+                    print("New codename: " + NewCodeName);
+                    if (settings["aslvv_info_codename"]) {
+                      vars.ASL_Info = "Codename changed to " + NewCodeName;
+                      vars.InfoTimer = 300;
+                    }
+                    vars.ASL_CodeName = NewCodeName;
+                  }
+                  UpdateCodeNameStatus();
+                  Previous[stat] = statvalue;
+                  LastCodeNameCheck = current.GameTime; // Move this out of the foreach if hurting performance
+                  break;
+                }
+              }
+            }
+           
           }
-          
-          if ((current.RoomTimer % 60) == 0) vars.UpdateBigBoss();
-        
+
           //bool Snake = (C(current.GripMultiplier) == 1800); // Raiden's is 3600 - but this doesn't work
           //vars.Debug(Snake ? "Snake" : "Raiden");
           //vars.Debug(C(current.GripMultiplier).ToString());
@@ -1486,7 +1628,7 @@ update {
             (current.RoomCode != "w51a") && (current.RoomCode != "w41a")
           ) {
             PreviousO2 = CurrentO2;
-            if (current.RoomTimer > 5) {
+            if (WarmUpTimer == 0) {
               int MaxO2 = (current.MaxHealth == 30) ? 3600 : 4000;
               int O2Rate = (current.CurrentHealth == current.MaxHealth) ? 60 : 120;
               string O2TimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentO2 / O2Rate) );
@@ -1497,17 +1639,20 @@ update {
               vars.ASL_Info = "O2: " + vars.ValueFormat(CurrentO2, MaxO2) + " (" + O2TimeLeft + HealthTimeLeft + " left)";
               vars.InfoTimer = 60;
             }
+            else WarmUpTimer = WarmUpTimer - 1;
           }
           // If we're hanging, update the grip status
           else if ( (settings["aslvv_info_grip"]) && (CurrentGrip != -1) && (CurrentGrip != PreviousGrip) ) {
-            if (current.RoomTimer > 5) {
-              PreviousGrip = CurrentGrip;
+            print(WarmUpTimer.ToString());
+            PreviousGrip = CurrentGrip;
+            if (WarmUpTimer == 0) {
               int MaxGrip = C(current.MaxGrip);
               int GripRate = (current.CurrentHealth == current.MaxHealth) ? 60 : 120;
               string GripTimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentGrip / GripRate) );
               vars.ASL_Info = "Grip: " + vars.ValueFormat(CurrentGrip, MaxGrip) + " (" + GripTimeLeft + " left)";
               vars.InfoTimer = 60;
             }
+            else WarmUpTimer = WarmUpTimer - 1;
           }
           // If there's a chaff grenade active, show that
           else if ( (settings["aslvv_info_chaff"]) && (CurrentChaff > 0) ) {
@@ -1523,6 +1668,7 @@ update {
             vars.ASL_Info = "Caution: " + vars.ValueFormat(CurrentCaution, C(current.MaxCaution)) + " (" + CautionTimeLeft + " left)";
             vars.InfoTimer = 10;
           }
+          else if (WarmUpTimer < 5) WarmUpTimer = WarmUpTimer + 1;
           
         }
         
