@@ -1,6 +1,6 @@
 /*
-  MGS2 Autosplitter
-  Main room configuration starts around line 140
+  Autosplitter for Metal Gear Solid 2: Substance (PC)
+  
 */
 
 state("mgs2_sse") {
@@ -70,6 +70,7 @@ isLoading {
 }
 
 gameTime {
+  if (settings["aslvv"]) vars.UpdateASLVars();
   return TimeSpan.FromMilliseconds((current.GameTime) * 1000 / 60);
 }
 
@@ -155,6 +156,37 @@ start {
 } 
 
 startup {
+  // Init ASL variables
+  vars.ASL_VAR_VIEWER_VARIABLES = "";
+  vars.ASL_Alerts = 0;
+  vars.ASL_AlertAllowance = 0;
+  vars.ASL_ClearingEscapes = 0;
+  vars.ASL_CodeName = "";
+  vars.ASL_CodeNameStatus = "";
+  vars.ASL_Continues = 0;
+  vars.ASL_CurrentRoom = "";
+  vars.ASL_CurrentRoomCode = "";
+  vars.ASL_DamageTaken = 0;
+  vars.ASL_Debug = "";
+  vars.ASL_Difficulty = "";
+  vars.ASL_DogTags = "";
+  vars.ASL_DogTags_Snake = "";
+  vars.ASL_DogTags_Raiden = "";
+  vars.ASL_Info = "";
+  vars.ASL_Kills = 0;
+  vars.ASL_LastDamage = 0;
+  vars.ASL_Level = "";
+  vars.ASL_MechsDestroyed = 0;
+  vars.ASL_Minutes = 0;
+  vars.ASL_Rations = 0;
+  vars.ASL_RoomTimer = 0;
+  vars.ASL_Saves = 0;
+  vars.ASL_SeaLouce = 0;
+  vars.ASL_Shots = 0;
+  vars.ASL_SpecialItems = false;
+  vars.ASL_Strength = 0;
+  vars.INTERNAL_VARIABLES = "";
+  
   vars.Initialised = false;
   print("Beginning startup initialisation...");
   
@@ -552,26 +584,6 @@ startup {
   vars.BlockNextRoom = false;
   vars.SplitNextRoom = false;
   
-  // Init ASL variables
-  vars.ASL_Alerts = 0;
-  vars.ASL_CodeNameStatus = "";
-  vars.ASL_Continues = 0;
-  vars.ASL_CurrentRoom = "";
-  vars.ASL_CurrentRoomCode = "";
-  vars.ASL_DamageTaken = 0;
-  vars.ASL_Debug = "";
-  vars.ASL_Difficulty = "";
-  vars.ASL_Info = "";
-  vars.ASL_Kills = 0;
-  vars.ASL_LastDamage = 0;
-  vars.ASL_MechsDestroyed = 0;
-  vars.ASL_Rations = 0;
-  vars.ASL_RoomTimer = 0;
-  vars.ASL_Saves = 0;
-  vars.ASL_Shots = 0;
-  vars.ASL_Strength = 0;
-  
-  
   // Add main settings
   settings.Add("options", true, "Advanced Options");
   
@@ -760,8 +772,7 @@ startup {
     { "no_split", "true" }
   });
   */
-  
-  
+    
   // A Wrongdoing: Option to split when meeting Ames in Strut F
   TempSetting = "snaketales_a_ames";
   settings.Add(TempSetting, false, "Split when meeting Ames", "snaketales_a");
@@ -797,12 +808,9 @@ startup {
   });
   
   // External Gazer: Option to split after first AB connecting bridge (1st area) - possible???
-  
-  
-  
+    
   print("Startup complete");
 }
-
 
 update {
   try {
@@ -1393,7 +1401,7 @@ update {
         if (CurrentLevel == 0) {
           // Top ranks
           // Shared by all top ranks
-          if ( (!SpItemUsed()) && (vars.ASL_Kills == 0) && (vars.ASL_Continues == 0) ) {
+          if ( (!vars.ASL_SpecialItems) && (vars.ASL_Kills == 0) && (vars.ASL_Continues == 0) ) {
             // Shared by ranks 1/2
             if ( (vars.ASL_Alerts <= BigBossAlertState) && (vars.ASL_Rations == 0) && (vars.ASL_Minutes < 181) ) {
               // Rank 1 only
@@ -1486,8 +1494,10 @@ update {
           if (vars.ASL_Rations > 0) PerfectStatus.Add( vars.ASL_Rations + ((settings["aslvv_boss_short"]) ? "R" : Plural(vars.ASL_Rations, " Ration", " Rations")) );
           
           if ( (!PerfectStatsOnly) && (settings["aslvv_boss_specific"]) ) {
-            // If the radar's enabled
+            // If the radar's enabled...
             if (RadarEnabled()) BossStatus.Add((settings["aslvv_boss_short"]) ? "R!" : "Radar On");
+            // If has used special items...
+            if (vars.ASL_SpecialItems) BossStatus.Add((settings["aslvv_boss_short"]) ? "S!" : "Special Items");
             // If has saved more than 8 times...
             if (vars.ASL_Saves > 8) BossStatus.Add( vars.ASL_Saves + ((settings["aslvv_boss_short"]) ? "S" : Plural(vars.ASL_Saves, " Save", " Saves")) );
             // If has taken too much damage...
@@ -1516,7 +1526,7 @@ update {
       vars.UpdateCodeNameStatus = UpdateCodeNameStatus;
       
       // ASLVarViewer values
-      var ListOfStats = new string[] { "Minutes", "Alerts", "Continues", "Shots", "Rations", "Kills", "Saves", "MechsDestroyed", "ClearingEscapes", "DamageTaken" };
+      var ListOfStats = new string[] { "Minutes", "Alerts", "Continues", "Shots", "Rations", "Kills", "Saves", "ClearingEscapes", "DamageTaken", "SeaLouce", "SpecialItems" };
       var Previous = new Dictionary<string, int>();
       foreach (string stat in ListOfStats) Previous.Add(stat, 0);
 
@@ -1530,164 +1540,155 @@ update {
       vars.ASL_CodeName = "";
       
       Action UpdateASLVars = delegate() {
-        if (settings["aslvv"]) {
+        vars.ASL_RoomTimer = current.RoomTimer;
 
-          vars.ASL_RoomTimer = current.RoomTimer;
-
-          // Update less-critical values at a lower rate
-          if ((current.RoomTimer % 15) == 0) {
-            vars.ASL_Alerts = C(current.Alerts);
-            vars.ASL_Continues = C(current.Continues);
-            vars.ASL_Shots = C(current.Shots);
-            vars.ASL_Rations = C(current.Rations);
-            vars.ASL_Kills = C(current.Kills);
-            vars.ASL_Saves = C(current.Saves);
-            vars.ASL_MechsDestroyed = C(current.Mechs);
-            vars.ASL_ClearingEscapes = C(current.Clearings);
-            vars.ASL_Strength = C(current.StrengthRaiden);
-            vars.ASL_AlertAllowance = BigBossAlertState;
-            
-            int CurrentDamage = C(current.Damage);
-            if (CurrentDamage > vars.ASL_DamageTaken) vars.ASL_LastDamage = (CurrentDamage - vars.ASL_DamageTaken);
-            vars.ASL_DamageTaken = CurrentDamage;
-            
-            // Update dog tag counters if we collect one
-            if (current.MaxHealth != 30) {
-              bool CollectedTagRaiden = (current.DogTagsRaiden > vars.PreviousTagsRaiden);
-              bool CollectedTagSnake = (current.DogTagsSnake > vars.PreviousTagsSnake);
-              if (CollectedTagRaiden || CollectedTagSnake) {
-                vars.ASL_DogTags_Snake = current.DogTagsSnake + (settings["aslvv_tags_max"] ? "/" + vars.MaxDogTags[current.MaxHealth][0] : "");
-                vars.ASL_DogTags_Raiden = current.DogTagsRaiden + (settings["aslvv_tags_max"] ? "/" + vars.MaxDogTags[current.MaxHealth][1] : "");
-                vars.ASL_DogTags = current.DogTagsSnake + current.DogTagsRaiden + (settings["aslvv_tags_max"] ? "/" + vars.MaxDogTags[current.MaxHealth][2] : "");
-                
-                vars.PreviousTagsSnake = current.DogTagsSnake;
-                vars.PreviousTagsRaiden = current.DogTagsRaiden;
-                
-                if (settings["aslvv_info_tags"]) {
-                  string TagStatus = "";
-                  if (settings["aslvv_info_tags_onlycurrent"])
-                    TagStatus = (CollectedTagRaiden) ? vars.ASL_DogTags_Raiden : vars.ASL_DogTags_Snake;
-                  else TagStatus = vars.ASL_DogTags;
-                  vars.ASL_Info = "Dog Tags: " + TagStatus;
-                  vars.InfoTimer = 300;
-                }
+        // Update less-critical values at a lower rate
+        if ((current.RoomTimer % 15) == 0) {
+          vars.ASL_Alerts = C(current.Alerts);
+          vars.ASL_Continues = C(current.Continues);
+          vars.ASL_Shots = C(current.Shots);
+          vars.ASL_Rations = C(current.Rations);
+          vars.ASL_Kills = C(current.Kills);
+          vars.ASL_Saves = C(current.Saves);
+          vars.ASL_MechsDestroyed = C(current.Mechs);
+          vars.ASL_ClearingEscapes = C(current.Clearings);
+          vars.ASL_Strength = C(current.StrengthRaiden);
+          vars.ASL_AlertAllowance = BigBossAlertState;
+          vars.ASL_SeaLouce = current.SeaLouce;
+          vars.ASL_SpecialItems = SpItemUsed();
+          
+          int CurrentDamage = C(current.Damage);
+          if (CurrentDamage > vars.ASL_DamageTaken) vars.ASL_LastDamage = (CurrentDamage - vars.ASL_DamageTaken);
+          vars.ASL_DamageTaken = CurrentDamage;
+          
+          // Update dog tag counters if we collect one
+          if (current.MaxHealth != 30) {
+            bool CollectedTagRaiden = (current.DogTagsRaiden > vars.PreviousTagsRaiden);
+            bool CollectedTagSnake = (current.DogTagsSnake > vars.PreviousTagsSnake);
+            if (CollectedTagRaiden || CollectedTagSnake) {
+              vars.ASL_DogTags_Snake = current.DogTagsSnake + (settings["aslvv_tags_max"] ? "/" + vars.MaxDogTags[current.MaxHealth][0] : "");
+              vars.ASL_DogTags_Raiden = current.DogTagsRaiden + (settings["aslvv_tags_max"] ? "/" + vars.MaxDogTags[current.MaxHealth][1] : "");
+              vars.ASL_DogTags = current.DogTagsSnake + current.DogTagsRaiden + (settings["aslvv_tags_max"] ? "/" + vars.MaxDogTags[current.MaxHealth][2] : "");
+              
+              vars.PreviousTagsSnake = current.DogTagsSnake;
+              vars.PreviousTagsRaiden = current.DogTagsRaiden;
+              
+              if (settings["aslvv_info_tags"]) {
+                string TagStatus = "";
+                if (settings["aslvv_info_tags_onlycurrent"])
+                  TagStatus = (CollectedTagRaiden) ? vars.ASL_DogTags_Raiden : vars.ASL_DogTags_Snake;
+                else TagStatus = vars.ASL_DogTags;
+                vars.ASL_Info = "Dog Tags: " + TagStatus;
+                vars.InfoTimer = 300;
               }
             }
-            
-            // Update the codename if a stat has changed (max once per second)
-            if ( (current.GameTime > (LastCodeNameCheck + 60)) || (current.GameTime < LastCodeNameCheck) ) {
-              vars.ASL_Minutes = (int)Math.Floor(( ((float)current.GameTime / 60) - 1 ) / 60);
-              foreach (string stat in ListOfStats) {
-                int statvalue = Convert.ToInt32(Vars["ASL_" + stat]);
-                if (statvalue != Previous[stat]) {
-                  print("Checking for new codename...");
-                  string NewCodeName = CurrentCodeName();
-                  if (NewCodeName != vars.ASL_CodeName) {
-                    print("New codename: " + NewCodeName);
-                    if (settings["aslvv_info_codename"]) {
-                      vars.ASL_Info = "Codename changed to " + NewCodeName;
-                      vars.InfoTimer = 300;
-                    }
-                    vars.ASL_CodeName = NewCodeName;
+          }
+          
+          // Update the codename if a stat has changed (max once per second)
+          if ( (current.GameTime > (LastCodeNameCheck + 60)) || (current.GameTime < LastCodeNameCheck) ) {
+            vars.ASL_Minutes = (int)Math.Floor(( ((float)current.GameTime / 60) - 1 ) / 60);
+            foreach (string stat in ListOfStats) {
+              int statvalue = Convert.ToInt32(Vars["ASL_" + stat]);
+              if (statvalue != Previous[stat]) {
+                print("Checking for new codename...");
+                string NewCodeName = CurrentCodeName();
+                if (NewCodeName != vars.ASL_CodeName) {
+                  print("New codename: " + NewCodeName);
+                  if (settings["aslvv_info_codename"]) {
+                    vars.ASL_Info = "Codename changed to " + NewCodeName;
+                    vars.InfoTimer = 300;
                   }
-                  UpdateCodeNameStatus();
-                  Previous[stat] = statvalue;
-                  LastCodeNameCheck = current.GameTime; // Move this out of the foreach if hurting performance
-                  break;
+                  vars.ASL_CodeName = NewCodeName;
                 }
+                UpdateCodeNameStatus();
+                Previous[stat] = statvalue;
+                LastCodeNameCheck = current.GameTime; // Move this out of the foreach if hurting performance
+                break;
               }
             }
-           
           }
+         
+        }
 
-          //bool Snake = (C(current.GripMultiplier) == 1800); // Raiden's is 3600 - but this doesn't work
-          //vars.Debug(Snake ? "Snake" : "Raiden");
-          //vars.Debug(C(current.GripMultiplier).ToString());
-          
-          if (vars.DebugTimer > 0) {
-            vars.DebugTimer--;
-            if (vars.DebugTimer == 0) vars.ASL_Debug = vars.PrevDebug;
-          }
-          
-          if (vars.InfoTimer > 0) {
-            vars.InfoTimer--;
-            if (vars.InfoTimer == 0) {
-              if (vars.PrevInfo != "") vars.ASL_Info = vars.PrevInfo;
-              else vars.ASL_Info = (settings["aslvv_info_room"]) ? vars.ASL_CurrentRoom : "";
-            }
-          }
-
-          int CurrentO2 = C(current.CurrentO2);
-          int CurrentGrip = (current.CurrentGrip != null) ? C(current.CurrentGrip) : -1;
-          int CurrentChaff = C(current.CurrentChaff);
-          int CurrentCaution = C(current.CurrentCaution);
-
-          // If we're underwater, update the O2 status in ASL_Info
-          if (
-            (settings["aslvv_info_o2"]) && (CurrentO2 != PreviousO2) &&
-            (current.RoomCode != "w51a") && (current.RoomCode != "w41a")
-          ) {
-            PreviousO2 = CurrentO2;
-            if (WarmUpTimer == 0) {
-              int MaxO2 = (current.MaxHealth == 30) ? 3600 : 4000;
-              int O2Rate = (current.CurrentHealth == current.MaxHealth) ? 60 : 120;
-              string O2TimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentO2 / O2Rate) );
-              string HealthTimeLeft = "";
-              if (settings["aslvv_info_o2health"]) {
-                HealthTimeLeft = " + " + string.Format( "{00:0.0}", (decimal)((double)current.CurrentHealth / 4) );
-              }
-              vars.ASL_Info = "O2: " + vars.ValueFormat(CurrentO2, MaxO2) + " (" + O2TimeLeft + HealthTimeLeft + " left)";
-              vars.InfoTimer = 60;
-            }
-            else WarmUpTimer = WarmUpTimer - 1;
-          }
-          // If we're hanging, update the grip status
-          else if ( (settings["aslvv_info_grip"]) && (CurrentGrip != -1) && (CurrentGrip != PreviousGrip) ) {
-            print(WarmUpTimer.ToString());
-            PreviousGrip = CurrentGrip;
-            if (WarmUpTimer == 0) {
-              int MaxGrip = C(current.MaxGrip);
-              int GripRate = (current.CurrentHealth == current.MaxHealth) ? 60 : 120;
-              string GripTimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentGrip / GripRate) );
-              vars.ASL_Info = "Grip: " + vars.ValueFormat(CurrentGrip, MaxGrip) + " (" + GripTimeLeft + " left)";
-              vars.InfoTimer = 60;
-            }
-            else WarmUpTimer = WarmUpTimer - 1;
-          }
-          // If there's a chaff grenade active, show that
-          else if ( (settings["aslvv_info_chaff"]) && (CurrentChaff > 0) ) {
-            int MaxChaff = 1024;
-            string ChaffTimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentChaff / ChaffRate) );
-            vars.ASL_Info = "Chaff: " + vars.ValueFormat(CurrentChaff, MaxChaff) + " (" + ChaffTimeLeft + " left)";
-            vars.InfoTimer = 10;
-          }
-          // If we're in caution, show that
-          else if ( (settings["aslvv_info_caution"]) && (CurrentCaution != PreviousCaution) ) {
-            PreviousCaution = CurrentCaution;
-            string CautionTimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentCaution / 60) );
-            vars.ASL_Info = "Caution: " + vars.ValueFormat(CurrentCaution, C(current.MaxCaution)) + " (" + CautionTimeLeft + " left)";
-            vars.InfoTimer = 10;
-          }
-          else if (WarmUpTimer < 5) WarmUpTimer = WarmUpTimer + 1;
-          
+        //bool Snake = (C(current.GripMultiplier) == 1800); // Raiden's is 3600 - but this doesn't work
+        //vars.Debug(Snake ? "Snake" : "Raiden");
+        //vars.Debug(C(current.GripMultiplier).ToString());
+        
+        if (vars.DebugTimer > 0) {
+          vars.DebugTimer--;
+          if (vars.DebugTimer == 0) vars.ASL_Debug = vars.PrevDebug;
         }
         
+        if (vars.InfoTimer > 0) {
+          vars.InfoTimer--;
+          if (vars.InfoTimer == 0) {
+            if (vars.PrevInfo != "") vars.ASL_Info = vars.PrevInfo;
+            else vars.ASL_Info = (settings["aslvv_info_room"]) ? vars.ASL_CurrentRoom : "";
+          }
+        }
+
+        int CurrentO2 = C(current.CurrentO2);
+        int CurrentGrip = (current.CurrentGrip != null) ? C(current.CurrentGrip) : -1;
+        int CurrentChaff = C(current.CurrentChaff);
+        int CurrentCaution = C(current.CurrentCaution);
+
+        // If we're underwater, update the O2 status in ASL_Info
+        if (
+          (settings["aslvv_info_o2"]) && (CurrentO2 != PreviousO2) &&
+          (current.RoomCode != "w51a") && (current.RoomCode != "w41a")
+        ) {
+          PreviousO2 = CurrentO2;
+          if (WarmUpTimer == 0) {
+            int MaxO2 = (current.MaxHealth == 30) ? 3600 : 4000;
+            int O2Rate = (current.CurrentHealth == current.MaxHealth) ? 60 : 120;
+            string O2TimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentO2 / O2Rate) );
+            string HealthTimeLeft = "";
+            if (settings["aslvv_info_o2health"]) {
+              HealthTimeLeft = " + " + string.Format( "{00:0.0}", (decimal)((double)current.CurrentHealth / 4) );
+            }
+            vars.ASL_Info = "O2: " + vars.ValueFormat(CurrentO2, MaxO2) + " (" + O2TimeLeft + HealthTimeLeft + " left)";
+            vars.InfoTimer = 60;
+          }
+          else WarmUpTimer = WarmUpTimer - 1;
+        }
+        // If we're hanging, update the grip status
+        else if ( (settings["aslvv_info_grip"]) && (CurrentGrip != -1) && (CurrentGrip != PreviousGrip) ) {
+          PreviousGrip = CurrentGrip;
+          if (WarmUpTimer == 0) {
+            int MaxGrip = C(current.MaxGrip);
+            int GripRate = (current.CurrentHealth == current.MaxHealth) ? 60 : 120;
+            string GripTimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentGrip / GripRate) );
+            vars.ASL_Info = "Grip: " + vars.ValueFormat(CurrentGrip, MaxGrip) + " (" + GripTimeLeft + " left)";
+            vars.InfoTimer = 60;
+          }
+          else WarmUpTimer = WarmUpTimer - 1;
+        }
+        // If there's a chaff grenade active, show that
+        else if ( (settings["aslvv_info_chaff"]) && (CurrentChaff > 0) ) {
+          int MaxChaff = 1024;
+          string ChaffTimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentChaff / ChaffRate) );
+          vars.ASL_Info = "Chaff: " + vars.ValueFormat(CurrentChaff, MaxChaff) + " (" + ChaffTimeLeft + " left)";
+          vars.InfoTimer = 10;
+        }
+        // If we're in caution, show that
+        else if ( (settings["aslvv_info_caution"]) && (CurrentCaution != PreviousCaution) ) {
+          PreviousCaution = CurrentCaution;
+          string CautionTimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentCaution / 60) );
+          vars.ASL_Info = "Caution: " + vars.ValueFormat(CurrentCaution, C(current.MaxCaution)) + " (" + CautionTimeLeft + " left)";
+          vars.InfoTimer = 10;
+        }
+        else if (WarmUpTimer < 5) WarmUpTimer = WarmUpTimer + 1;
       };
       vars.UpdateASLVars = UpdateASLVars;
       
       
       Debug("Finished initialising script. It's all up to you now.");
     }
-    
-    vars.UpdateASLVars();
-    
-    // pausing the game won't help you...
-    if (current.GameTime != 0) return true;
   }
   catch (Exception e) {
     vars.LogException(e, "update");
-    return true;
   }
+  return true;
 }
 
 
