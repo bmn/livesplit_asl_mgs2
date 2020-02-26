@@ -100,11 +100,15 @@ reset {
     // and we're not currently on the missions menu?
     if (current.RoomCode == "mselect") return false;
     
+    if (vars.ResetNextFrame) return true;
+
     OldRoomName = vars.GetRoomName(old.RoomCode);
     if (CurrentRoomName == "") CurrentRoomName = vars.GetRoomName(current.RoomCode);
-    
     vars.Debug("In-game [" + old.RoomCode + "] " + OldRoomName + " > Menu [" + current.RoomCode + "] " + CurrentRoomName);
-    return true;
+    
+    vars.ClearASLVariables();
+    vars.ResetNextFrame = true;
+    return false;
   }
   catch (Exception e) {
     vars.LogException(e, "reset");
@@ -145,7 +149,7 @@ start {
     
     // Might as well!
     vars.ResetData(); // resetting on an unbeaten boss can cause some really bad things to happen in insta
-    vars.UpdateCodeNameStatus();
+    vars.ClearASLVariables();
     
     return true;
   }
@@ -157,35 +161,39 @@ start {
 
 startup {
   // Init ASL variables
-  vars.ASL_VAR_VIEWER_VARIABLES = "";
-  vars.ASL_Alerts = 0;
-  vars.ASL_AlertAllowance = 0;
-  vars.ASL_ClearingEscapes = 0;
-  vars.ASL_CodeName = "";
-  vars.ASL_CodeNameStatus = "";
-  vars.ASL_Continues = 0;
-  vars.ASL_CurrentRoom = "";
-  vars.ASL_CurrentRoomCode = "";
-  vars.ASL_DamageTaken = 0;
-  vars.ASL_Debug = "";
-  vars.ASL_Difficulty = "";
-  vars.ASL_DogTags = "";
-  vars.ASL_DogTags_Snake = "";
-  vars.ASL_DogTags_Raiden = "";
-  vars.ASL_Info = "";
-  vars.ASL_Kills = 0;
-  vars.ASL_LastDamage = 0;
-  vars.ASL_Level = "";
-  vars.ASL_MechsDestroyed = 0;
-  vars.ASL_Minutes = 0;
-  vars.ASL_Rations = 0;
-  vars.ASL_RoomTimer = 0;
-  vars.ASL_Saves = 0;
-  vars.ASL_SeaLouce = 0;
-  vars.ASL_Shots = 0;
-  vars.ASL_SpecialItems = false;
-  vars.ASL_Strength = 0;
-  vars.INTERNAL_VARIABLES = "";
+  Action ClearASLVariables = delegate() {
+    vars.ASL_VAR_VIEWER_VARIABLES = "";
+    vars.ASL_Alerts = 0;
+    vars.ASL_AlertAllowance = 0;
+    vars.ASL_ClearingEscapes = 0;
+    vars.ASL_CodeName = "";
+    vars.ASL_CodeNameStatus = "";
+    vars.ASL_Continues = 0;
+    vars.ASL_CurrentRoom = "";
+    vars.ASL_CurrentRoomCode = "";
+    vars.ASL_DamageTaken = 0;
+    vars.ASL_Debug = "";
+    vars.ASL_Difficulty = "";
+    vars.ASL_DogTags = "";
+    vars.ASL_DogTags_Snake = "";
+    vars.ASL_DogTags_Raiden = "";
+    vars.ASL_Info = "";
+    vars.ASL_Kills = 0;
+    vars.ASL_LastDamage = 0;
+    vars.ASL_Level = "";
+    vars.ASL_MechsDestroyed = 0;
+    vars.ASL_Minutes = 0;
+    vars.ASL_Rations = 0;
+    vars.ASL_RoomTimer = 0;
+    vars.ASL_Saves = 0;
+    vars.ASL_SeaLouce = 0;
+    vars.ASL_Shots = 0;
+    vars.ASL_SpecialItems = false;
+    vars.ASL_Strength = 0;
+    vars.INTERNAL_VARIABLES = "";
+  };
+  ClearASLVariables();
+  vars.ClearASLVariables = ClearASLVariables;
   
   vars.Initialised = false;
   print("Beginning startup initialisation...");
@@ -846,6 +854,7 @@ update {
       vars.PreviousTagsRaiden = 0;
       vars.PrevInfo = "";
       vars.BossRush = false;
+      vars.ResetNextFrame = false;
       var ExceptionCount = new Dictionary<string, int> {
         { "reset", 0 },
         { "start", 0 },
@@ -1002,6 +1011,7 @@ update {
         };
         ResetBigBossData();
         ResetBossData();
+        vars.ResetNextFrame = false;
       };
       vars.ResetData = ResetData;
       
@@ -1528,7 +1538,7 @@ update {
       // ASLVarViewer values
       var ListOfStats = new string[] { "Minutes", "Alerts", "Continues", "Shots", "Rations", "Kills", "Saves", "ClearingEscapes", "DamageTaken", "SeaLouce", "SpecialItems" };
       var Previous = new Dictionary<string, int>();
-      foreach (string stat in ListOfStats) Previous.Add(stat, 0);
+      foreach (string stat in ListOfStats) Previous.Add(stat, MaxVal);
 
       int PreviousO2 = -1;
       int PreviousGrip = -1;
