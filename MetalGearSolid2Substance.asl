@@ -553,23 +553,23 @@ startup {
   vars.SplitNextRoom = false;
   
   // Init ASL variables
-  vars.ASL_Difficulty = "";
-  vars.ASL_BestCodeName = "";
+  vars.ASL_Alerts = 0;
+  vars.ASL_CodeNameStatus = "";
+  vars.ASL_Continues = 0;
   vars.ASL_CurrentRoom = "";
   vars.ASL_CurrentRoomCode = "";
-  vars.ASL_Shots = 0;
-  vars.ASL_Alerts = 0;
-  vars.ASL_Continues = 0;
-  vars.ASL_Rations = 0;
-  vars.ASL_Kills = 0;
   vars.ASL_DamageTaken = 0;
-  vars.ASL_LastDamage = 0;
-  vars.ASL_Saves = 0;
-  vars.ASL_MechsDestroyed = 0;
-  vars.ASL_Strength = 0;
-  vars.ASL_RoomTimer = 0;
-  vars.ASL_Info = "";
   vars.ASL_Debug = "";
+  vars.ASL_Difficulty = "";
+  vars.ASL_Info = "";
+  vars.ASL_Kills = 0;
+  vars.ASL_LastDamage = 0;
+  vars.ASL_MechsDestroyed = 0;
+  vars.ASL_Rations = 0;
+  vars.ASL_RoomTimer = 0;
+  vars.ASL_Saves = 0;
+  vars.ASL_Shots = 0;
+  vars.ASL_Strength = 0;
   
   
   // Add main settings
