@@ -36,11 +36,13 @@ Bug reports are welcomed so they can be stamped out, as is discussion of locatio
 The following variables are available in the Variables category:
 
 Analysis:
-* **ASL_BestCodeName** Shows the best codename available on the current difficulty, or the reason(s) you have already missed it. This can be used to keep track of Big Boss runs, or your major stats in general.
+* **ASL_CodeNameStatus** Shows the best possible codename, and, if you've already missed the top rank, the reason(s) for that. This can be used to keep track of Perfect Stats/Big Boss runs, or your major stats in general.
 * **ASL_Info** Shows info relevant to your current situation, including boss health values and grip/O2/chaff/caution info. Can also be set to show your location (as *ASL_CurrentRoom*) when no contextual info is available.
 
 Other stats:
 * **ASL_Alerts** Number of Alerts
+* **ASL_ClearingEscapes** Number of Clearing Escapes
+* **ASL_CodeName** The best possible Codename from the current game state
 * **ASL_Continues** Number of Continues
 * **ASL_CurrentRoom** The current game location
 * **ASL_CurrentRoomCode** The game's internal code for the current location
