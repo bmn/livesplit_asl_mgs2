@@ -602,16 +602,7 @@ startup {
     settings.Add("boss_insta", true, "Split instantly when a boss is defeated", "options");
     settings.SetToolTip("boss_insta", "This also enables boss health information in ASL Var Viewer");
     settings.Add("dogtag_insta", false, "Split when a dog tag is collected", "options");
-    
-    settings.Add("special", false, "Special Behaviour", "options");
-    settings.SetToolTip("special", "Split behaviours suited to route/strategy testing. Ideally use with a large set of unnamed splits.");
-      settings.Add("special_allroomstarts", false, "Split on every screen load", "special");
-      settings.SetToolTip("special_allroomstarts", "This will usually split multiple times during cutscenes");
-      settings.Add("special_allroomchanges", false, "Split on every area change", "special");
-      settings.SetToolTip("special_allroomchanges", "This will usually split multiple times during cutscenes");
-      settings.Add("special_startbutton", false, "Split when START is pressed", "special");
-      settings.Add("special_r3button", false, "Split when R3 is pressed", "special");
-      settings.Add("special_disabledefault", true, "Disable the default autosplitter behaviour", "special");
+    settings.SetToolTip("dogtag_insta", "The setting \"Enable ASL Var Viewer Integration\" below must also be enabled");
     
     settings.Add("aslvv", true, "Enable ASL Var Viewer integration", "options");
     settings.SetToolTip("aslvv", "Disabling this may slightly improve performance");
@@ -658,8 +649,19 @@ startup {
       settings.SetToolTip("vr_variety_ninja", Tooltip);
       settings.SetToolTip("vr_variety_pliskin", Tooltip);
       settings.SetToolTip("vr_variety_mgs1", Tooltip);
+      
+  settings.Add("special", false, "Strategy Testing Mode");
+  settings.SetToolTip("special", "Split behaviours suited to route/strategy testing. Ideally use with a large set of unnamed splits, with a layout showing time between splits and without deltas.");
+    settings.Add("special_allroomstarts", false, "Split on every screen load", "special");
+    settings.SetToolTip("special_allroomstarts", "This will usually split multiple times during cutscenes");
+    settings.Add("special_allroomchanges", false, "Split on every area change", "special");
+    settings.SetToolTip("special_allroomchanges", "This will usually split multiple times during cutscenes");
+    settings.Add("special_startbutton", false, "Split when START is pressed", "special");
+    settings.Add("special_r3button", false, "Split when R3 is pressed", "special");
+    settings.Add("special_disabledefault", true, "Disable the default autosplitter behaviour", "special");
     
   settings.Add("splits", true, "Split Locations");
+  settings.SetToolTip("splits", "Enable or disable splitting when leaving these areas");
   
   
   // Build the old/current room exclusion/inclusion dictionaries
@@ -1789,7 +1791,7 @@ split {
         return Split("R3 pressed");
       if (vars.AllRoomStartsTimeout > 0) vars.AllRoomStartsTimeout -= 1;
       else if ( (settings["special_allroomstarts"]) && (current.RoomTimer < old.RoomTimer) ) {
-        vars.AllRoomStartsTimeout = 10;
+        vars.AllRoomStartsTimeout = 6;
         return Split("Room start");
       }
       if ( (settings["special_allroomchanges"]) && (current.RoomCode != old.RoomCode) )
