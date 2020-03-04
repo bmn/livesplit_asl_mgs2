@@ -38,6 +38,7 @@ state("mgs2_sse") {
   byte2     Level: 0x601F34, 0x158A; // 0x1800 + 0xD (Tanker), 0xE (Plant), 0xF (T-P)
   
   byte2     STCompletionCheck: 0x13A178C; // This value rises slowly from 0 during credits to about 260, then goes back to 0 at results
+  int       PadInput: 0xADAD3C;
 
   byte      OlgaStamina: 0xAD4F6C, 0x0, 0x1E0, 0x44, 0x1F8, 0x13C;
   byte      OlgaRushStamina: 0xAD4F6C, 0x2C4;
@@ -591,6 +592,7 @@ startup {
   vars.DontWatch = false;
   vars.BlockNextRoom = false;
   vars.SplitNextRoom = false;
+  vars.SplitRightNow = false;
   
   // Add main settings
   settings.Add("options", true, "Advanced Options");
@@ -599,6 +601,17 @@ startup {
     settings.Add("resets", true, "Reset the timer when returning to menu", "options");
     settings.Add("boss_insta", true, "Split instantly when a boss is defeated", "options");
     settings.SetToolTip("boss_insta", "This also enables boss health information in ASL Var Viewer");
+    settings.Add("dogtag_insta", false, "Split when a dog tag is collected", "options");
+    
+    settings.Add("special", false, "Special Behaviour", "options");
+    settings.SetToolTip("special", "Split behaviours suited to route/strategy testing. Ideally use with a large set of unnamed splits.");
+      settings.Add("special_allroomstarts", false, "Split on every screen load", "special");
+      settings.SetToolTip("special_allroomstarts", "This will usually split multiple times during cutscenes");
+      settings.Add("special_allroomchanges", false, "Split on every area change", "special");
+      settings.SetToolTip("special_allroomchanges", "This will usually split multiple times during cutscenes");
+      settings.Add("special_startbutton", false, "Split when START is pressed", "special");
+      settings.Add("special_r3button", false, "Split when R3 is pressed", "special");
+      settings.Add("special_disabledefault", true, "Disable the default autosplitter behaviour", "special");
     
     settings.Add("aslvv", true, "Enable ASL Var Viewer integration", "options");
     settings.SetToolTip("aslvv", "Disabling this may slightly improve performance");
@@ -855,6 +868,8 @@ update {
       vars.PrevInfo = "";
       vars.BossRush = false;
       vars.ResetNextFrame = false;
+      vars.AllRoomStartsTimeout = 0;
+      
       var ExceptionCount = new Dictionary<string, int> {
         { "reset", 0 },
         { "start", 0 },
@@ -871,6 +886,33 @@ update {
         { "Rays", new[] {3072, 5120, 7168, 10240, 20480, MaxVal} },
         { "Solidus", new[] {75, 95, 100} }
       };
+      
+      
+      // Input checker
+      var Button = new Dictionary<string, int> {
+        { "l1", 1 },
+        { "r1", 1 << 1 },
+        { "l2", 1 << 2 },
+        { "r2", 1 << 3 },
+        { "triangle", 1 << 4 },
+        { "circle", 1 << 5 },
+        { "x", 1 << 6 },
+        { "square", 1 << 7 },
+        { "select", 1 << 8 },
+        { "r3", 1 << 10 },
+        { "start", 1 << 11 },
+        { "up", 1 << 12 },
+        { "right", 1 << 13 },
+        { "down", 1 << 14 },
+        { "left", 1 << 15 },
+        { "l3", 0x60000 }
+      };
+      Func<string, int, int, bool> TestInput = delegate(string ToCheck, int CurrentInput, int PreviousInput) {
+        bool cur = ((CurrentInput & Button[ToCheck]) == Button[ToCheck]);
+        bool prev = ((PreviousInput & Button[ToCheck]) == Button[ToCheck]);
+        return ( (cur) && (cur != prev) );
+      };
+      vars.TestInput = TestInput;
       
       // Debug message handler
       string DebugPath = System.IO.Path.GetDirectoryName(Application.ExecutablePath) + "\\mgs2_sse_debug.log";
@@ -950,10 +992,10 @@ update {
       Func<bool> SpItemUsed = () => ((C(current.Extra) & 0x20) != 0);
       
       // Confirm a split
-      Func<bool> Split = delegate() {
+      Func<string, bool> Split = delegate(string Reason) {
         vars.DebugTimer = vars.DebugTimerStart;
         vars.PrevDebug = vars.ASL_Debug;
-        vars.Debug("Splitting now");
+        vars.Debug("Splitting now (" + Reason + ")");
         return true;
       };
       vars.Split = Split;
@@ -987,6 +1029,7 @@ update {
         Continues = -1;
         vars.SplitNextRoom = false;
         vars.BlockNextRoom = false;
+        vars.SplitRightNow = false;
       };
       vars.ResetBossData = ResetBossData;
       
@@ -1571,29 +1614,6 @@ update {
           if (CurrentDamage > vars.ASL_DamageTaken) vars.ASL_LastDamage = (CurrentDamage - vars.ASL_DamageTaken);
           vars.ASL_DamageTaken = CurrentDamage;
           
-          // Update dog tag counters if we collect one
-          if (current.MaxHealth != 30) {
-            bool CollectedTagRaiden = (current.DogTagsRaiden > vars.PreviousTagsRaiden);
-            bool CollectedTagSnake = (current.DogTagsSnake > vars.PreviousTagsSnake);
-            if (CollectedTagRaiden || CollectedTagSnake) {
-              vars.ASL_DogTags_Snake = current.DogTagsSnake + (settings["aslvv_tags_max"] ? "/" + vars.MaxDogTags[current.MaxHealth][0] : "");
-              vars.ASL_DogTags_Raiden = current.DogTagsRaiden + (settings["aslvv_tags_max"] ? "/" + vars.MaxDogTags[current.MaxHealth][1] : "");
-              vars.ASL_DogTags = current.DogTagsSnake + current.DogTagsRaiden + (settings["aslvv_tags_max"] ? "/" + vars.MaxDogTags[current.MaxHealth][2] : "");
-              
-              vars.PreviousTagsSnake = current.DogTagsSnake;
-              vars.PreviousTagsRaiden = current.DogTagsRaiden;
-              
-              if (settings["aslvv_info_tags"]) {
-                string TagStatus = "";
-                if (settings["aslvv_info_tags_onlycurrent"])
-                  TagStatus = (CollectedTagRaiden) ? vars.ASL_DogTags_Raiden : vars.ASL_DogTags_Snake;
-                else TagStatus = vars.ASL_DogTags;
-                vars.ASL_Info = "Dog Tags: " + TagStatus;
-                vars.InfoTimer = 300;
-              }
-            }
-          }
-          
           // Update the codename if a stat has changed (max once per second)
           if ( (current.GameTime > (LastCodeNameCheck + 60)) || (current.GameTime < LastCodeNameCheck) ) {
             vars.ASL_Minutes = (int)Math.Floor(( ((float)current.GameTime / 60) - 1 ) / 60);
@@ -1614,6 +1634,32 @@ update {
                 Previous[stat] = statvalue;
                 LastCodeNameCheck = current.GameTime; // Move this out of the foreach if hurting performance
                 break;
+              }
+            }
+          }
+          
+          // Update dog tag counters if we collect one
+          if ( (current.MaxHealth != 30) && 
+            ((settings["dogtag_insta"]) || ((current.RoomTimer % 15) == 0)) ) {
+            bool CollectedTagRaiden = (current.DogTagsRaiden > vars.PreviousTagsRaiden);
+            bool CollectedTagSnake = (current.DogTagsSnake > vars.PreviousTagsSnake);
+            if (CollectedTagRaiden || CollectedTagSnake) {
+              vars.ASL_DogTags_Snake = current.DogTagsSnake + (settings["aslvv_tags_max"] ? "/" + vars.MaxDogTags[current.MaxHealth][0] : "");
+              vars.ASL_DogTags_Raiden = current.DogTagsRaiden + (settings["aslvv_tags_max"] ? "/" + vars.MaxDogTags[current.MaxHealth][1] : "");
+              vars.ASL_DogTags = current.DogTagsSnake + current.DogTagsRaiden + (settings["aslvv_tags_max"] ? "/" + vars.MaxDogTags[current.MaxHealth][2] : "");
+              
+              vars.PreviousTagsSnake = current.DogTagsSnake;
+              vars.PreviousTagsRaiden = current.DogTagsRaiden;
+              
+              if (settings["dogtag_insta"]) vars.SplitRightNow = true;
+              
+              if (settings["aslvv_info_tags"]) {
+                string TagStatus = "";
+                if (settings["aslvv_info_tags_onlycurrent"])
+                  TagStatus = (CollectedTagRaiden) ? vars.ASL_DogTags_Raiden : vars.ASL_DogTags_Snake;
+                else TagStatus = vars.ASL_DogTags;
+                vars.ASL_Info = "Dog Tags: " + TagStatus;
+                vars.InfoTimer = 300;
               }
             }
           }
@@ -1733,14 +1779,37 @@ split {
     int CallbackResult = 0;
     bool BoolResult = false;
     Dictionary<string, string> SpecialCase = null;
-    Func<bool> Split = vars.Split;
+    Func<string, bool> Split = vars.Split;
+    
+    // Special behaviours
+    if (settings["special"]) {
+      if ( (settings["special_startbutton"]) && (vars.TestInput("start", current.PadInput, old.PadInput)) )
+        return Split("START pressed");
+      if ( (settings["special_r3button"]) && (vars.TestInput("r3", current.PadInput, old.PadInput)) )
+        return Split("R3 pressed");
+      if (vars.AllRoomStartsTimeout > 0) vars.AllRoomStartsTimeout -= 1;
+      else if ( (settings["special_allroomstarts"]) && (current.RoomTimer < old.RoomTimer) ) {
+        vars.AllRoomStartsTimeout = 10;
+        return Split("Room start");
+      }
+      if ( (settings["special_allroomchanges"]) && (current.RoomCode != old.RoomCode) )
+        return Split("Room change");
+      if (settings["special_disabledefault"])
+        return false;
+    }
+    
+    // Split RIGHT NOW
+    if (vars.SplitRightNow) {
+      vars.SplitRightNow = false;
+      return Split("RIGHT NOW");
+    }
     
     // Watching special cases
     if ( (!vars.DontWatch) && (vars.SpecialWatchCallback.ContainsKey(current.RoomCode)) ) {
       CallbackResult = vars.SpecialWatchCallback[current.RoomCode]();
       if (CallbackResult == 1) {
         vars.DontWatch = true;
-        return Split();
+        return Split("Requested by watch callback");
       }
       else if (CallbackResult == -1) vars.DontWatch = true;
     }
@@ -1779,7 +1848,7 @@ split {
     if (vars.SplitNextRoom) {
       vars.SplitNextRoom = false;
       vars.ResetBossData();
-      return Split(); // the opposite happened!
+      return Split("SplitNextRoom request"); // the opposite happened!
     }
     vars.ResetBossData();
     
@@ -1800,7 +1869,7 @@ split {
           AvoidSplit = true;
           break;
         }
-        return Split();
+        return Split("Old-room special case");
       }
     } while (false); // yes, I am in fact using a do-while-false "loop" just so I can use break
     
@@ -1817,7 +1886,7 @@ split {
           AvoidSplit = true;
           break;
         }
-        return Split();
+        return Split("New-room special case");
       }
     } while (false);
     
@@ -1844,7 +1913,7 @@ split {
     if (vars.IncludeOldRoom.ContainsKey(old.RoomCode)) DefinitelySplit = true;
     if (vars.IncludeCurrentRoom.ContainsKey(current.RoomCode)) DefinitelySplit = true;
    
-    if ( (DefinitelySplit) || (!AvoidSplit) ) return Split();
+    if ( (DefinitelySplit) || (!AvoidSplit) ) return Split("Normal split");
     
     return false;
   }
