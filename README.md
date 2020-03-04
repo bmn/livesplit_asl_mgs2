@@ -22,7 +22,7 @@ Bug reports are welcomed so they can be stamped out, as is discussion of locatio
 ![Screenshot](README.png)
 
 # Notes
-* The LSL files included here will work with the default split location settings. See the mouseover tooltips on each split-related setting in Advanced Options for advice on what to add or remove from your splits.
+* The LSS files included here will work with the default split location settings. See the mouseover tooltips on each split-related setting in Advanced Options for advice on what to add or remove from your splits.
   * If you want to only show major splits, or categorise splits, in your LiveSplit layout: open a "subsplits" LSL file, and use a Subsplits component and select "Always Hide Subsplits".
   * You can freely rename splits, or change which splits are section headers and which are subsplits (by adding/removing the hyphen symbol from the name).
   * The "Easy-Normal" files exit Aft Deck to Deck-B, and go clockwise (starting at Strut D) for the early bomb hunt. The "Very Easy" file also goes directly from Strut E to Shell 1 Core.
@@ -35,7 +35,7 @@ Bug reports are welcomed so they can be stamped out, as is discussion of locatio
     * If doing an all-characters run, enable them all, but make sure to start every character's Variety category at Variety 1 and choose Next Stage at each results screen. This is not necessary in any other category.
 * Strategy Testing can be enabled and customised in the settings.
   * You can disable the regular autosplitter behaviour, and enable splits on every area code change, every screen load (e.g. after a continue), or when pressing the START (pausing/unpausing) and/or R3 (on-the-fly) buttons.
-  * This mode works best with a large throwaway set of unnamed splits (see *Split Files/MGS2 - Strategy Testing.asl*), on a layout that displays the time between splits, and does not show deltas.
+  * This mode works best with a large throwaway set of unnamed splits (see *Split Files/MGS2 - Strategy Testing.lss*), on a layout that displays the time between splits, and does not show deltas.
 
 # ASL Var Viewer
 The following variables are available in the Variables category:
