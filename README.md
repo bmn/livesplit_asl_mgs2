@@ -8,7 +8,6 @@ This autosplitter is early in development, and may not be well-tested (or even w
 Bug reports are welcomed so they can be stamped out, as is discussion of locations you would like to be able to split (or not split) that are not currently made available.
 
 # Right now...
-* A small amount of split logic is untested, and it's missing some split options that some players may want to set
 * Instant split mode does not respect your settings for boss areas, so if enabled it will always split for all bosses (except Guard Rush)
 * In Boss Survival, instant split mode does not function for Olga, Guard Rush and Tengus (those splits will appear when the next battle begins), and in regular split mode there is no split after Solidus. It's recommended to use instant split mode.
 * The ARMSTREN ASL Var Viewer variable only works for Raiden
@@ -16,8 +15,9 @@ Bug reports are welcomed so they can be stamped out, as is discussion of locatio
 
 # Features
 * Automatic splitting for Tanker, Plant, Snake Tales, Boss Survival, and VR Missions (per-category)
-* Instant splitting when you defeat a boss
+* Instant splitting when you defeat a boss or collect a dog tag
 * [ASL Var Viewer](https://github.com/hawkerm/LiveSplit.ASLVarViewer) support for room names, game stats, live information including boss health, and your current Big Boss/Perfect Stats status
+* Alternate "Special behaviour" mode allowing you to time strategies more easily when testing
 
 ![Screenshot](README.png)
 
@@ -39,7 +39,7 @@ The following variables are available in the Variables category:
 
 Analysis:
 * **ASL_CodeNameStatus** Shows the best possible codename, and, if you've already missed the top rank, the reason(s) for that. This can be used to keep track of Perfect Stats/Big Boss runs, or your major stats in general.
-* **ASL_Info** Shows info relevant to your current situation, including boss health values and grip/O2/chaff/caution info. Can also be set to show your location (as *ASL_CurrentRoom*) when no contextual info is available.
+* **ASL_Info** Shows info relevant to your current situation, including boss health values and grip/O2/chaff/caution info. Which info is shown can be customised in settings. Can also be set to show your location (as *ASL_CurrentRoom*) when no contextual info is available.
 
 Other stats:
 * **ASL_Alerts** Number of Alerts
@@ -50,10 +50,11 @@ Other stats:
 * **ASL_CurrentRoomCode** The game's internal code for the current location
 * **ASL_DamageTaken** Amount of Damage taken [More info](https://metalgearspeedrunners.com/wiki/doku.php?id=mgs2_difficulty_differences#health_values)
 * **ASL_DogTags**, **ASL_DogTags_Snake**, **ASL_DogTags_Raiden** Number of dog tags collected (overall, or for each character)
-* **ASL_Difficulty** The name of the current difficulty
+* **ASL_Difficulty** The name of the current difficulty, from Very Easy to European Extreme
 * **ASL_MechsDestroyed** Number of mechs (Cyphers, etc.) destroyed. This was previously thought to contribute to your codename, but is not actually relevant.
 * **ASL_Kills** Number of people Killed
 * **ASL_LastDamage** Amount of Damage taken from the most recent damage event
+* **ASL_Level** Whether you're in Tanker, Plant or Tanker-Plant (main game only)
 * **ASL_Rations** Number of Rations used
 * **ASL_RoomTimer** The number of frames (60/sec) spent in the current room. This can be used to aid in strategy finding.
 * **ASL_Saves** Number of Saves
