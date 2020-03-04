@@ -33,6 +33,7 @@ Bug reports are welcomed so they can be stamped out, as is discussion of locatio
   * Raiden (Ninja), Pliskin, Tuxedo Snake and Snake (MGS1) have Variety categories that are entirely contained within the larger Variety mission set the other characters have. To avoid accidentally triggering the smaller categories, they're disabled in settings.
     * If you're doing a character run with one of those characters, you'll need to enable them in the settings.
     * If doing an all-characters run, enable them all, but make sure to start every character's Variety category at Variety 1 and choose Next Stage at each results screen. This is not necessary in any other category.
+* Special Behaviour works best with a large throwaway set of unnamed splits, on a layout that displays the time between splits.
 
 # ASL Var Viewer
 The following variables are available in the Variables category:
