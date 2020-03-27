@@ -7,6 +7,7 @@ state("mgs2_sse") {
   uint      GameTime: 0xD8AEF8;
   int       RoomTimer: 0x3E315E, 0x17;
   
+  string10  GameSection: 0xD8C374;
   string10  RoomCode: 0x601F34, 0x2C;
 
   byte2     Shots: 0x3E315E, 0x73;
@@ -170,6 +171,7 @@ startup {
     vars.ASL_AlertAllowance = 0;
     vars.ASL_AmesLocation = "";
     vars.ASL_Cartwheels = 0;
+    vars.ASL_Character = "";
     vars.ASL_ClearingEscapes = 0;
     vars.ASL_CodeName = "";
     vars.ASL_CodeNameStatus = "";
@@ -883,6 +885,7 @@ update {
       vars.BossRush = false;
       vars.ResetNextFrame = false;
       vars.AllRoomStartsTimeout = 0;
+      vars.CharacterId = 0;
       
       var ExceptionCount = new Dictionary<string, int> {
         { "reset", 0 },
@@ -996,8 +999,15 @@ update {
       vars.Level = Level;
       
       // Name of current level
-      var LevelTexts = new string[] { "Tanker-Plant", "Tanker", "Plant" };
+      var LevelTexts = new string[] { "Tanker-Plant", "Tanker only", "Plant only" };
       Func<string> LevelText = () => LevelTexts[Level()];
+      
+      Func<string> SectionText = delegate() {
+        if (current.GameSection == "r_tnk0") return "Tanker (" + LevelText() + ")";
+        if (current.GameSection.Substring(0, 5) == "r_plt") return "Plant (" + LevelText() + ")";
+        return "";
+      };
+      vars.SectionText = SectionText;
       
       // Is Radar enabled?
       Func<bool> RadarEnabled = () => ((C(current.Extra) & 0x2000) != 0);
@@ -1093,7 +1103,30 @@ update {
       
       Func<int, string, string, string> Plural = (Var, Singular, Pluralular) => (Var != 1) ? Pluralular : Singular;
       
-
+      var SectionCharacters = new Dictionary<string, int> {
+        { "r_rai_b", 1 },
+        { "r_sna_b", 0 },
+        { "r_vr_r", 1 },
+        { "r_vr_b", 5 },
+        { "r_vr_s", 0 },
+        { "r_vr_1", 2 },
+        { "r_vr_p", 3 },
+        { "r_vr_sp", 0 },
+        { "r_vr_x", 1 },
+        { "r_vr_t", 4 },
+        { "r_tnk0", 0 }
+      };
+      var CharacterNames = new string[] { "Snake", "Raiden", "Snake (MGS1)", "Pliskin", "Snake (Tuxedo)", "Raiden (Ninja)" };
+      Action UpdateCharacterId = delegate() {
+        int result = 0;
+        if ( (!SectionCharacters.TryGetValue(current.GameSection, out result)) && (current.GameSection.Substring(0, 5) == "r_plt") )
+          result = 1;
+        vars.CharacterId = result;
+      };
+      vars.UpdateCharacterId = UpdateCharacterId;
+      Func<string> CharacterName = () => CharacterNames[vars.CharacterId];
+      Func<bool> Snakelike = () => ( (vars.CharacterId == 0) || ( (vars.CharacterId > 1) && (vars.CharacterId < 5) ) );
+     
       
       // Temporary boss watcher to examine what health values do
       /*
@@ -1489,7 +1522,6 @@ update {
         vars.ASL_Difficulty = DifficultyText();
         
         int CurrentLevel = Level();
-        vars.ASL_Level = LevelText();
         
         var Ranks = new string[] { "", "", "", "" };
         
@@ -1638,6 +1670,8 @@ update {
       Action UpdateASLVars = delegate() {
         vars.ASL_RoomTimer = current.RoomTimer;
         
+        vars.ASL_Strength = Snakelike() ? C(current.StrengthSnake) : C(current.StrengthRaiden);
+        
         if (settings["aslvv_cartwheels"]) {
           if ( (!Cartwheeling) && (current.CartwheelCode == 16) ) {
             Cartwheeling = true;
@@ -1653,6 +1687,7 @@ update {
 
         // Update less-critical values at a lower rate
         if ((current.RoomTimer % 15) == 0) {
+          UpdateCharacterId();
           vars.ASL_Alerts = C(current.Alerts);
           vars.ASL_Continues = C(current.Continues);
           vars.ASL_Shots = C(current.Shots);
@@ -1661,10 +1696,12 @@ update {
           vars.ASL_Saves = C(current.Saves);
           vars.ASL_MechsDestroyed = C(current.Mechs);
           vars.ASL_ClearingEscapes = C(current.Clearings);
-          vars.ASL_Strength = C(current.StrengthRaiden);
+          
           vars.ASL_AlertAllowance = BigBossAlertState;
           vars.ASL_SeaLouce = current.SeaLouce;
           vars.ASL_SpecialItems = SpItemUsed();
+          vars.ASL_Character = CharacterName();
+          vars.ASL_Mode = current.GameSection;
           
           int CurrentDamage = C(current.Damage);
           if (CurrentDamage > vars.ASL_DamageTaken) vars.ASL_LastDamage = (CurrentDamage - vars.ASL_DamageTaken);
@@ -1877,6 +1914,7 @@ split {
     vars.ASL_CurrentRoomCode = current.RoomCode;
     vars.ASL_CurrentRoom = vars.GetRoomName(current.RoomCode);
     vars.ASL_Info = (settings["aslvv_info_room"]) ? vars.ASL_CurrentRoom : "";
+    vars.ASL_Level = vars.SectionText();
     
     if (vars.DontWatch) vars.DontWatch = false; // reset the watch switch on new room
     
