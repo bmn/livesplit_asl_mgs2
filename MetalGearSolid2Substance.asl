@@ -65,6 +65,7 @@ state("mgs2_sse") {
   byte      AscendingColonActive: 0xD8E105;
   byte2     AscendingColonTimer: 0xAD4F08, 0x40;
   byte      CartwheelCode: 0xB6095E;
+  byte      AmesLocation: 0xD8DF9F; // D8FB9F
 }
 
 isLoading {
@@ -167,6 +168,7 @@ startup {
     vars.ASL_VAR_VIEWER_VARIABLES = "";
     vars.ASL_Alerts = 0;
     vars.ASL_AlertAllowance = 0;
+    vars.ASL_AmesLocation = "";
     vars.ASL_Cartwheels = 0;
     vars.ASL_ClearingEscapes = 0;
     vars.ASL_CodeName = "";
@@ -1053,6 +1055,7 @@ update {
         vars.PreviousTagsSnake = 0;
         vars.PreviousTagsRaiden = 0;
         vars.ASL_Cartwheels = 0;
+        vars.ASL_AmesLocation = "";
         ExceptionCount = new Dictionary<string, int> {
           { "reset", 0 },
           { "start", 0 },
@@ -1251,6 +1254,15 @@ update {
       
       // BOSSES END
 
+      
+      // Plant: Log Ames' position... after we've found him, of course
+      Func<int> CallAmesLocation = delegate() {
+        if (current.RoomCode == "d036p03") {
+          vars.ASL_AmesLocation = current.AmesLocation;
+        }
+        return 0;
+      };
+      vars.SpecialRoomChangeCallback.Add("w24c", CallAmesLocation);
       
       // Plant: Filter out the "valid" room change that happens during the torture cutscenes
       Func<int> CallTortureCutscene = delegate() {
