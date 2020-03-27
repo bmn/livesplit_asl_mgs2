@@ -1313,7 +1313,7 @@ update {
         if (!settings["aslvv_info_colon"]) return -1;
         if (current.AscendingColonActive == 0) return 0;
         int FramesLeft = C(current.AscendingColonTimer);
-        if (FramesLeft == 0) return 0;
+        if (FramesLeft > 2700) return -1;
         vars.InfoTimer = 10;
         Info("Time left: " + string.Format( "{00:0.0}", (decimal)((double)FramesLeft / 60) ));
         return 0;
