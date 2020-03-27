@@ -624,6 +624,7 @@ startup {
           settings.Add("aslvv_info_o2", true, "O2", "aslvv_info_vars");
             settings.Add("aslvv_info_o2health", false, "Also show the time remaining from Life", "aslvv_info_o2");
           settings.Add("aslvv_info_boss", true, "Boss health", "aslvv_info_vars");
+          settings.SetToolTip("aslvv_info_boss", "The setting \"Split instantly when a boss is defeated\" above must also be enabled");
           settings.Add("aslvv_info_choke", true, "Choke torture progress", "aslvv_info_vars");
           settings.Add("aslvv_info_colon", true, "Ascending Colon tutorial progress", "aslvv_info_vars");
         settings.Add("aslvv_info_max", true, "Also show the maximum value for raw values", "aslvv_info");
