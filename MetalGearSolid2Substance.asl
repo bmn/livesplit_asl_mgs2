@@ -639,6 +639,9 @@ startup {
       settings.Add("aslvv_cartwheels", true, "ASL_Cartwheels (running counter of rolls and cartwheels)", "aslvv");
         settings.Add("aslvv_cartwheels_resetplant", false, "Reset counter when going from Tanker to Plant", "aslvv_cartwheels");
         settings.Add("aslvv_cartwheels_resetfirst", false, "Reset counter on Raiden's first cartwheel", "aslvv_cartwheels");
+      settings.Add("aslvv_ames", true, "ASL_AmesLocation (Ames' randomised location in Shell 1 Core B1 Hall)", "aslvv");
+      settings.SetToolTip("aslvv_ames", "This value appears only once Ames has been found");
+        settings.Add("aslvv_ames_code", true, "Include the game's internal location ID", "aslvv_ames");
     
     settings.Add("options_plant", true, "Plant", "options");
     
@@ -1269,8 +1272,17 @@ update {
       
       // Plant: Log Ames' position... after we've found him, of course
       Func<int> CallAmesLocation = delegate() {
+        if (!settings["aslvv_ames"]) return 0;
         if (current.RoomCode == "d036p03") {
-          vars.ASL_AmesLocation = current.AmesLocation;
+          int A = current.AmesLocation;
+          string AmesText = "";
+          
+          if (A > 14) AmesText = "South East";
+          else if (A > 9) AmesText = "South West";
+          else if (A > 5) AmesText = "North East";
+          else AmesText = "North West";
+          
+          vars.ASL_AmesLocation = (settings["aslvv_ames_code"]) ? AmesText + " (#" + A + ")" : AmesText;
         }
         return 0;
       };
