@@ -8,7 +8,6 @@ Bug reports are welcomed so they can be stamped out, as is discussion of locatio
 # Right now...
 * Instant split mode does not respect your settings for boss areas, so if enabled it will always split for all bosses (except Guard Rush)
 * In Boss Survival, instant split mode does not function for Olga, Guard Rush and Tengus (those splits will appear when the next battle begins), and in regular split mode there is no split after Solidus. It's recommended to use instant split mode.
-* The ARMSTREN ASL Var Viewer variable only works for Raiden
 * The Best Codename ASLVV variable incorrectly shows the rank Doberman instead of "Perfect Stats" in Snake Tales
 
 # Features
@@ -46,6 +45,7 @@ Other stats:
 * **ASL_Alerts** Number of Alerts
 * **ASL_AmesLocation** Ames' randomised location in Shell 1 Core B1 Hall (appears after you find him)
 * **ASL_Cartwheels** Number of rolls/cartwheels done
+* **ASL_Character** The current player character
 * **ASL_ClearingEscapes** Number of Clearing Escapes
 * **ASL_CodeName** The best possible Codename from the current game state
 * **ASL_Continues** Number of Continues
@@ -57,7 +57,8 @@ Other stats:
 * **ASL_MechsDestroyed** Number of mechs (Cyphers, etc.) destroyed. This was previously thought to contribute to your codename, but is not actually relevant.
 * **ASL_Kills** Number of people Killed
 * **ASL_LastDamage** Amount of Damage taken from the most recent damage event
-* **ASL_Level** Whether you're in Tanker, Plant or Tanker-Plant (main game only)
+* **ASL_Level** The current area (Tanker or Plant), and whether you're playing Tanker-Plant (main game only)
+* **ASL_Mode** The game's internal code for the current character
 * **ASL_Rations** Number of Rations used
 * **ASL_RoomTimer** The number of frames (60/sec) spent in the current room. This can be used to aid in strategy finding.
 * **ASL_Saves** Number of Saves
