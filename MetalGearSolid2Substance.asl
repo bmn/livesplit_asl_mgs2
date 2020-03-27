@@ -64,6 +64,7 @@ state("mgs2_sse") {
   byte2     ChokeTimer: 0xAD4F6C, 0x40;
   byte      AscendingColonActive: 0xD8E105;
   byte2     AscendingColonTimer: 0xAD4F08, 0x40;
+  byte      CartwheelCode: 0xB6095E;
 }
 
 isLoading {
@@ -166,6 +167,7 @@ startup {
     vars.ASL_VAR_VIEWER_VARIABLES = "";
     vars.ASL_Alerts = 0;
     vars.ASL_AlertAllowance = 0;
+    vars.ASL_Cartwheels = 0;
     vars.ASL_ClearingEscapes = 0;
     vars.ASL_CodeName = "";
     vars.ASL_CodeNameStatus = "";
@@ -865,6 +867,7 @@ update {
       bool RoomTrackerC = false;
       bool RoomTrackerD = false;
       bool RoomTrackerE = false;
+      bool Cartwheeling = false;
       vars.PreviousTagsSnake = 0;
       vars.PreviousTagsRaiden = 0;
       vars.PrevInfo = "";
@@ -1046,8 +1049,10 @@ update {
         RoomTrackerC = false;
         RoomTrackerD = false;
         RoomTrackerE = false;
+        Cartwheeling = false;
         vars.PreviousTagsSnake = 0;
         vars.PreviousTagsRaiden = 0;
+        vars.ASL_Cartwheels = 0;
         ExceptionCount = new Dictionary<string, int> {
           { "reset", 0 },
           { "start", 0 },
@@ -1615,6 +1620,13 @@ update {
           int CurrentDamage = C(current.Damage);
           if (CurrentDamage > vars.ASL_DamageTaken) vars.ASL_LastDamage = (CurrentDamage - vars.ASL_DamageTaken);
           vars.ASL_DamageTaken = CurrentDamage;
+          
+          if ( (!Cartwheeling) && (current.CartwheelCode == 16) ) {
+            Cartwheeling = true;
+            vars.ASL_Cartwheels = vars.ASL_Cartwheels + 1;
+          }
+          else if ( (Cartwheeling) && (current.CartwheelCode == 0) )
+            Cartwheeling = false;
           
           // Update the codename if a stat has changed (max once per second)
           if ( (current.GameTime > (LastCodeNameCheck + 60)) || (current.GameTime < LastCodeNameCheck) ) {
