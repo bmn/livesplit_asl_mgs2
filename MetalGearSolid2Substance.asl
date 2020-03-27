@@ -636,6 +636,9 @@ startup {
         settings.SetToolTip("aslvv_boss_short", "Enable this if the full stat names make the message too long");
       settings.Add("aslvv_tags", true, "ASL_DogTags (dog tag collection stats)", "aslvv");
         settings.Add("aslvv_tags_max", true, "Also show the total number of available dog tags", "aslvv_tags");
+      settings.Add("aslvv_cartwheels", true, "ASL_Cartwheels (running counter of rolls and cartwheels)", "aslvv");
+        settings.Add("aslvv_cartwheels_resetplant", false, "Reset counter when going from Tanker to Plant", "aslvv_cartwheels");
+        settings.Add("aslvv_cartwheels_resetfirst", false, "Reset counter on Raiden's first cartwheel", "aslvv_cartwheels");
     
     settings.Add("options_plant", true, "Plant", "options");
     
@@ -1256,6 +1259,14 @@ update {
       // BOSSES END
 
       
+      // Reset cartwheels going from Tanker to Plant
+      Func<int> CallCartwheelReset = delegate() {
+        if (settings["aslvv_cartwheels_resetplant"]) vars.ASL_Cartwheels = 0;
+        else if (settings["aslvv_cartwheels_resetfirst"]) vars.ResetCartwheelsNext = true;
+        return 0;
+      };
+      vars.SpecialNewRoomCallback.Add("museum", CallCartwheelReset);
+      
       // Plant: Log Ames' position... after we've found him, of course
       Func<int> CallAmesLocation = delegate() {
         if (current.RoomCode == "d036p03") {
@@ -1614,12 +1625,19 @@ update {
       
       Action UpdateASLVars = delegate() {
         vars.ASL_RoomTimer = current.RoomTimer;
-        if ( (!Cartwheeling) && (current.CartwheelCode == 16) ) {
-          Cartwheeling = true;
-          vars.ASL_Cartwheels = vars.ASL_Cartwheels + 1;
+        
+        if (settings["aslvv_cartwheels"]) {
+          if ( (!Cartwheeling) && (current.CartwheelCode == 16) ) {
+            Cartwheeling = true;
+            if ( (settings["aslvv_cartwheels_resetfirst"]) && (vars.ResetCartwheelsNext) ) {
+              vars.ResetCartwheelsNext = false;
+              vars.ASL_Cartwheels = 1;
+            }
+            else vars.ASL_Cartwheels = vars.ASL_Cartwheels + 1;
+          }
+          else if ( (Cartwheeling) && (current.CartwheelCode == 0) )
+            Cartwheeling = false;
         }
-        else if ( (Cartwheeling) && (current.CartwheelCode == 0) )
-          Cartwheeling = false;
 
         // Update less-critical values at a lower rate
         if ((current.RoomTimer % 15) == 0) {
