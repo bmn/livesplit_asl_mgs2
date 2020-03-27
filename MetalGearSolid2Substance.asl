@@ -82,6 +82,8 @@ reset {
     
     if (!settings["resets"]) return false; // resets not enabled anyway!
     
+    if (vars.ResetNextFrame) return true;
+    
     if (current.RoomCode == old.RoomCode) return false; // room is unchanged
     
     // reset right away if we're going to main menu from missions
@@ -101,8 +103,6 @@ reset {
     
     // and we're not currently on the missions menu?
     if (current.RoomCode == "mselect") return false;
-    
-    if (vars.ResetNextFrame) return true;
 
     OldRoomName = vars.GetRoomName(old.RoomCode);
     if (CurrentRoomName == "") CurrentRoomName = vars.GetRoomName(current.RoomCode);
