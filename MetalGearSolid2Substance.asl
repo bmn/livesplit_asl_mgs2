@@ -1601,6 +1601,12 @@ update {
       
       Action UpdateASLVars = delegate() {
         vars.ASL_RoomTimer = current.RoomTimer;
+        if ( (!Cartwheeling) && (current.CartwheelCode == 16) ) {
+          Cartwheeling = true;
+          vars.ASL_Cartwheels = vars.ASL_Cartwheels + 1;
+        }
+        else if ( (Cartwheeling) && (current.CartwheelCode == 0) )
+          Cartwheeling = false;
 
         // Update less-critical values at a lower rate
         if ((current.RoomTimer % 15) == 0) {
@@ -1620,14 +1626,7 @@ update {
           int CurrentDamage = C(current.Damage);
           if (CurrentDamage > vars.ASL_DamageTaken) vars.ASL_LastDamage = (CurrentDamage - vars.ASL_DamageTaken);
           vars.ASL_DamageTaken = CurrentDamage;
-          
-          if ( (!Cartwheeling) && (current.CartwheelCode == 16) ) {
-            Cartwheeling = true;
-            vars.ASL_Cartwheels = vars.ASL_Cartwheels + 1;
-          }
-          else if ( (Cartwheeling) && (current.CartwheelCode == 0) )
-            Cartwheeling = false;
-          
+         
           // Update the codename if a stat has changed (max once per second)
           if ( (current.GameTime > (LastCodeNameCheck + 60)) || (current.GameTime < LastCodeNameCheck) ) {
             vars.ASL_Minutes = (int)Math.Floor(( ((float)current.GameTime / 60) - 1 ) / 60);
