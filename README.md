@@ -1,5 +1,3 @@
-⚠️ _If you were previously using the variable_ ___ASL_BestCodeName___ _be aware that it is now called_ ___ASL_CodeNameStatus___.
-
 # livesplit_asl_mgs2
 A LiveSplit autosplitter for Metal Gear Solid 2 Substance on PC
 
@@ -46,6 +44,8 @@ Analysis:
 
 Other stats:
 * **ASL_Alerts** Number of Alerts
+* **ASL_AmesLocation** Ames' randomised location in Shell 1 Core B1 Hall (appears after you find him)
+* **ASL_Cartwheels** Number of rolls/cartwheels done
 * **ASL_ClearingEscapes** Number of Clearing Escapes
 * **ASL_CodeName** The best possible Codename from the current game state
 * **ASL_Continues** Number of Continues
