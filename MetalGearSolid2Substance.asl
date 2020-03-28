@@ -894,6 +894,7 @@ update {
       vars.ResetNextFrame = false;
       vars.AllRoomStartsTimeout = 0;
       vars.CharacterId = 0;
+      vars.ResetCartwheelsNext = false;
       
       var ExceptionCount = new Dictionary<string, int> {
         { "reset", 0 },
