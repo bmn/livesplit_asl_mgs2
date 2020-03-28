@@ -645,24 +645,6 @@ startup {
       settings.SetToolTip("aslvv_ames", "This value appears only once Ames has been found");
         settings.Add("aslvv_ames_code", true, "Include the game's internal location ID", "aslvv_ames");
     
-    settings.Add("options_plant", true, "Plant", "options");
-    
-    settings.Add("options_snaketales", true, "Snake Tales", "options");  
-      settings.Add("snaketales_a", true, "A Wrongdoing", "options_snaketales");
-      settings.Add("snaketales_b", true, "Big Shell Evil", "options_snaketales");
-      settings.Add("snaketales_c", true, "Confidential Legacy", "options_snaketales");
-      settings.Add("snaketales_d", true, "Dead Man Whispers", "options_snaketales");
-      settings.Add("snaketales_e", true, "External Gazer", "options_snaketales");
-    
-    settings.Add("options_vr", true, "VR Missions", "options");    
-      settings.Add("vr_variety_ninja", false, "Enable splits for Variety (Ninja)", "options_vr");
-      settings.Add("vr_variety_pliskin", false, "Enable splits for Variety (Pliskin/Tuxedo)", "options_vr");
-      settings.Add("vr_variety_mgs1", false, "Enable splits for Variety (MGS1)", "options_vr");
-      string Tooltip = "The rules for these modes can accidentally trigger Variety splits for other characters. Only enable if you are playing this character.";
-      settings.SetToolTip("vr_variety_ninja", Tooltip);
-      settings.SetToolTip("vr_variety_pliskin", Tooltip);
-      settings.SetToolTip("vr_variety_mgs1", Tooltip);
-      
   settings.Add("special", false, "Strategy Testing Mode");
   settings.SetToolTip("special", "Split behaviours suited to route/strategy testing. Ideally use with a large set of unnamed splits, with a layout showing time between splits and without deltas.");
     settings.Add("special_allroomstarts", false, "Split on every screen load", "special");
@@ -672,6 +654,30 @@ startup {
     settings.Add("special_startbutton", false, "Split when START is pressed", "special");
     settings.Add("special_r3button", false, "Split when R3 is pressed", "special");
     settings.Add("special_disabledefault", true, "Disable the default autosplitter behaviour", "special");
+    
+  settings.Add("optional", true, "Optional Splits");
+    settings.Add("options_tanker", true, "Tanker", "optional");
+      settings.Add("w03b_enterrush", false, "Split when entering Guard Rush", "options_tanker");
+      settings.SetToolTip("w03b_enterrush", "You will need two Deck 2 starboard splits if this is enabled");
+    
+    settings.Add("options_plant", true, "Plant", "optional");
+    
+    settings.Add("options_snaketales", true, "Snake Tales", "optional");  
+      settings.Add("snaketales_a", true, "A Wrongdoing", "options_snaketales");
+      settings.Add("snaketales_b", true, "Big Shell Evil", "options_snaketales");
+      settings.Add("snaketales_c", true, "Confidential Legacy", "options_snaketales");
+      settings.Add("snaketales_d", true, "Dead Man Whispers", "options_snaketales");
+      settings.Add("snaketales_e", true, "External Gazer", "options_snaketales");
+    
+    settings.Add("options_vr", true, "VR Missions", "optional");    
+      settings.Add("vr_variety_ninja", false, "Enable splits for Variety (Ninja)", "options_vr");
+      settings.Add("vr_variety_pliskin", false, "Enable splits for Variety (Pliskin/Tuxedo)", "options_vr");
+      settings.Add("vr_variety_mgs1", false, "Enable splits for Variety (MGS1)", "options_vr");
+      string Tooltip = "The rules for these modes can accidentally trigger Variety splits for other characters. Only enable if you are playing this character.";
+      settings.SetToolTip("vr_variety_ninja", Tooltip);
+      settings.SetToolTip("vr_variety_pliskin", Tooltip);
+      settings.SetToolTip("vr_variety_mgs1", Tooltip);
+
     
   settings.Add("splits", true, "Split Locations");
   settings.SetToolTip("splits", "Enable or disable splitting when leaving these areas");
@@ -1073,6 +1079,7 @@ update {
         vars.PreviousTagsRaiden = 0;
         vars.ASL_Cartwheels = 0;
         vars.ASL_AmesLocation = "";
+        vars.PrevInfo = "";
         ExceptionCount = new Dictionary<string, int> {
           { "reset", 0 },
           { "start", 0 },
@@ -1294,6 +1301,18 @@ update {
       
       // BOSSES END
 
+      
+      // Tanker: Split on 2nd load (1st cutscene) in Deck 2 Starboard
+      Func<int> WatchDeck2Starboard = delegate() {
+        if (!settings["w03b_enterrush"]) return -1;
+        if ( (RoomTrackerInt > 0) && (current.RoomTimer < RoomTrackerInt) ) {
+          RoomTrackerInt = 0;
+          return 1;
+        }
+        if (current.RoomTimer < 30) RoomTrackerInt = current.RoomTimer;
+        return 0;
+      };
+      vars.SpecialWatchCallback.Add("w03b", WatchDeck2Starboard);
       
       // Reset cartwheels going from Tanker to Plant
       Func<int> CallCartwheelReset = delegate() {
