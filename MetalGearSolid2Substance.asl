@@ -856,6 +856,8 @@ startup {
 
 update {
   try {
+    vars.old = old;
+    
     // Callbacks go here - they need access to current and old so startup won't do the job  
     if (!vars.Initialised) {
       print("Beginning update initialisation...");
@@ -1692,16 +1694,13 @@ update {
         vars.ASL_Strength = Snakelike() ? C(current.StrengthSnake) : C(current.StrengthRaiden);
         
         if (settings["aslvv_cartwheels"]) {
-          if ( (!Cartwheeling) && (current.CartwheelCode == 16) ) {
-            Cartwheeling = true;
-            if ( (settings["aslvv_cartwheels_resetfirst"]) && (vars.ResetCartwheelsNext) ) {
+          if ( (current.CartwheelCode == 16) && (vars.old.CartwheelCode == 0) ) {
+            if ( (vars.ResetCartwheelsNext) && (settings["aslvv_cartwheels_resetfirst"]) ) {
               vars.ResetCartwheelsNext = false;
               vars.ASL_Cartwheels = 1;
             }
             else vars.ASL_Cartwheels = vars.ASL_Cartwheels + 1;
           }
-          else if ( (Cartwheeling) && (current.CartwheelCode == 0) )
-            Cartwheeling = false;
         }
 
         // Update less-critical values at a lower rate
