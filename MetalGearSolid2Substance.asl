@@ -626,12 +626,14 @@ startup {
             settings.Add("aslvv_info_o2health", false, "Also show the time remaining from Life", "aslvv_info_o2");
           settings.Add("aslvv_info_boss", true, "Boss health", "aslvv_info_vars");
           settings.SetToolTip("aslvv_info_boss", "The setting \"Split instantly when a boss is defeated\" above must also be enabled");
-            settings.Add("aslvv_info_boss_dmg_together", true, "Group hits done within a few frames", "aslvv_info_boss");
+            settings.Add("aslvv_info_boss_dmg_together", false, "Group hits done within a few frames", "aslvv_info_boss");
             settings.SetToolTip("aslvv_info_boss_dmg_together", "This will accurately show double-damage hits vs Harrier");
-            settings.Add("aslvv_info_boss_dmg_flurry", false, "Group hits done within a short time", "aslvv_info_boss");
+            settings.Add("aslvv_info_boss_dmg_flurry", true, "Group hits done within a short time", "aslvv_info_boss");
             settings.SetToolTip("aslvv_info_boss_dmg_flurry", "Shows the sum damage for flurries of attacks (Fatman, Vamp, Vamp 2)");
             settings.Add("aslvv_info_boss_dmg_full", false, "Group all hits done during the battle", "aslvv_info_boss");
             settings.SetToolTip("aslvv_info_boss_dmg_full", "A simple damage increment that never resets");
+            settings.Add("aslvv_info_boss_combo", true, "Add a combo counter", "aslvv_info_boss");
+            settings.SetToolTip("aslvv_info_boss_combo", "This uses the same timing as grouped attacks above");
           settings.Add("aslvv_info_choke", true, "Choke torture progress", "aslvv_info_vars");
           settings.Add("aslvv_info_colon", true, "Ascending Colon tutorial progress", "aslvv_info_vars");
         settings.Add("aslvv_info_max", true, "Also show the maximum value for raw values", "aslvv_info");
@@ -882,6 +884,7 @@ update {
       int BossMaxStamina = -1;
       uint BossLastDamage = 0;
       int BossLatestDamage = 0;
+      int BossCombo = 0;
       bool BigBossFailed = false;
       int BigBossAlertState = 0;
       int RoomTrackerInt = 0;
@@ -1068,6 +1071,7 @@ update {
         BossMaxStamina = -1;
         BossLastDamage = 0;
         BossLatestDamage = 0;
+        BossCombo = 0;
         Continues = -1;
         vars.SplitNextRoom = false;
         vars.BlockNextRoom = false;
@@ -1191,10 +1195,18 @@ update {
               else if (settings["aslvv_info_boss_dmg_flurry"]) BossLastDamageTimer = 30;
               else if (settings["aslvv_info_boss_dmg_together"]) BossLastDamageTimer = 6;
               
-              BossLatestDamage = (current.GameTime < (BossLastDamage + BossLastDamageTimer)) ?
-                BossLatestDamage + DamageDelta : DamageDelta;
+              if (current.GameTime < (BossLastDamage + BossLastDamageTimer)) {
+                BossLatestDamage = BossLatestDamage + DamageDelta;
+                BossCombo = BossCombo + 1;
+              }
+              else {
+                BossLatestDamage = DamageDelta;
+                BossCombo = 1;
+              }
               BossLastDamage = current.GameTime;
-              DebugDelta = "[-" + BossLatestDamage + "] ";
+              
+              if ( (settings["aslvv_info_boss_combo"]) && (BossCombo > 1) ) DebugDelta = BossCombo + " hits ";
+              DebugDelta = DebugDelta + "[-" + BossLatestDamage + "] ";
             }
             
             BossStamina = NewStamina;
@@ -1202,12 +1214,12 @@ update {
                 
             string DebugStamina = "";
             string DebugHealth = "";
-            if (NewStamina != MaxVal) DebugStamina = " Stamina: " + ValueFormat(NewStamina, BossMaxStamina);
-            if (NewHealth != MaxVal) DebugHealth = " Life: " + ValueFormat(NewHealth, BossMaxHealth);
+            if (NewStamina != MaxVal) DebugStamina = " " + ValueFormat(NewStamina, BossMaxStamina) + " Stamina.";
+            if (NewHealth != MaxVal) DebugHealth = " " + ValueFormat(NewHealth, BossMaxHealth) + " Life.";
             string DebugString = Name + " |" + DebugStamina + DebugHealth;
             if (settings["aslvv_info_boss"]) {
               DebugInfo(DebugDelta + DebugString);
-              vars.InfoTimer = 300;
+              vars.InfoTimer = 180;
             }
             else Debug(DebugDelta + DebugString);
             if ( (NewStamina <= 0) || (NewHealth <= 0) ) {
@@ -1217,9 +1229,9 @@ update {
               }
               if (settings["aslvv_info_boss"]) {
                 vars.PrevInfo = ""; // boss info will be out of fashion once the next message has timed out...
-                DebugInfo("Boss defeated!");
+                DebugInfo(Name + " defeated");
               }
-              else Debug("Boss defeated!");
+              else Debug(Name + " defeated");
               vars.BlockNextRoom = true;
               return 1;
             }
