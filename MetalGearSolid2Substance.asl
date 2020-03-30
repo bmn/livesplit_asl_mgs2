@@ -605,11 +605,10 @@ startup {
   
     settings.Add("debug_file", true, "Save debug information to LiveSplit program directory", "options");
     settings.Add("resets", true, "Reset the timer when returning to menu", "options");
-    settings.Add("boss_insta", true, "Split instantly when a boss is defeated", "options");
-    settings.SetToolTip("boss_insta", "This also enables boss health information in ASL Var Viewer");
     settings.Add("dogtag_insta", false, "Split when a dog tag is collected", "options");
     settings.SetToolTip("dogtag_insta", "The setting \"Enable ASL Var Viewer Integration\" below must also be enabled");
     
+    settings.Add("boss_insta", true, "Split instantly when a boss is defeated", "options");
     settings.Add("aslvv", true, "Enable ASL Var Viewer integration", "options");
     settings.SetToolTip("aslvv", "Disabling this may slightly improve performance");
       settings.Add("aslvv_info", true, "ASL_Info (contextual information)", "aslvv");
@@ -627,6 +626,12 @@ startup {
             settings.Add("aslvv_info_o2health", false, "Also show the time remaining from Life", "aslvv_info_o2");
           settings.Add("aslvv_info_boss", true, "Boss health", "aslvv_info_vars");
           settings.SetToolTip("aslvv_info_boss", "The setting \"Split instantly when a boss is defeated\" above must also be enabled");
+            settings.Add("aslvv_info_boss_dmg_together", true, "Group hits done within a few frames", "aslvv_info_boss");
+            settings.SetToolTip("aslvv_info_boss_dmg_together", "This will accurately show double-damage hits vs Harrier");
+            settings.Add("aslvv_info_boss_dmg_flurry", false, "Group hits done within a short time", "aslvv_info_boss");
+            settings.SetToolTip("aslvv_info_boss_dmg_flurry", "Shows the sum damage for flurries of attacks (Fatman, Vamp, Vamp 2)");
+            settings.Add("aslvv_info_boss_dmg_full", false, "Group all hits done during the battle", "aslvv_info_boss");
+            settings.SetToolTip("aslvv_info_boss_dmg_full", "A simple damage increment that never resets");
           settings.Add("aslvv_info_choke", true, "Choke torture progress", "aslvv_info_vars");
           settings.Add("aslvv_info_colon", true, "Ascending Colon tutorial progress", "aslvv_info_vars");
         settings.Add("aslvv_info_max", true, "Also show the maximum value for raw values", "aslvv_info");
@@ -875,6 +880,8 @@ update {
       int BossStamina = MaxVal;
       int BossMaxHealth = -1;
       int BossMaxStamina = -1;
+      uint BossLastDamage = 0;
+      int BossLatestDamage = 0;
       bool BigBossFailed = false;
       int BigBossAlertState = 0;
       int RoomTrackerInt = 0;
@@ -1059,6 +1066,8 @@ update {
         BossCounter = MaxVal;
         BossMaxHealth = -1;
         BossMaxStamina = -1;
+        BossLastDamage = 0;
+        BossLatestDamage = 0;
         Continues = -1;
         vars.SplitNextRoom = false;
         vars.BlockNextRoom = false;
@@ -1171,10 +1180,22 @@ update {
             }
             
             string DebugDelta = "";
+            int DamageDelta = 0;
             if ( (BossHealth != MaxVal) && (NewHealth < BossHealth) )
-              DebugDelta = "[-" + (BossHealth - NewHealth) + "] ";
+              DamageDelta = (BossHealth - NewHealth);
             else if ( (BossStamina != MaxVal) && (NewStamina < BossStamina) )
-              DebugDelta = "[-" + (BossStamina - NewStamina) + "] ";
+              DamageDelta = (BossStamina - NewStamina);
+            if (DamageDelta != 0) {
+              int BossLastDamageTimer = 0;
+              if (settings["aslvv_info_boss_dmg_full"]) BossLastDamageTimer = 9999999;
+              else if (settings["aslvv_info_boss_dmg_flurry"]) BossLastDamageTimer = 30;
+              else if (settings["aslvv_info_boss_dmg_together"]) BossLastDamageTimer = 6;
+              
+              BossLatestDamage = (current.GameTime < (BossLastDamage + BossLastDamageTimer)) ?
+                BossLatestDamage + DamageDelta : DamageDelta;
+              BossLastDamage = current.GameTime;
+              DebugDelta = "[-" + BossLatestDamage + "] ";
+            }
             
             BossStamina = NewStamina;
             BossHealth = NewHealth;
