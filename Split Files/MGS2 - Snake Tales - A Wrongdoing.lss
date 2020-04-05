@@ -2,7 +2,7 @@
 <Run version="1.7.0">
   <GameIcon />
   <GameName>Metal Gear Solid 2: Substance</GameName>
-  <CategoryName>Snake Tales: A Wrongdoing (Hostages)</CategoryName>
+  <CategoryName>Snake Tales: A Wrongdoing</CategoryName>
   <Metadata>
     <Run id="" />
     <Platform usesEmulator="False">PC</Platform>
