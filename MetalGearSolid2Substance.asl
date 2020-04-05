@@ -1205,8 +1205,8 @@ update {
               }
               BossLastDamage = current.GameTime;
               
-              if ( (settings["aslvv_info_boss_combo"]) && (BossCombo > 1) ) DebugDelta = BossCombo + " hits ";
-              DebugDelta = DebugDelta + "[-" + BossLatestDamage + "] ";
+              if ( (settings["aslvv_info_boss_combo"]) && (BossCombo > 1) ) DebugDelta = BossCombo + " hits! ";
+              DebugDelta = DebugDelta + BossLatestDamage + " DMG";
             }
             
             BossStamina = NewStamina;
@@ -1214,14 +1214,17 @@ update {
                 
             string DebugStamina = "";
             string DebugHealth = "";
-            if (NewStamina != MaxVal) DebugStamina = " " + ValueFormat(NewStamina, BossMaxStamina) + " Stamina.";
-            if (NewHealth != MaxVal) DebugHealth = " " + ValueFormat(NewHealth, BossMaxHealth) + " Life.";
-            string DebugString = Name + " |" + DebugStamina + DebugHealth;
+            if (NewStamina != MaxVal) DebugStamina = ValueFormat(NewStamina, BossMaxStamina) + " Stamina";
+            if (NewHealth != MaxVal) DebugHealth = ValueFormat(NewHealth, BossMaxHealth) + " Life";
+            if ( (DebugStamina != "") && (DebugHealth != "") ) DebugStamina = DebugStamina + " | ";
+            string DebugString = " | " + DebugStamina + DebugHealth;
+            vars.PrevInfo = Name + DebugString;
+            DebugString = ((DebugDelta == "") ? Name : DebugDelta) + DebugString;
             if (settings["aslvv_info_boss"]) {
-              DebugInfo(DebugDelta + DebugString);
+              DebugInfo(DebugString);
               vars.InfoTimer = 180;
             }
-            else Debug(DebugDelta + DebugString);
+            else Debug(DebugString);
             if ( (NewStamina <= 0) || (NewHealth <= 0) ) {
               if (HasContinued()) { // making sure the no-health thing isn't just the game resetting health
                 ResetBossData();
@@ -1229,9 +1232,9 @@ update {
               }
               if (settings["aslvv_info_boss"]) {
                 vars.PrevInfo = ""; // boss info will be out of fashion once the next message has timed out...
-                DebugInfo(Name + " defeated");
+                DebugInfo(Name + " defeated!");
               }
-              else Debug(Name + " defeated");
+              else Debug(Name + " defeated!");
               vars.BlockNextRoom = true;
               return 1;
             }
