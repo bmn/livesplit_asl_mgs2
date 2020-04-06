@@ -1,5 +1,9 @@
 # Guide to LiveSplit layout settings
 
+| Major splits only | Contextual subsplits | Separate subsplits |
+|:-----------------:|:--------------------:|:------------------:|
+| ![Major Only](Images/LayoutMajorOnly.gif) | ![Contextual](Images/LayoutContextual.gif) | ![Separate](Images/LayoutSeparate.gif) |
+
 ## Standard
 This is a simple splits style that shows every area in order.
 
