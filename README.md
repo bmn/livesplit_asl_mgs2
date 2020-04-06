@@ -16,7 +16,7 @@ Bug reports are welcomed so they can be stamped out, as is discussion of locatio
 * [ASL Var Viewer](https://github.com/hawkerm/LiveSplit.ASLVarViewer) support for room names, game stats, live information including boss health, and your current Big Boss/Perfect Stats status
 * Alternate "Strategy Testing" mode allowing you to compare strategies more easily when testing
 
-![Screenshot](README.png)
+![Screenshot](Images/README.png)
 
 # Notes
 * The LSS files included here will work with the default split location settings. See the mouseover tooltips on each split-related setting in Advanced Options for advice on what to add or remove from your splits.
