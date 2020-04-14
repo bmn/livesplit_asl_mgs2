@@ -1201,7 +1201,7 @@ update {
             if (DamageDelta != 0) {
               int BossLastDamageTimer = 0;
               if (settings["aslvv_info_boss_dmg_full"]) BossLastDamageTimer = 9999999;
-              else if (settings["aslvv_info_boss_dmg_flurry"]) BossLastDamageTimer = 30;
+              else if (settings["aslvv_info_boss_dmg_flurry"]) BossLastDamageTimer = 45;
               else if (settings["aslvv_info_boss_dmg_together"]) BossLastDamageTimer = 6;
               
               if (current.GameTime < (BossLastDamage + BossLastDamageTimer)) {
@@ -1215,7 +1215,7 @@ update {
               BossLastDamage = current.GameTime;
               
               if ( (settings["aslvv_info_boss_combo"]) && (BossCombo > 1) ) DebugDelta = BossCombo + " hits! ";
-              DebugDelta = DebugDelta + BossLatestDamage + " DMG";
+              DebugDelta = DebugDelta + "-" + BossLatestDamage;
             }
             
             BossStamina = NewStamina;
@@ -1247,7 +1247,6 @@ update {
               vars.BlockNextRoom = true;
               return 1;
             }
-            vars.PrevInfo = DebugString;
           }
           else if ( (!NoBoss) && (!BossActive) && (current.RoomTimer < 60) ) {
             if ( (NewStamina == null) || (!ValidMaxHealth[Name].Contains(NewStamina)) || (NewHealth == null) || (!ValidMaxHealth[Name].Contains(NewHealth)) ) {
