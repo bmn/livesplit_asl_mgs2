@@ -69,6 +69,10 @@ state("mgs2_sse") {
   byte2     AscendingColonTimer: 0xAD4F08, 0x40;
   byte      CartwheelCode: 0xB6095E;
   byte      AmesLocation: 0xD8DF9F; // D8FB9F
+  
+  ushort    EmmaO2: 0x618300, 0x930;
+  ushort    EmmaMaxO2: 0x618300, 0x932;
+  byte      EmmaHealth: 0x618300, 0x8C8;
 }
 
 isLoading {
@@ -628,6 +632,7 @@ startup {
           settings.Add("aslvv_info_grip", true, "Grip", "aslvv_info_vars");
           settings.Add("aslvv_info_o2", true, "O2", "aslvv_info_vars");
             settings.Add("aslvv_info_o2health", false, "Also show the time remaining from Life", "aslvv_info_o2");
+            settings.Add("aslvv_info_o2_emma", true, "Show Emma's O2 instead when relevant", "aslvv_info_o2");
           settings.Add("aslvv_info_boss", true, "Boss health", "aslvv_info_vars");
           settings.SetToolTip("aslvv_info_boss", "The setting \"Split instantly when a boss is defeated\" above must also be enabled");
             settings.Add("aslvv_info_boss_dmg_together", false, "Group hits done within a few frames", "aslvv_info_boss");
@@ -1861,14 +1866,32 @@ update {
         ) {
           PreviousO2 = CurrentO2;
           if (WarmUpTimer == 0) {
-            int MaxO2 = (current.MaxHealth == 30) ? 3600 : 4000;
-            int O2Rate = (current.CurrentHealth == current.MaxHealth) ? 60 : 120;
+            int MaxO2 = 0;
+            int O2Rate = 60;
+            int O2Health = current.CurrentHealth;
+            string O2Prefix = "O2";
+            
+            if (
+              (settings["aslvv_info_o2_emma"]) &&
+              ((current.RoomCode == "w31b") || (current.RoomCode == "w31f")) &&
+              ((current.EmmaO2 < 1400) && (current.EmmaO2 < current.EmmaMaxO2) && (current.EmmaHealth <= 100))
+            ) {
+              O2Prefix = "Emma O2";
+              MaxO2 = current.EmmaMaxO2;
+              O2Health = current.EmmaHealth;
+              CurrentO2 = current.EmmaO2;
+              if (current.EmmaHealth != 100) O2Rate = 120;
+            }
+            else {
+              MaxO2 = (current.MaxHealth == 30) ? 3600 : 4000;
+              if (current.CurrentHealth != current.MaxHealth) O2Rate = 120;
+            }
             string O2TimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentO2 / O2Rate) );
             string HealthTimeLeft = "";
             if (settings["aslvv_info_o2health"]) {
-              HealthTimeLeft = " + " + string.Format( "{00:0.0}", (decimal)((double)current.CurrentHealth / 4) );
+              HealthTimeLeft = " + " + string.Format( "{00:0.0}", (decimal)((double)O2Health / 4) );
             }
-            vars.ASL_Info = "O2: " + vars.ValueFormat(CurrentO2, MaxO2) + " (" + O2TimeLeft + HealthTimeLeft + " left)";
+            vars.ASL_Info = O2Prefix + ": " + vars.ValueFormat(CurrentO2, MaxO2) + " (" + O2TimeLeft + HealthTimeLeft + " left)";
             vars.InfoTimer = 60;
           }
           else WarmUpTimer = WarmUpTimer - 1;
