@@ -1223,7 +1223,7 @@ update {
                 
             string DebugStamina = "";
             string DebugHealth = "";
-            if (NewStamina != MaxVal) DebugStamina = ValueFormat(NewStamina, BossMaxStamina) + " Stamina";
+            if (NewStamina != MaxVal) DebugStamina = ValueFormat(NewStamina, BossMaxStamina) + " Stam";
             if (NewHealth != MaxVal) DebugHealth = ValueFormat(NewHealth, BossMaxHealth) + " Life";
             if ( (DebugStamina != "") && (DebugHealth != "") ) DebugStamina = DebugStamina + " | ";
             string DebugString = " | " + DebugStamina + DebugHealth;
