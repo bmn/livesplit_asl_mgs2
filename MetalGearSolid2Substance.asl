@@ -568,14 +568,6 @@ startup {
     { 30, "European Extreme" }
   };
   
-  vars.BestCodeNames = new Dictionary<int, string> {
-    { 120, "Hound" },
-    { 100, "Doberman" },
-    { 75, "Fox" },
-    { 50, "Big Boss" },
-    { 30, "Big Boss" }
-  };
-  
   // Dog tag counts
   vars.MaxDogTags = new Dictionary<int, int[]> {
     { 200, new[] { 24, 43, 67 } },
@@ -1814,10 +1806,6 @@ update {
          
         }
 
-        //bool Snake = (C(current.GripMultiplier) == 1800); // Raiden's is 3600 - but this doesn't work
-        //vars.Debug(Snake ? "Snake" : "Raiden");
-        //vars.Debug(C(current.GripMultiplier).ToString());
-        
         if (vars.DebugTimer > 0) {
           vars.DebugTimer--;
           if (vars.DebugTimer == 0) vars.ASL_Debug = vars.PrevDebug;
@@ -1935,11 +1923,8 @@ split {
         return Split("START pressed");
       if ( (settings["special_r3button"]) && (vars.TestInput("r3", current.PadInput, old.PadInput)) )
         return Split("R3 pressed");
-      if (vars.AllRoomStartsTimeout > 0) vars.AllRoomStartsTimeout -= 1;
-      else if ( (settings["special_allroomstarts"]) && (current.RoomTimer < old.RoomTimer) ) {
-        vars.AllRoomStartsTimeout = 6;
+      if ( (settings["special_allroomstarts"]) && (current.RoomTimer < old.RoomTimer) )
         return Split("Room start");
-      }
       if ( (settings["special_allroomchanges"]) && (current.RoomCode != old.RoomCode) )
         return Split("Room change");
       if (settings["special_disabledefault"])
