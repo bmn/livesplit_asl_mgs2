@@ -59,6 +59,8 @@ state("mgs2_sse") {
 
   byte2     Vamp2Health: 0x61FBB8, 0x2AE;
   byte2     Vamp2Stamina: 0x664E7C, 0x48;
+  
+  ushort    Tengus2Defeated: 0x618E0C;
 
   byte2     RaysHealth: 0xAD4EA4, 0x54, 0x10, 0x10, 0x170, 0x7E0;
   byte2     RaysTalesHealth: 0x652F30, 0x490;
@@ -575,6 +577,16 @@ startup {
     { 100, new[] { 33, 49, 82 } },
     { 75, new[] { 35, 52, 87 } },
     { 50, new[] { 34, 54, 88 } }
+  };
+  
+  // Tengus 2 counts
+  vars.Tengus2Total = new Dictionary<int, int> {
+    { 200, 48 },
+    { 120, 48 },
+    { 100, 64 },
+    { 75, 96 },
+    { 50, 128 },
+    { 30, 128 }
   };
   
   
@@ -1421,6 +1433,24 @@ update {
         return 0;
       };
       Func<int> WatchBigBossAlert3 = delegate() {
+        // Tengus boss counter
+        if (current.Tengus2Defeated != BossCounter) {
+          if (!settings["aslvv_info_boss"]) return -1;
+          BossCounter = current.Tengus2Defeated;
+          int TotalTengus = vars.Tengus2Total[current.MaxHealth];
+          
+          if (BossCounter == TotalTengus) {
+            vars.ASL_Info = "Tengus defeated!";
+            vars.InfoTimer = 180;
+            return -1;
+          }            
+
+          vars.ASL_Info = ( (BossCounter == 20) || (BossCounter == 40) ) ?
+            "FISS" + BossCounter + "N MAI" + TotalTengus + "D" :
+            "Tengus | " + BossCounter + " of " + TotalTengus + " defeated";
+          vars.InfoTimer = 180;
+          return 0;
+        }
         // Trigger on the third instance (after initial gameplay and cutscene)
         if ( (RoomTrackerInt > 0) && (current.RoomTimer < RoomTrackerInt) ) {
           if (RoomTrackerP) {
@@ -1428,7 +1458,7 @@ update {
             RoomTrackerInt = 0;
             BigBossAlertState = 3;
             Debug("Setting Big Boss alert allowance to 3");
-            return -1;
+            return 0;
           }
           else RoomTrackerP = true;
         }
