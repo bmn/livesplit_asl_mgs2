@@ -1449,9 +1449,11 @@ update {
             return -1;
           }            
 
-          vars.ASL_Info = ( (BossCounter == 20) || (BossCounter == 40) ) ?
-            "FISS" + BossCounter + "N MAI" + TotalTengus + "D" :
-            "Tengus | " + BossCounter + " of " + TotalTengus + " defeated";
+          if ( (BossCounter == 20) || (BossCounter == 40) ) {
+            string TenguMail = (TotalTengus < 100) ? "N MAI" : "N MA";
+            vars.ASL_Info = "FISS" + BossCounter + TenguMail + TotalTengus + "D";
+          }
+          else vars.ASL_Info = "Tengus | " + BossCounter + " of " + TotalTengus + " defeated";
           vars.InfoTimer = 180;
           return 0;
         }
