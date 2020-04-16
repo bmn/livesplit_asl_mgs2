@@ -12,9 +12,10 @@ Bug reports are welcomed so they can be stamped out, as is discussion of locatio
 
 # Features
 * Automatic splitting for Tanker, Plant, Snake Tales, Boss Survival, and VR Missions (per-category)
+* Split in every area, or only on bosses
 * Instant splitting when you defeat a boss or collect a dog tag
-* [ASL Var Viewer](https://github.com/hawkerm/LiveSplit.ASLVarViewer) support for room names, game stats, live information including boss health, and your current Big Boss/Perfect Stats status
-* Alternate "Strategy Testing" mode allowing you to compare strategies more easily when testing
+* [ASL Var Viewer](https://github.com/hawkerm/LiveSplit.ASLVarViewer) support for room names, game stats, live information including boss health, and your current codename rank
+* "Strategy Testing" mode allowing you to compare strategies more easily when testing
 
 ![Screenshot](Images/README.png)
 
@@ -26,6 +27,7 @@ Bug reports are welcomed so they can be stamped out, as is discussion of locatio
   * The "Easy-Normal" files exit Aft Deck to Deck-B, and go clockwise (starting at Strut D) for the early bomb hunt. The "Very Easy" file also goes directly from Strut E to Shell 1 Core.
   * The "Hard-EuEx" files exit Aft Deck to Deck-A, and go anticlockwise (starting at Strut B) for the early bomb hunt.
 * There are two modes for boss splits. If you would like to use the simpler mode that splits on fadeout, disable the autosplitter setting for it.
+  * If using Major Splits Only, instant boss splitting must also be enabled or some bosses will not split correctly.
 * The in-game timer for Boss Survival is not the same as the timer shown on screen - the IGT adds a little time at the start of each battle, continues during cutscenes, and continues while you have a menu open.
 * VR Missions splitting is done per-category, when you exit back to the missions menu. Visiting a mission (not beating it!) is usually sufficient to log it, so it's possible to trigger accidentally if you give up on a mission and exit out.
   * Raiden (Ninja), Pliskin, Tuxedo Snake and Snake (MGS1) have Variety categories that are entirely contained within the larger Variety mission set the other characters have. To avoid accidentally triggering the smaller categories, they're disabled in settings.
