@@ -687,7 +687,7 @@ startup {
     settings.Add("special_r3button", false, "Split when R3 is pressed", "special");
     settings.Add("special_disabledefault", true, "Disable the default autosplitter behaviour", "special");
     
-  settings.Add("optional", true, "Optional Splits");
+  settings.Add("optional", true, "Enable Optional Splits");
     settings.Add("options_tanker", true, "Tanker", "optional");
       settings.Add("w03b_enterrush", false, "Split when entering Guard Rush", "options_tanker");
       settings.SetToolTip("w03b_enterrush", "You will need two Deck 2 starboard splits if this is enabled");
@@ -710,8 +710,7 @@ startup {
       settings.SetToolTip("vr_variety_pliskin", Tooltip);
       settings.SetToolTip("vr_variety_mgs1", Tooltip);
 
-    
-  settings.Add("splits", true, "Split Locations");
+  settings.Add("splits", true, "Enable Specific Split Locations");
   settings.SetToolTip("splits", "Enable or disable splitting when leaving these areas");
   
   
