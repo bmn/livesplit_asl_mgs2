@@ -661,6 +661,22 @@ startup {
       settings.SetToolTip("aslvv_ames", "This value appears only once Ames has been found");
         settings.Add("aslvv_ames_code", true, "Include the game's internal location ID", "aslvv_ames");
     
+  settings.Add("major", false, "Major Splits Only");
+  settings.SetToolTip("major", "The setting \"Split instantly when a boss is defeated\" above must also be enabled");
+    settings.Add("major_w00b", true, "Olga", "major");
+    settings.Add("major_new_d10t", true, "Guard Rush", "major");
+    settings.Add("major_new_museum", true, "Tanker complete (Tanker/Plant)", "major");
+    settings.Add("major_w11c", true, "Fortune", "major");
+    settings.Add("major_fatman", true, "Fatman", "major");
+    settings.Add("major_harrier", true, "Harrier", "major");
+    settings.Add("major_w31c", true, "Vamp 1", "major");
+    settings.Add("major_w32b", true, "Vamp 2", "major");
+    settings.Add("major_w44a", true, "Tengus 1", "major");
+    settings.Add("major_w45a", true, "Tengus 2", "major");
+    settings.Add("major_w46a", true, "Rays", "major");
+    settings.Add("major_w61a", true, "Solidus", "major");
+    settings.Add("major_new_ending", true, "Plant complete (also Tanker complete in Tanker-only)", "major");
+  
   settings.Add("special", false, "Strategy Testing Mode");
   settings.SetToolTip("special", "Split behaviours suited to route/strategy testing. Ideally use with a large set of unnamed splits, with a layout showing time between splits and without deltas.");
     settings.Add("special_allroomstarts", false, "Split on every screen load", "special");
@@ -1045,6 +1061,19 @@ update {
       
       // Confirm a split
       Func<string, bool> Split = delegate(string Reason) {
+        // Do extra checks for Major Splits Only mode
+        if (settings["major"]) {
+          if ( (current.RoomCode == "w20c") && (settings["major_fatman"]) && (Reason == "Requested by watch callback") ) {}
+          else if ( (current.RoomCode == "w25a") && (settings["major_harrier"]) && (Reason == "Requested by watch callback") ) {}
+          else if ( 
+            ( (!settings.ContainsKey("major_" + vars.old.RoomCode)) || (!settings["major_" + vars.old.RoomCode]) )
+            && 
+            ( (!settings.ContainsKey("major_new_" + current.RoomCode)) || (!settings["major_new_" + current.RoomCode]) )
+          )  {
+            return false;
+          }
+        }
+        
         vars.DebugTimer = vars.DebugTimerStart;
         vars.PrevDebug = vars.ASL_Debug;
         vars.Debug("Splitting now (" + Reason + ")");
