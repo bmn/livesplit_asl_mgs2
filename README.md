@@ -21,13 +21,13 @@ Bug reports are welcomed so they can be stamped out, as is discussion of locatio
 
 # Notes
 * The LSS files included here will work with the default split location settings. See the mouseover tooltips on each split-related setting in Advanced Options for advice on what to add or remove from your splits.
-  * If you want to only show major splits, or categorise splits, in your LiveSplit layout: open a "subsplits" LSL file, and use a Subsplits component and select "Always Hide Subsplits".
+  * If you use a "Major Splits" split file, enable the autosplitter setting "Major Splits Only", and ensure the instant boss split setting (see below) is also enabled.
+  * If you want to categorise splits in your LiveSplit layout: open a "subsplits" LSL file, and use a Subsplits component and select "Always Hide Subsplits".
     * See the [Layout Guide](LayoutGuide.md) for some layout variants you can use that take advantage of subsplits.
   * You can freely rename splits, or change which splits are section headers and which are subsplits (by adding/removing the hyphen symbol from the name).
   * The "Easy-Normal" files exit Aft Deck to Deck-B, and go clockwise (starting at Strut D) for the early bomb hunt. The "Very Easy" file also goes directly from Strut E to Shell 1 Core.
   * The "Hard-EuEx" files exit Aft Deck to Deck-A, and go anticlockwise (starting at Strut B) for the early bomb hunt.
 * There are two modes for boss splits. If you would like to use the simpler mode that splits on fadeout, disable the autosplitter setting for it.
-  * If using Major Splits Only, instant boss splitting must also be enabled or some bosses will not split correctly.
 * The in-game timer for Boss Survival is not the same as the timer shown on screen - the IGT adds a little time at the start of each battle, continues during cutscenes, and continues while you have a menu open.
 * VR Missions splitting is done per-category, when you exit back to the missions menu. Visiting a mission (not beating it!) is usually sufficient to log it, so it's possible to trigger accidentally if you give up on a mission and exit out.
   * Raiden (Ninja), Pliskin, Tuxedo Snake and Snake (MGS1) have Variety categories that are entirely contained within the larger Variety mission set the other characters have. To avoid accidentally triggering the smaller categories, they're disabled in settings.
