@@ -666,6 +666,8 @@ startup {
     settings.Add("major_w00b", true, "Olga", "major");
     settings.Add("major_new_d10t", true, "Guard Rush", "major");
     settings.Add("major_new_museum", true, "Tanker complete (Tanker/Plant)", "major");
+    settings.Add("major_new_d014p01", false, "Stillman", "major");
+    settings.SetToolTip("major_new_d014p01", "Also enable Specific Splits > Optional Splits > Plant > Stillman");
     settings.Add("major_w11c", true, "Fortune", "major");
     settings.Add("major_fatman", true, "Fatman", "major");
     settings.Add("major_harrier", true, "Harrier", "major");
