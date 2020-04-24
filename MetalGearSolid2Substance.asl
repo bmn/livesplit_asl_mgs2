@@ -9,6 +9,7 @@ state("mgs2_sse") {
   
   string10  GameSection: 0xD8C374;
   string10  RoomCode: 0x601F34, 0x2C;
+  short     Progress: 0xD8D912;
 
   byte2     Shots: 0x3E315E, 0x73;
   byte2     Alerts: 0x3E315E, 0x75;
