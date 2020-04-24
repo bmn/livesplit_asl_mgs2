@@ -670,7 +670,10 @@ startup {
     settings.SetToolTip("major_new_d014p01", "Also enable Specific Splits > Optional Splits > Plant > Stillman");
     settings.Add("major_w11c", true, "Fortune", "major");
     settings.Add("major_fatman", true, "Fatman", "major");
+    settings.Add("major_w24c", true, "Ames", "major");
     settings.Add("major_harrier", true, "Harrier", "major");
+    settings.Add("major_new_wmovie", false, "Prez", "major");
+    settings.SetToolTip("major_new_wmovie", "Also enable Specific Splits > Optional Splits > Plant > Prez");
     settings.Add("major_w31c", true, "Vamp 1", "major");
     settings.Add("major_w32b", true, "Vamp 2", "major");
     settings.Add("major_w44a", true, "Tengus 1", "major");
