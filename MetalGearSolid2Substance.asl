@@ -816,7 +816,7 @@ startup {
   });
   // Option to split when meeting Prez in Shell 2 Core
   TempSetting = "w31a_prez";
-  settings.Add(TempSetting, true, "Split when meeting Prez", "options_plant");
+  settings.Add(TempSetting, false, "Split when meeting Prez", "options_plant");
   settings.SetToolTip(TempSetting, "You will need two Shell 2 Core 1F splits if this is enabled");
   vars.SpecialRoomChange.Add("w31a", new Dictionary<string, string> {
     { "current", "wmovie" },
