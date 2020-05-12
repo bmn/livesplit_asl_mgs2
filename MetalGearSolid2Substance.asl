@@ -947,7 +947,7 @@ update {
         { "Olga", new[] {128, MaxVal} },
         { "Meryl", new[] {128, MaxVal} },
         { "Fatman", new[] {256, 384, 312} },
-        { "Harrier", new[] {2250, 3250, 3500, 4000, 4750, 4750, MaxVal} },
+        { "Harrier", new[] {2250, 3250, 3500, 4000, 4750, MaxVal} },
         { "Vamp", new[] {100, 128} },
         { "Rays", new[] {3072, 5120, 7168, 10240, 20480, MaxVal} },
         { "Solidus", new[] {75, 95, 100} }
