@@ -41,6 +41,7 @@ state("mgs2_sse") {
   byte2     Level: 0x601F34, 0x158A; // 0x1800 + 0xD (Tanker), 0xE (Plant), 0xF (T-P)
   
   byte2     STCompletionCheck: 0x13A178C; // This value rises slowly from 0 during credits to about 260, then goes back to 0 at results
+  int       ResultsComplete: 0xA5397C; // & 0x200 == 0x200 when ready to split on results
   int       PadInput: 0xADAD3C;
 
   byte      OlgaStamina: 0xAD4F6C, 0x0, 0x1E0, 0x44, 0x1F8, 0x13C;
@@ -1573,10 +1574,8 @@ update {
       vars.SpecialRoomChangeCallback.Add("a14a", CallBSEStrutB);
       
       // Split at the right time (or at least, a frame or two after the right time - this won't affect IGT) on the results screen
-      Func<int> WatchEnding = delegate() {
-        if (current.GameTime == RoomTrackerUint) {
-          RoomTrackerUint = 0;
-          return 1;
+      Func<int> WatchEnding = () => ( (current.ResultsComplete & 0x200) == 0x200) ? 1 : 0;
+      vars.SpecialWatchCallback.Add("ending", WatchEnding);
         }
         RoomTrackerUint = current.GameTime;
         return 0;
