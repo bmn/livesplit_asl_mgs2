@@ -1573,13 +1573,8 @@ update {
       vars.SpecialRoomChangeCallback.Add("ta02a", CallEGStrutB);
       vars.SpecialRoomChangeCallback.Add("a14a", CallBSEStrutB);
       
-      // Split at the right time (or at least, a frame or two after the right time - this won't affect IGT) on the results screen
+      // Split at the right time on the results screen
       Func<int> WatchEnding = () => ( (current.ResultsComplete & 0x200) == 0x200) ? 1 : 0;
-      vars.SpecialWatchCallback.Add("ending", WatchEnding);
-        }
-        RoomTrackerUint = current.GameTime;
-        return 0;
-      };
       vars.SpecialWatchCallback.Add("ending", WatchEnding);
       
       
