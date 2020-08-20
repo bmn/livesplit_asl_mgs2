@@ -6,7 +6,7 @@ state("mgs2_sse") {
   string10  RoomCode: 0x601F34, 0x2C;
   ushort    ProgressTanker: 0xD8D93C;
   ushort    ProgressPlant: 0xD8D912;
-  int       ResultsComplete: 0xA5397C;
+  int       ResultsComplete: 0x65397C;
 }
 
 isLoading {
@@ -74,15 +74,13 @@ update {
   vars.old = old;
   
   if (!vars.Initialised) {
-    Func<bool> ExcPlantResults = () => (vars.old.ProgressPlant == 487);
-    vars.Except.Add("r_plt0_486", ExcPlantResults);
-    
     Func<bool> WatTengus1 = () => ( (current.RoomCode != vars.old.RoomCode) && (current.RoomCode == "w45a") );
     vars.Watch.Add("r_plt0_397", WatTengus1);
     
     uint FrameCounter = 0;
-    Func<bool> WatResults = () => ( (current.ResultsComplete & 0x200) == 0x200);
+    Func<bool> WatResults = () => ( (current.ResultsComplete != vars.old.ResultsComplete) && ( (current.ResultsComplete & 0x200) == 0x200) );
     vars.Watch.Add("r_tnk0_56", WatResults);
+    vars.Watch.Add("r_plt0_486", WatResults);
     
     vars.Initialised = true;
   }

@@ -41,7 +41,7 @@ state("mgs2_sse") {
   byte2     Level: 0x601F34, 0x158A; // 0x1800 + 0xD (Tanker), 0xE (Plant), 0xF (T-P)
   
   byte2     STCompletionCheck: 0x13A178C; // This value rises slowly from 0 during credits to about 260, then goes back to 0 at results
-  int       ResultsComplete: 0xA5397C; // & 0x200 == 0x200 when ready to split on results
+  int       ResultsComplete: 0x65397C; // & 0x200 == 0x200 when ready to split on results
   int       PadInput: 0xADAD3C;
 
   byte      OlgaStamina: 0xAD4F6C, 0x0, 0x1E0, 0x44, 0x1F8, 0x13C;
