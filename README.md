@@ -24,9 +24,16 @@ Bug reports are welcomed so they can be stamped out, as is discussion of locatio
 * **MetalGearSolid2Substance-Lite.asl** is a lightweight splitter. It can only split at major points in the game, but is very easy to set up and may run better on your system.
 * The two versions use different methods to determine when to split, and so will split at different times.
 
-# Notes
+# Room Splitting vs Major Splits Only
+* **Room splitting** is provided by the main autosplitter only. It splits whenever you go from one area to another.
+  * This provides very fine detail about how well you're doing, but it can be difficult to organise so much data in your layout, and it's easy to have your splits go out of sync if you (for example) leave and reenter a room.
+  * See [Layout Guide](LayoutGuide.md) for some suggestions on how to organise room splits in your layout.
+* **Major splits only** is provided by both autosplitters. It splits only on beating bosses, and in a few other major locations.
+  * On the main autosplitter, enable the *Major Splits only* setting, and ensure none of those split locations are disabled elsewhere in the settings. Use a split file that includes "Major Splits" in the name.
+  * On the lite autosplitter, this is the only mode available. Use a split file that includes "Lite" in the name.
+
+# Other Notes
 * The LSS files included here will work with the default split location settings. See the mouseover tooltips on each split-related setting in Advanced Options for advice on what to add or remove from your splits.
-  * If you use a "Major Splits" split file, enable the autosplitter setting "Major Splits Only", and ensure the instant boss split setting (see below) is also enabled.
   * If you want to categorise splits in your LiveSplit layout: open a "subsplits" LSL file, and use a Subsplits component and select "Always Hide Subsplits".
     * See the [Layout Guide](LayoutGuide.md) for some layout variants you can use that take advantage of subsplits.
   * You can freely rename splits, or change which splits are section headers and which are subsplits (by adding/removing the hyphen symbol from the name).
