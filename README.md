@@ -1,10 +1,6 @@
 # livesplit_asl_mgs2
 A LiveSplit autosplitter for Metal Gear Solid 2 Substance on PC
 
-This autosplitter is early in development, and may not be well-tested (or even working).
-
-Bug reports are welcomed so they can be stamped out, as is discussion of locations you would like to be able to split (or not split) that are not currently made available.
-
 # Right now...
 * Instant split mode does not respect your settings for boss areas, so if enabled it will always split for all bosses (except Guard Rush)
 * In Boss Survival, instant split mode does not function for Olga, Guard Rush and Tengus (those splits will appear when the next battle begins), and in regular split mode there is no split after Solidus. It's recommended to use instant split mode.
