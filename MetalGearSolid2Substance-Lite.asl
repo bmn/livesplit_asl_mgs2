@@ -73,14 +73,10 @@ update {
   vars.old = old;
   
   if (!vars.Initialised) {
-    Func<bool> ExcPlantResults = delegate() {
-      return (vars.old.ProgressPlant == 487);
-    };
+    Func<bool> ExcPlantResults = () => (vars.old.ProgressPlant == 487);
     vars.Except.Add("r_plt0_486", ExcPlantResults);
     
-    Func<bool> WatTengus1 = delegate() {
-      return ( (current.RoomCode != vars.old.RoomCode) && (current.RoomCode == "w45a") );
-    };
+    Func<bool> WatTengus1 = () => ( (current.RoomCode != vars.old.RoomCode) && (current.RoomCode == "w45a") );
     vars.Watch.Add("r_plt0_397", WatTengus1);
     
     uint FrameCounter = 0;
