@@ -6,6 +6,7 @@ state("mgs2_sse") {
   string10  RoomCode: 0x601F34, 0x2C;
   ushort    ProgressTanker: 0xD8D93C;
   ushort    ProgressPlant: 0xD8D912;
+  int       ResultsComplete: 0xA5397C;
 }
 
 isLoading {
@@ -80,10 +81,7 @@ update {
     vars.Watch.Add("r_plt0_397", WatTengus1);
     
     uint FrameCounter = 0;
-    Func<bool> WatResults = delegate() {
-      FrameCounter = (current.GameTime == vars.old.GameTime) ? FrameCounter + 1 : 0;
-      return (FrameCounter == 3);
-    };
+    Func<bool> WatResults = () => ( (current.ResultsComplete & 0x200) == 0x200);
     vars.Watch.Add("r_tnk0_56", WatResults);
     
     vars.Initialised = true;
