@@ -19,6 +19,11 @@ Bug reports are welcomed so they can be stamped out, as is discussion of locatio
 
 ![Screenshot](Images/README.png)
 
+# Versions
+* **MetalGearSolid2Substance.asl** is the main splitter. It has all of the features mentioned on this page, but can be complicated to configure.
+* **MetalGearSolid2Substance-Lite.asl** is a lightweight splitter. It can only split at major points in the game, but is very easy to set up and may run better on your system.
+* The two versions use different methods to determine when to split, and so will split at different times.
+
 # Notes
 * The LSS files included here will work with the default split location settings. See the mouseover tooltips on each split-related setting in Advanced Options for advice on what to add or remove from your splits.
   * If you use a "Major Splits" split file, enable the autosplitter setting "Major Splits Only", and ensure the instant boss split setting (see below) is also enabled.
