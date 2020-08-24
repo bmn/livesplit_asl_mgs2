@@ -1,0 +1,166 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Run version="1.7.0">
+  <GameIcon />
+  <GameName>Metal Gear Solid 2: Substance</GameName>
+  <CategoryName>Snake Tales: Big Shell Evil</CategoryName>
+  <Metadata>
+    <Run id="" />
+    <Platform usesEmulator="False">PC</Platform>
+    <Region>
+    </Region>
+    <Variables />
+  </Metadata>
+  <Offset>00:00:00</Offset>
+  <AttemptCount>0</AttemptCount>
+  <AttemptHistory />
+  <Segments>
+    <Segment>
+      <Name>Strut E heliport</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Strut E Parcel Room</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>DE connecting bridge</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Strut D Sediment Pool</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>CD connecting bridge</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Strut C: Guard Rush</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Strut C Dining Hall</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>BC connecting bridge</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Strut B Transformer Room</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>BC connecting bridge</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Strut C Dining Hall</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>CD connecting bridge</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Strut D Sediment Pool</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>DE connecting bridge</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Strut E Parcel Room</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>EF connecting bridge</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Strut F warehouse</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>EF connecting bridge</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Strut E: Guard Rush</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Harrier</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Big Shell Evil</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+  </Segments>
+  <AutoSplitterSettings />
+</Run>
