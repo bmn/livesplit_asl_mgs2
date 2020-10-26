@@ -76,6 +76,9 @@ state("mgs2_sse") {
   ushort    EmmaO2: 0x618300, 0x930;
   ushort    EmmaMaxO2: 0x618300, 0x932;
   byte      EmmaHealth: 0x618300, 0x8C8;
+  
+  ushort    VRMissionID: 0xB60C1C;
+  int       VRCurrentScore: 0x5ADC48;
 }
 
 isLoading {
@@ -98,10 +101,7 @@ reset {
     if (current.RoomCode == old.RoomCode) return false; // room is unchanged
     
     // reset right away if we're going to main menu from missions
-    if ( (current.RoomCode == "n_title") && (old.RoomCode == "mselect") ) {
-      vars.VRMissions = false;
-      return true;
-    }
+    if ( (current.RoomCode == "n_title") && (old.RoomCode == "mselect") ) return true;
     
     // otherwise... was the old room NOT a menu?
     if (vars.Menus.TryGetValue(old.RoomCode, out OldRoomName)) return false;
@@ -143,6 +143,9 @@ start {
     
     // is the new room NOT a menu (and not that screen)?
     if ( (vars.Menus.TryGetValue(current.RoomCode, out CurrentRoomName)) || (current.RoomCode == "ending") ) return false;
+    
+    // starting a VR mission
+    if (old.RoomCode == "mselect") return true;
     
     CurrentRoomName = vars.GetRoomName(current.RoomCode);
     if (OldRoomName == "") OldRoomName = vars.GetRoomName(old.RoomCode);
@@ -206,6 +209,7 @@ startup {
     vars.ASL_Shots = 0;
     vars.ASL_SpecialItems = false;
     vars.ASL_Strength = 0;
+    vars.ASL_VRMission = "";
     vars.INTERNAL_VARIABLES = "";
   };
   ClearASLVariables();
@@ -411,55 +415,7 @@ startup {
   // and new
   var IncludeCurrentRoom = new string[] {
     "museum", // end of tanker in tanker-plant
-  };
-  
-  
-  // VR Missions room sets
-  // The basic idea: You go to every room in a set, then it splits when you exit to mselect
-  var VRMissionRoomSets = new Dictionary< string, List<string> > {
-    // Sneaking and Elim All
-    { "vr_sneaking", new List<string> { "vs01a", "vs02a", "vs03a", "vs04a", "vs05a", "vs06a", "vs07a", "vs08a", "vs09a", "vs10a" } },
-    // Handgun
-    { "vr_handgun", new List<string> { "wp01a", "wp02a", "wp03a", "wp04a", "wp05a" } },
-    // Rifle
-    { "vr_rifle", new List<string> { "wp11a", "wp12a", "wp13a", "wp14a", "wp15a" } },
-    // C4
-    { "vr_c4", new List<string> { "wp21a", "wp22a", "wp23a", "wp24a", "wp25a" } },
-    // Grenade
-    { "vr_grenade", new List<string> { "wp31a", "wp32a", "wp33a", "wp34a", "wp35a" } },
-    // PSG-1
-    { "vr_psg1", new List<string> { "wp41a", "wp42a", "wp43a", "wp44a", "wp45a" } },
-    // Stinger
-    { "vr_stinger", new List<string> { "wp51a", "wp52a", "wp53a", "wp54a", "wp55a" } },
-    // Nikita
-    { "vr_nikita", new List<string> { "wp61a", "wp62a", "wp63a", "wp64a", "wp65a" } },
-    // HF.Blade/No Weapon
-    { "vr_no_weapon", new List<string> { "wp71a", "wp72a", "wp73a", "wp74a", "wp75a" } },
-    // First Person
-    { "vr_first_person", new List<string> { "sp21a", "sp22a", "sp24a", "sp25a" } },
-    // Variety (will trigger Ninja Variety if only 8 is played before menu,
-    //   MGS1 variety if 3/6/8 are played, or Pliskin/Tuxedo Variety is 6/8 are played)
-    { "vr_variety", new List<string> { "sp01a", "sp02a", "sp03a", "sp06a", "sp07a", "sp08a" } },
-    // Bomb Disposal
-    { "vr_bomb_disposal", new List<string> { "a31a", "a02a", "a41a", "a42a", "a43a", "a01f", "a01a", "a01b", "a01c", "a01d", "a14a", "a15b", "a16a", "a17a", "a18a" } },
-    // Elimination
-    { "vr_elimination", new List<string> { "a23b", "a01a", "a19a", "a20a", "a24d", "a24a", "a31a", "a22a", "a42a", "a02a" } },
-    // Hold Up
-    { "vr_hold_up", new List<string> { "a15b", "a12a", "a24d", "a13b", "a14a", "a22a", "a01b", "a42a", "a20b", "a31a" } },
-    // Photograph
-    { "vr_photograph", new List<string> { "a01a", "a01f", "a00c", "a00a", "a03a" } },
-    // Ninja Variety
-    { "vr_variety_ninja", new List<string> { "sp08a" } },
-    // Streaking
-    { "vr_streaking", new List<string> { "st01a", "st02a", "st03a", "st04a", "st05a" } },
-    // Snake Photograph
-    { "vr_photograph_snake", new List<string> { "a01a", "a24g", "a24a", "a02b", "a41b", "a24f" } },
-    // Pliskin/Tuxedo Variety
-    { "vr_variety_pliskin", new List<string> { "sp06a", "sp08a" } },
-    // MGS1 Variety (see Variety caveats)
-    { "vr_variety_mgs1", new List<string> { "sp03a", "sp06a", "sp08a" } }
-  };
-  
+  };  
   
   // Rooms not considered for immediate splits (mostly cutscenes)
   var OtherRooms = new Dictionary<string, string> {
@@ -610,12 +566,15 @@ startup {
   vars.BlockNextRoom = false;
   vars.SplitNextRoom = false;
   vars.SplitRightNow = false;
+  vars.VRSplitOnExit = false;
   
   // Add main settings
   settings.Add("options", true, "Advanced Options");
   
     settings.Add("debug_file", true, "Save debug information to LiveSplit program directory", "options");
     settings.Add("resets", true, "Reset the timer when returning to menu", "options");
+    settings.Add("vr_split_level_insta", false, "Split in VR instantly upon hitting the goal", "options");
+    settings.SetToolTip("vr_split_level_insta", "If disabled, this will split when leaving the level instead");
     settings.Add("dogtag_insta", false, "Split when a dog tag is collected", "options");
     settings.SetToolTip("dogtag_insta", "The setting \"Enable ASL Var Viewer Integration\" below must also be enabled");
     
@@ -774,37 +733,43 @@ startup {
   };
   vars.GetRoomName = GetRoomName;
   
-  
-  // VR roomset signatures and settings
-  vars.VRMissions = false;
-  // Hash function
-  Func< List<string>, string > VRMissionHash = delegate(List<string> roomset) {
-    var array = roomset.ToArray();
-    Array.Sort(array);
-    return String.Join(";", array);
+  // Build the VR Missions mission list
+  var VRCharacters = new string[] { "Raiden", "Ninja Raiden", "X Raiden", "Snake", "Pliskin", "Tuxedo Snake", "MGS1 Snake" };
+  var VRMissionList = new List< KeyValuePair<string, int[]> > {
+    new KeyValuePair<string, int[]>("Sneaking", new int[] { 10, 10, 0, 10, 10, 10, 10 }),
+    new KeyValuePair<string, int[]>("Eliminate All", new int[] { 10, 10, 0, 10, 10, 10, 10 }),
+    new KeyValuePair<string, int[]>("Handgun", new int[] { 5, 0, 0, 5, 5, 5, 5 }),
+    new KeyValuePair<string, int[]>("Assault Rifle", new int[] { 5, 0, 0, 5, 5, 5, 5 }),
+    new KeyValuePair<string, int[]>("C4/Claymore", new int[] { 5, 0, 0, 5, 5, 5, 5 }),
+    new KeyValuePair<string, int[]>("Grenade", new int[] { 5, 0, 0, 5, 5, 5, 5 }),
+    new KeyValuePair<string, int[]>("PSG-1", new int[] { 5, 0, 0, 5, 5, 5, 5 }),
+    new KeyValuePair<string, int[]>("Stinger", new int[] { 5, 0, 0, 5, 5, 5, 5 }),
+    new KeyValuePair<string, int[]>("Nikita", new int[] { 5, 0, 0, 5, 5, 5, 5 }),
+    new KeyValuePair<string, int[]>("HF.Blade/No Weapon", new int[] { 5, 5, 0, 5, 5, 5, 5 }),
+    new KeyValuePair<string, int[]>("First Person View", new int[] { 5, 0, 0, 5, 0, 0, 0 }),
+    new KeyValuePair<string, int[]>("Variety", new int[] { 7, 7, 0, 7, 7, 7, 7 }),
+    new KeyValuePair<string, int[]>("Streaking", new int[] { 0, 0, 1, 0, 0, 0, 0}),
+    new KeyValuePair<string, int[]>("Bomb Disposal", new int[] { 5, 5, 0, 5, 5, 5, 5 }),
+    new KeyValuePair<string, int[]>("Elimination", new int[] { 10, 10, 0, 10, 10, 10, 10 }),
+    new KeyValuePair<string, int[]>("Hold Up", new int[] { 10, 0, 0, 10, 10, 10, 10 }),
+    new KeyValuePair<string, int[]>("Photograph", new int[] { 7, 0, 0, 7, 0, 0, 0 })
   };
-  Func< List<string>, int, string> VRMissionHashRange = delegate(List<string> roomset, int range) {
-    int length = roomset.Count();
-    List<string> slice = roomset.GetRange(length - range, range).ToArray().ToList();
-    return VRMissionHash(slice);
-  };
-  vars.VRMissionHash = VRMissionHash;
-  vars.VRMissionHashRange = VRMissionHashRange;
-  // Generate the list of hashes
-  vars.VRMissionSignatures = new Dictionary<string, string>();
-  vars.VRMissionLengths = new List<int>();
-  foreach (KeyValuePair< string, List<string> > roomset in VRMissionRoomSets) {
-    string key = roomset.Key;
-    List<string> val = roomset.Value;
-    string sig = VRMissionHash(val);
-    vars.VRMissionSignatures.Add(sig, key);
-    int slen = val.Count();
-    // Also set the list of possible roomset lengths
-    // This will help us match roomset even if the player does dumb stuff
-    if (!vars.VRMissionLengths.Contains(slen)) vars.VRMissionLengths.Add(slen);
+  var tmp = new Dictionary<int, string>();
+  int curmissionid = 0;
+  foreach (KeyValuePair<string, int[]> kvp in VRMissionList) {
+    for (int i = 1; i <= 10; i++) {
+      int c = 0;
+      foreach (int count in kvp.Value) {
+        if (count >= i) {
+          int num = ( (kvp.Key == "Variety") && (c != 0) && (c != 3) ) ? (i - 3) : i;
+          string number = (kvp.Key == "Streaking") ? "" : " " + num;
+          tmp.Add( curmissionid++, VRCharacters[c] + " " + kvp.Key + number );
+        }
+        c++;
+      }
+    }
   }
-  vars.VRMissionLengths.Sort();
-  vars.VRMissionLengths.Reverse(); // we looking for the longest (and most valid) ones first
+  vars.VRMissionList = tmp;
   
   
   // Plant: Option to split when meeting Stillman in Strut C
@@ -1576,52 +1541,6 @@ update {
       // Split at the right time on the results screen
       Func<int> WatchEnding = () => ( (current.ResultsComplete & 0x200) == 0x200) ? 1 : 0;
       vars.SpecialWatchCallback.Add("ending", WatchEnding);
-      
-      
-      // Scary VR Missions stuff
-      List<string> VRMissionsCurrentRooms = new List<string>();
-      Func<string, bool> VRLogMission = delegate(string RoomCode) {
-        // If going to mission select, try to find a completed roomset
-        if (RoomCode == "mselect") {
-          int CurrentLen = VRMissionsCurrentRooms.Count();
-          // Loop through the possible roomset lengths and try to find any match from the latest rooms
-          foreach (int VRLength in vars.VRMissionLengths) {
-            if (VRLength > CurrentLen) continue; // no point if the roomset is already bigger than our current one
-            string Hash = vars.VRMissionHashRange(VRMissionsCurrentRooms, VRLength); // current hash with appropriate length
-            vars.Debug("Checking hash " + Hash);
-            string VRCategory = "";
-            if (vars.VRMissionSignatures.TryGetValue(Hash, out VRCategory)) {
-              if ( (!settings.ContainsKey(VRCategory)) || (settings[VRCategory]) ) {
-                Debug("Found completed VR roomset " + VRCategory + " = " + Hash);
-                VRMissionsCurrentRooms.Clear();
-                return true;
-              }
-              Debug("Found completed VR roomset " + VRCategory + " = " + Hash + ", but it is disabled in settings");
-            }
-          }
-          return false;
-        };
-        // Otherwise, add the current room to the list:
-        // Do nothing if we just did this room
-        int VRCount = VRMissionsCurrentRooms.Count;
-        if ( (VRCount > 0) && (VRMissionsCurrentRooms[VRCount - 1] == RoomCode) ) return false; 
-        // Remove the duplicate if it's not the most recent
-        if (VRMissionsCurrentRooms.Contains(RoomCode)) VRMissionsCurrentRooms.Remove(RoomCode);
-        // Add this room as most recent
-        VRMissionsCurrentRooms.Add(RoomCode);
-        Debug("Entered [" + RoomCode + "] " + vars.GetRoomName(current.RoomCode) + ", adding to current roomset > " + vars.VRMissionHash(VRMissionsCurrentRooms));
-        return false;
-      };
-      Action VRMissionsEnable = delegate() {
-        Debug("VR Missions mode on!");
-        vars.VRMissions = true;
-        VRMissionsCurrentRooms.Clear();
-        VRLogMission(current.RoomCode); // we need to log the first room here
-      };
-      vars.VRMissionsEnable = VRMissionsEnable;
-      vars.VRLogMission = VRLogMission;
-      
-
 
       // New codename functionality
       bool PerfectStatsOnly = false;
@@ -1796,7 +1715,14 @@ update {
             else vars.ASL_Cartwheels = vars.ASL_Cartwheels + 1;
           }
         }
-
+        
+        if ( (current.VRMissionID < 532) && (current.VRMissionID != -1) ) {
+          if ( (current.VRMissionID != vars.old.VRMissionID) || (current.VRCurrentScore != vars.old.VRCurrentScore) ) {
+            string vrm = vars.VRMissionList[current.VRMissionID];
+            vars.ASL_VRMission = (current.VRCurrentScore != -1) ? "[" + current.VRCurrentScore + "] " + vrm : vrm;
+          }
+        }
+        
         // Update less-critical values at a lower rate
         if ((current.RoomTimer % 15) == 0) {
           UpdateCharacterId();
@@ -2020,6 +1946,18 @@ split {
       return Split("RIGHT NOW");
     }
     
+    // VR Missions
+    if (vars.VRSplitOnExit) {
+      if ( (current.RoomCode != old.RoomCode) || (current.VRMissionID != old.VRMissionID) ) {
+        vars.VRSplitOnExit = false;
+        return Split("Exited completed VR Mission");
+      }
+    }
+    if ( (current.VRCurrentScore != -1) && (old.VRCurrentScore == -1) ) {
+      if (settings["vr_split_level_insta"]) return Split("Completed VR Mission");
+      vars.VRSplitOnExit = true;
+    }
+    
     // Watching special cases
     if ( (!vars.DontWatch) && (vars.SpecialWatchCallback.ContainsKey(current.RoomCode)) ) {
       CallbackResult = vars.SpecialWatchCallback[current.RoomCode]();
@@ -2068,9 +2006,6 @@ split {
       return Split("SplitNextRoom request"); // the opposite happened!
     }
     vars.ResetBossData();
-    
-    // If we're in VR Missions, this is the last thing that gets run
-    if (vars.VRMissions) return vars.VRLogMission(current.RoomCode);
     
     // Special cases
     do {
