@@ -15,287 +15,287 @@
   <AttemptHistory />
   <Segments>
     <Segment>
-      <Name>Sneaking 1</Name>
+      <Name>-Sneaking 1</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Sneaking 2</Name>
+      <Name>-Sneaking 2</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Sneaking 3</Name>
+      <Name>-Sneaking 3</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Sneaking 4</Name>
+      <Name>-Sneaking 4</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Sneaking 5</Name>
+      <Name>-Sneaking 5</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Sneaking 6</Name>
+      <Name>-Sneaking 6</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Sneaking 7</Name>
+      <Name>-Sneaking 7</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Sneaking 8</Name>
+      <Name>-Sneaking 8</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Sneaking 9</Name>
+      <Name>-Sneaking 9</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Sneaking 10</Name>
+      <Name>{Sneaking}Sneaking 10</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Eliminate All 1</Name>
+      <Name>-Eliminate All 1</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Eliminate All 2</Name>
+      <Name>-Eliminate All 2</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Eliminate All 3</Name>
+      <Name>-Eliminate All 3</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Eliminate All 4</Name>
+      <Name>-Eliminate All 4</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Eliminate All 5</Name>
+      <Name>-Eliminate All 5</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Eliminate All 6</Name>
+      <Name>-Eliminate All 6</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Eliminate All 7</Name>
+      <Name>-Eliminate All 7</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Eliminate All 8</Name>
+      <Name>-Eliminate All 8</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Eliminate All 9</Name>
+      <Name>-Eliminate All 9</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Eliminate All 10</Name>
+      <Name>{Eliminate All}Eliminate All 10</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>HF.Blade 1</Name>
+      <Name>-HF.Blade 1</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>HF.Blade 2</Name>
+      <Name>-HF.Blade 2</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>HF.Blade 3</Name>
+      <Name>-HF.Blade 3</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>HF.Blade 4</Name>
+      <Name>-HF.Blade 4</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>HF.Blade 5</Name>
+      <Name>{HF.Blade}HF.Blade 5</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Variety Mode 1</Name>
+      <Name>Variety Mode</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Bomb Disposal Mode 1</Name>
+      <Name>-Bomb Disposal Mode 1</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Bomb Disposal Mode 2</Name>
+      <Name>-Bomb Disposal Mode 2</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Bomb Disposal Mode 3</Name>
+      <Name>-Bomb Disposal Mode 3</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Bomb Disposal Mode 4</Name>
+      <Name>-Bomb Disposal Mode 4</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Bomb Disposal Mode 5</Name>
+      <Name>{Bomb Disposal Mode}Bomb Disposal Mode 5</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Elimination Mode 1</Name>
+      <Name>-Elimination Mode 1</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Elimination Mode 2</Name>
+      <Name>-Elimination Mode 2</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Elimination Mode 3</Name>
+      <Name>-Elimination Mode 3</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Elimination Mode 4</Name>
+      <Name>-Elimination Mode 4</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Elimination Mode 5</Name>
+      <Name>-Elimination Mode 5</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Elimination Mode 6</Name>
+      <Name>-Elimination Mode 6</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Elimination Mode 7</Name>
+      <Name>-Elimination Mode 7</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Elimination Mode 8</Name>
+      <Name>-Elimination Mode 8</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Elimination Mode 9</Name>
+      <Name>-Elimination Mode 9</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Elimination Mode 10</Name>
+      <Name>{Elimination Mode}Elimination Mode 10</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />

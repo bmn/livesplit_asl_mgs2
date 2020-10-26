@@ -78,7 +78,7 @@
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>{Sneaking}Sneaking 10</Name>
+      <Name>Sneaking 10</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
@@ -148,7 +148,7 @@
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>{Eliminate All}Eliminate All 10</Name>
+      <Name>Eliminate All 10</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
@@ -183,7 +183,7 @@
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>{Handgun}Handgun 5</Name>
+      <Name>Handgun 5</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
@@ -218,7 +218,7 @@
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>{Assault Rifle}Assault Rifle 5</Name>
+      <Name>Assault Rifle 5</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
@@ -253,7 +253,7 @@
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>{C4/Claymore}C4/Claymore 5</Name>
+      <Name>C4/Claymore 5</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
@@ -288,7 +288,7 @@
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>{Grenade}Grenade 5</Name>
+      <Name>Grenade 5</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
@@ -323,7 +323,7 @@
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>{PSG-1}PSG-1 5</Name>
+      <Name>PSG-1 5</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
@@ -358,7 +358,7 @@
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>{Stinger}Stinger 5</Name>
+      <Name>Stinger 5</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
@@ -393,7 +393,7 @@
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>{Nikita}Nikita 5</Name>
+      <Name>Nikita 5</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
@@ -428,7 +428,7 @@
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>{No Weapon}No Weapon 5</Name>
+      <Name>No Weapon 5</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
@@ -463,7 +463,7 @@
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>{First Person View Mode}First Person View Mode 5</Name>
+      <Name>First Person View Mode 5</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
@@ -512,7 +512,7 @@
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>{Variety Mode}Variety Mode 7</Name>
+      <Name>Variety Mode 7</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
@@ -547,7 +547,7 @@
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>{Bomb Disposal Mode}Bomb Disposal Mode 5</Name>
+      <Name>Bomb Disposal Mode 5</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
@@ -617,7 +617,7 @@
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>{Elimination Mode}Elimination Mode 10</Name>
+      <Name>Elimination Mode 10</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
@@ -687,7 +687,7 @@
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>{Hold Up Mode}Hold Up Mode 10</Name>
+      <Name>Hold Up Mode 10</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
@@ -736,7 +736,7 @@
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>{Photograph Mode}Photograph Mode 7</Name>
+      <Name>Photograph Mode 7</Name>
       <Icon />
       <SplitTimes />
       <BestSegmentTime />
