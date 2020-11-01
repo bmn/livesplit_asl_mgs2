@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Run version="1.7.0">
+  <GameIcon />
+  <GameName>Metal Gear Solid 2: Substance</GameName>
+  <CategoryName>VR Missions: Ninja Raiden</CategoryName>
+  <Metadata>
+    <Run id="" />
+    <Platform usesEmulator="False">PC</Platform>
+    <Region>
+    </Region>
+    <Variables />
+  </Metadata>
+  <Offset>00:00:00</Offset>
+  <AttemptCount>0</AttemptCount>
+  <AttemptHistory />
+  <Segments>
+    <Segment>
+      <Name>Sneaking 1</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Sneaking 2</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Sneaking 3</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Sneaking 4</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Sneaking 5</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Sneaking 6</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Sneaking 7</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Sneaking 8</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Sneaking 9</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Sneaking 10</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Eliminate All 1</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Eliminate All 2</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Eliminate All 3</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Eliminate All 4</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Eliminate All 5</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Eliminate All 6</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Eliminate All 7</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Eliminate All 8</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Eliminate All 9</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Eliminate All 10</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>HF.Blade 1</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>HF.Blade 2</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>HF.Blade 3</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>HF.Blade 4</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>HF.Blade 5</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Variety Mode 1</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Bomb Disposal Mode 1</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Bomb Disposal Mode 2</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Bomb Disposal Mode 3</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Bomb Disposal Mode 4</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Bomb Disposal Mode 5</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Elimination Mode 1</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Elimination Mode 2</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Elimination Mode 3</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Elimination Mode 4</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Elimination Mode 5</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Elimination Mode 6</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Elimination Mode 7</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Elimination Mode 8</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Elimination Mode 9</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Elimination Mode 10</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+  </Segments>
+  <AutoSplitterSettings />
+</Run>
