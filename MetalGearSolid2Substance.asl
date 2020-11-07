@@ -210,7 +210,6 @@ startup {
     vars.ASL_Shots = 0;
     vars.ASL_SpecialItems = false;
     vars.ASL_Strength = 0;
-    vars.ASL_TurboState = "Unknown";
     vars.ASL_VRMission = "";
     vars.INTERNAL_VARIABLES = "";
   };
