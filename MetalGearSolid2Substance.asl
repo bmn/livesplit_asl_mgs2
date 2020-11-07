@@ -79,6 +79,8 @@ state("mgs2_sse") {
   
   ushort    VRMissionID: 0xB60C1C;
   int       VRCurrentScore: 0x5ADC48;
+  
+  bool      XInputPlusTurbo: "XInput1_3.dll", 0x9C0BC; // assumes 4.15.0.123, provided by v's fix
 }
 
 isLoading {
@@ -134,6 +136,9 @@ start {
     int i;
     string CurrentRoomName, OldRoomName;
     
+    // split if going into a VR mission
+    //if ( (current.RoomCode == "mselect") && (current.VRMenuState == 26) ) return true;
+    
     if ( (old.RoomCode == null) || (old.RoomCode == "") ) return false;
     
     if (current.RoomCode == old.RoomCode) return false; // room is unchanged
@@ -151,10 +156,6 @@ start {
     if (OldRoomName == "") OldRoomName = vars.GetRoomName(old.RoomCode);
     
     vars.Debug("Menu [" + old.RoomCode + "] " + OldRoomName + " > In-game [" + current.RoomCode + "] " + CurrentRoomName);
-    
-    // Enable VR Missions mode if coming from the missions menu
-    if (old.RoomCode == "mselect") vars.VRMissionsEnable();
-    else if (vars.VRMissions) vars.VRMissions = false;
     
     // Enable Boss Rush mode if going into the boss screen (necessary for Olga's different memaddress)
     if (current.RoomCode == "boss") {
@@ -209,6 +210,7 @@ startup {
     vars.ASL_Shots = 0;
     vars.ASL_SpecialItems = false;
     vars.ASL_Strength = 0;
+    vars.ASL_TurboState = "Unknown";
     vars.ASL_VRMission = "";
     vars.INTERNAL_VARIABLES = "";
   };
@@ -1702,6 +1704,10 @@ update {
       vars.ASL_CodeName = "";
       
       Action UpdateASLVars = delegate() {
+      
+        if ( (current.XInputPlusTurbo != vars.old.XInputPlusTurbo) || (vars.ASL_TurboState == "Unknown") )
+          vars.ASL_TurboState = (current.XInputPlusTurbo) ? "Enabled" : "Disabled";
+      
         vars.ASL_RoomTimer = current.RoomTimer;
         
         vars.ASL_Strength = Snakelike() ? C(current.StrengthSnake) : C(current.StrengthRaiden);
