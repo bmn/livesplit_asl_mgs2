@@ -80,7 +80,7 @@ state("mgs2_sse") {
   ushort    VRMissionID: 0xB60C1C;
   int       VRCurrentScore: 0x5ADC48;
   
-  bool      XInputPlusTurbo: "XInput1_3.dll", 0xA5478;
+  bool      XInputPlusTurbo: "XInput1_3.dll", 0x9C0BC; // assumes 4.15.0.123, provided by v's fix
 }
 
 isLoading {
