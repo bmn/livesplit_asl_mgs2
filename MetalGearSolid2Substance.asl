@@ -136,6 +136,9 @@ start {
     int i;
     string CurrentRoomName, OldRoomName;
     
+    // split if going into a VR mission
+    //if ( (current.RoomCode == "mselect") && (current.VRMenuState == 26) ) return true;
+    
     if ( (old.RoomCode == null) || (old.RoomCode == "") ) return false;
     
     if (current.RoomCode == old.RoomCode) return false; // room is unchanged
@@ -153,10 +156,6 @@ start {
     if (OldRoomName == "") OldRoomName = vars.GetRoomName(old.RoomCode);
     
     vars.Debug("Menu [" + old.RoomCode + "] " + OldRoomName + " > In-game [" + current.RoomCode + "] " + CurrentRoomName);
-    
-    // Enable VR Missions mode if coming from the missions menu
-    if (old.RoomCode == "mselect") vars.VRMissionsEnable();
-    else if (vars.VRMissions) vars.VRMissions = false;
     
     // Enable Boss Rush mode if going into the boss screen (necessary for Olga's different memaddress)
     if (current.RoomCode == "boss") {
