@@ -79,8 +79,6 @@ state("mgs2_sse") {
   
   ushort    VRMissionID: 0xB60C1C;
   int       VRCurrentScore: 0x5ADC48;
-  
-  bool      XInputPlusTurbo: "XInput1_3.dll", 0xA5478;
 }
 
 isLoading {
@@ -1703,10 +1701,6 @@ update {
       vars.ASL_CodeName = "";
       
       Action UpdateASLVars = delegate() {
-      
-        if ( (current.XInputPlusTurbo != vars.old.XInputPlusTurbo) || (vars.ASL_TurboState == "Unknown") )
-          vars.ASL_TurboState = (current.XInputPlusTurbo) ? "Enabled" : "Disabled";
-      
         vars.ASL_RoomTimer = current.RoomTimer;
         
         vars.ASL_Strength = Snakelike() ? C(current.StrengthSnake) : C(current.StrengthRaiden);
