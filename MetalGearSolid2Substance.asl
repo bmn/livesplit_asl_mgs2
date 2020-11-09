@@ -39,6 +39,7 @@ state("mgs2_sse") {
   byte2     GripMultiplier: 0xD8F500; // This is meant to be 1800 for Snake, 3600 for Raiden, but isn't?
   byte      Difficulty: 0x601F34, 0x10; // 10 = VE, 60 = EEx, increments in 10s
   byte2     Level: 0x601F34, 0x158A; // 0x1800 + 0xD (Tanker), 0xE (Plant), 0xF (T-P)
+  short     Options: 0x601F34, 0x6; // 1 = Vibration OFF, 4 = No Radar or Radar 2, 8 = Blood OFF, 0x20 = Radar 2, 0x40 = Reverse view, 0x80 = Linear menu, 0x200 = Previous equip
   
   byte2     STCompletionCheck: 0x13A178C; // This value rises slowly from 0 during credits to about 260, then goes back to 0 at results
   int       ResultsComplete: 0x65397C; // & 0x200 == 0x200 when ready to split on results
@@ -201,6 +202,7 @@ startup {
     vars.ASL_Level = "";
     vars.ASL_MechsDestroyed = 0;
     vars.ASL_Minutes = 0;
+    vars.ASL_QuickEquipMode = "";
     vars.ASL_Rations = 0;
     vars.ASL_RoomTimer = 0;
     vars.ASL_Saves = 0;
@@ -1701,6 +1703,9 @@ update {
       vars.ASL_CodeName = "";
       
       Action UpdateASLVars = delegate() {
+        if ( (current.Options != old.Options) || (vars.ASL_QuickEquipMode == "") )
+          vars.ASL_QuickEquipMode = ((current.Options & 0x200) == 0x200) ? "Previous" : "Unequip";
+      
         vars.ASL_RoomTimer = current.RoomTimer;
         
         vars.ASL_Strength = Snakelike() ? C(current.StrengthSnake) : C(current.StrengthRaiden);
