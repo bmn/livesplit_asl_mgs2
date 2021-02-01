@@ -41,7 +41,6 @@ state("mgs2_sse") {
   byte2     Level: 0x601F34, 0x158A; // 0x1800 + 0xD (Tanker), 0xE (Plant), 0xF (T-P)
   short     Options: 0x601F34, 0x6; // 1 = Vibration OFF, 4 = No Radar or Radar 2, 8 = Blood OFF, 0x20 = Radar 2, 0x40 = Reverse view, 0x80 = Linear menu, 0x200 = Previous equip
   
-  byte2     STCompletionCheck: 0x13A178C; // This value rises slowly from 0 during credits to about 260, then goes back to 0 at results
   int       ResultsComplete: 0x65397C; // & 0x200 == 0x200 when ready to split on results
   int       PadInput: 0xADAD3C;
 
@@ -1487,19 +1486,6 @@ update {
         return -1; // don't split after tales
       };
       vars.SpecialRoomChangeCallback.Add("tales", CallSnakeTales);
-      // And the results check.
-      Func<int> WatchSnakeTalesCredits = delegate() {
-        // it starts at 0, goes up...
-        if ( (RoomTrackerInt == 1) && (C(current.STCompletionCheck) != 0) ) RoomTrackerInt = 2;
-        // ...then goes back to 0
-        else if ( (RoomTrackerInt == 2) && (C(current.STCompletionCheck) == 0) ) {
-          Debug("Moved briskly to the Snake Tales result screen!");
-          RoomTrackerInt = 0;
-          return 1;
-        }
-        return 0;
-      };
-      vars.SpecialWatchCallback.Add("sselect", WatchSnakeTalesCredits);
       
       // Big Shell Evil: Option to split when meeting Emma in Strut C
       Func<int> CallBSEStrutC1 = delegate() {
@@ -1542,6 +1528,7 @@ update {
       // Split at the right time on the results screen
       Func<int> WatchEnding = () => ( (current.ResultsComplete & 0x200) == 0x200) ? 1 : 0;
       vars.SpecialWatchCallback.Add("ending", WatchEnding);
+      vars.SpecialWatchCallback.Add("sselect", WatchEnding);
 
       // New codename functionality
       bool PerfectStatsOnly = false;
