@@ -31,3 +31,4 @@ There are four main routes during the *Bomb Disposal* section (between finding S
 ## Route Differences by Difficulty
 * In Aft Deck, on difficulties up to *Normal*, you can take the right exit to Deck B. On *Hard* and up, you must take the longer route via Deck A.
 * After Fatman, on *Very Easy*, you do not need to go to Strut F for the AK, and can go directly to Shell 1 Core.
+* In Bomb Disposal, on *Hard* and up, you must also defuse the bomb on Strut A Roof.
