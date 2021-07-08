@@ -225,20 +225,6 @@
       <SegmentHistory />
     </Segment>
     <Segment>
-      <Name>Strut A roof</Name>
-      <Icon />
-      <SplitTimes />
-      <BestSegmentTime />
-      <SegmentHistory />
-    </Segment>
-    <Segment>
-      <Name>Strut A Pump Room</Name>
-      <Icon />
-      <SplitTimes />
-      <BestSegmentTime />
-      <SegmentHistory />
-    </Segment>
-    <Segment>
       <Name>FA connecting bridge</Name>
       <Icon />
       <SplitTimes />
