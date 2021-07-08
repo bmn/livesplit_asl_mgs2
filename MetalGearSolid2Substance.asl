@@ -75,7 +75,7 @@ state("mgs2_sse") {
   
   ushort    EmmaO2: 0x618300, 0x930;
   ushort    EmmaMaxO2: 0x618300, 0x932;
-  byte      EmmaHealth: 0x618300, 0x8C8;
+  byte      EmmaHealth: 0x61FDA8, 0x2CE;
   
   ushort    VRMissionID: 0xB60C1C;
   int       VRCurrentScore: 0x5ADC48;
@@ -577,8 +577,9 @@ startup {
     settings.SetToolTip("vr_split_level_insta", "If disabled, this will split when leaving the level instead");
     settings.Add("dogtag_insta", false, "Split when a dog tag is collected", "options");
     settings.SetToolTip("dogtag_insta", "The setting \"Enable ASL Var Viewer Integration\" below must also be enabled");
-    
     settings.Add("boss_insta", true, "Split instantly when a boss is defeated", "options");
+    settings.Add("emma_singlesplit", true, "Split only once in areas where Emma can fall out of bounds", "options");
+    settings.SetToolTip("emma_singlesplit", "This avoids repeat splits when Chelsporting Emma");
     settings.Add("aslvv", true, "Enable ASL Var Viewer integration", "options");
     settings.SetToolTip("aslvv", "Disabling this may slightly improve performance");
       settings.Add("aslvv_info", true, "ASL_Info (contextual information)", "aslvv");
@@ -1387,6 +1388,36 @@ update {
         return 0;
       };
       vars.SpecialRoomChangeCallback.Add("w24c", CallAmesLocation);
+
+      // Plant: Split once entering S2C 1F with Emma
+      Func<int> CallEmma1F = delegate() {
+        if (!settings["emma_singlesplit"]) return 0;
+        if ( (vars.old.RoomCode == "w31b") && (!RoomTrackerA) ) {
+          RoomTrackerA = true;
+          return 1;
+        }
+        return -1;
+      };
+      vars.SpecialNewRoomCallback.Add("w31d", CallEmma1F);
+
+      // Plant: Split once entering KL with Emma
+      Func<int> CallEmmaKL = delegate() {
+        if (!settings["emma_singlesplit"]) return 0;
+        if ( (current.RoomCode == "w25d") && (!RoomTrackerB) ) {
+          RoomTrackerB = true;
+          return 1;
+        }
+        return -1;
+      };
+      vars.SpecialRoomChangeCallback.Add("w31d", CallEmmaKL);
+   
+      // Plant: Reset trackers when reaching Strut L
+      Func<int> CallStrutLTrackers = delegate() {
+        RoomTrackerA = false;
+        RoomTrackerB = false;
+        return 0;
+      };
+      vars.SpecialNewRoomCallback.Add("w28a", CallStrutLTrackers);
       
       // Plant: Filter out the "valid" room change that happens during the torture cutscenes
       Func<int> CallTortureCutscene = delegate() {
