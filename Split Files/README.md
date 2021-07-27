@@ -2,6 +2,7 @@
 These folders contain LSS format split files for each category that you can open (or drag into) LiveSplit.
 
 ## TL;DR
+* `(!)` at the start of the filename indicates the recommended routes for each category.
 * If doing a *Conveyor* route, you'll likely want the (more difficult, but faster) **A-C variant**.
 * Otherwise, on a Plant category...
   * On *Very Easy, Easy and Normal*, you're most likely to use the **Clockwise** route.
