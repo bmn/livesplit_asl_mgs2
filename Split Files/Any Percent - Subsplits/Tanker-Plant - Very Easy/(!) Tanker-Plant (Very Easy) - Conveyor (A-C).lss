@@ -1,0 +1,705 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Run version="1.7.0">
+  <GameIcon />
+  <GameName>Metal Gear Solid 2: Substance</GameName>
+  <CategoryName>PC</CategoryName>
+  <Metadata>
+    <Run id="" />
+    <Platform usesEmulator="False">PC</Platform>
+    <Region>
+    </Region>
+    <Variables />
+  </Metadata>
+  <Offset>00:00:00</Offset>
+  <AttemptCount>0</AttemptCount>
+  <AttemptHistory />
+  <Segments>
+    <Segment>
+      <Name>-Aft Deck</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Deck B, crew's quarters</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Deck C, crew's quarters</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Deck D, crew's quarters</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Deck E, the bridge</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Olga</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Navigational Deck, wing</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Deck E, the bridge</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Deck D, crew's quarters</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Deck C, crew's quarters</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Deck B, crew's quarters</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Deck A, crew's lounge</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Engine Room</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Deck 2, port</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Guard Rush</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Hold No.1</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Hold No.2</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Hold No.3</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Tanker</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Strut A Deep Sea Dock</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-AB connecting bridge</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Strut B Transformer Room</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-BC connecting bridge</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Strut C Dining Hall</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-BC connecting bridge</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Strut B Transformer Room</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-AB connecting bridge</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Strut A Pump Room</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Strut A roof</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Strut A Pump Room</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-FA connecting bridge</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Strut F warehouse</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-EF connecting bridge</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Strut E Parcel Room</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Strut E heliport</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Strut E Parcel Room</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Strut C Dining Hall</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-CD connecting bridge</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Strut D Sediment Pool</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-DE connecting bridge</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Strut E Parcel Room</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Strut A Pump Room</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Strut A roof</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Strut A Deep Sea Dock</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Fortune</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Strut A roof</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Strut A Pump Room</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-FA connecting bridge</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Strut F warehouse</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-EF connecting bridge</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Strut E Parcel Room</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Strut E heliport</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Fatman</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Strut E heliport (bomb)</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Strut E heliport</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Strut E Parcel Room</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-EF connecting bridge</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Shell 1 Core, 1F</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Shell 1 Core, B2 Computer Room</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Shell 1 Core, B1</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Shell 1 Core, B1 Hall</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Shell 1 Core, B1</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Shell 1 Core, 1F</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-EF connecting bridge</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Strut F warehouse</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-EF connecting bridge</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Strut E Parcel Room</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-DE connecting bridge</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Strut D Sediment Pool</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Shell 1-2 connecting bridge</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Harrier</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Shell 1-2 connecting bridge</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-KL connecting bridge</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Shell 2 Core, 1F Air Purification Room</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Shell 2 Core, B1 Filtration Chamber No.1</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Shell 2 Core, 1F Air Purification Room</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Shell 2 Core, B1 Filtration Chamber No.1</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Vamp</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Shell 2 Core, B1 Filtration Chamber No.2</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Shell 2 Core, B1 Filtration Chamber No.2 (swim with Emma)</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Shell 2 Core, B1 Filtration Chamber No.2</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Shell 2 Core, B1 Filtration Chamber No.1</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Shell 2 Core, 1F, Air Purification Room</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-KL connecting bridge</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Strut L Sewage Treatment Facility</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Strut L Oil Fence</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Vamp 2</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Strut E Parcel Room</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-EF connecting bridge</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Shell 1 Core, 1F</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Arsenal Gear - Stomach</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Arsenal Gear - Jejunum</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>-Arsenal Gear - Ascending Colon</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Tengus 1</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Tengus 2</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Rays</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Solidus</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+    <Segment>
+      <Name>Metal Gear Solid 2: Sons of Liberty</Name>
+      <Icon />
+      <SplitTimes />
+      <BestSegmentTime />
+      <SegmentHistory />
+    </Segment>
+  </Segments>
+  <AutoSplitterSettings />
+</Run>

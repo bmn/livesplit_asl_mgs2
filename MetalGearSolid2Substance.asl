@@ -39,8 +39,8 @@ state("mgs2_sse") {
   byte2     GripMultiplier: 0xD8F500; // This is meant to be 1800 for Snake, 3600 for Raiden, but isn't?
   byte      Difficulty: 0x601F34, 0x10; // 10 = VE, 60 = EEx, increments in 10s
   byte2     Level: 0x601F34, 0x158A; // 0x1800 + 0xD (Tanker), 0xE (Plant), 0xF (T-P)
+  short     Options: 0x601F34, 0x6; // 1 = Vibration OFF, 4 = No Radar or Radar 2, 8 = Blood OFF, 0x20 = Radar 2, 0x40 = Reverse view, 0x80 = Linear menu, 0x200 = Previous equip
   
-  byte2     STCompletionCheck: 0x13A178C; // This value rises slowly from 0 during credits to about 260, then goes back to 0 at results
   int       ResultsComplete: 0x65397C; // & 0x200 == 0x200 when ready to split on results
   int       PadInput: 0xADAD3C;
 
@@ -75,7 +75,7 @@ state("mgs2_sse") {
   
   ushort    EmmaO2: 0x618300, 0x930;
   ushort    EmmaMaxO2: 0x618300, 0x932;
-  byte      EmmaHealth: 0x618300, 0x8C8;
+  byte      EmmaHealth: 0x61FDA8, 0x2CE;
   
   ushort    VRMissionID: 0xB60C1C;
   int       VRCurrentScore: 0x5ADC48;
@@ -201,6 +201,7 @@ startup {
     vars.ASL_Level = "";
     vars.ASL_MechsDestroyed = 0;
     vars.ASL_Minutes = 0;
+    vars.ASL_QuickEquipMode = "";
     vars.ASL_Rations = 0;
     vars.ASL_RoomTimer = 0;
     vars.ASL_Saves = 0;
@@ -576,8 +577,9 @@ startup {
     settings.SetToolTip("vr_split_level_insta", "If disabled, this will split when leaving the level instead");
     settings.Add("dogtag_insta", false, "Split when a dog tag is collected", "options");
     settings.SetToolTip("dogtag_insta", "The setting \"Enable ASL Var Viewer Integration\" below must also be enabled");
-    
     settings.Add("boss_insta", true, "Split instantly when a boss is defeated", "options");
+    settings.Add("emma_singlesplit", true, "Split only once in areas where Emma can fall out of bounds", "options");
+    settings.SetToolTip("emma_singlesplit", "This avoids repeat splits when Chelsporting Emma");
     settings.Add("aslvv", true, "Enable ASL Var Viewer integration", "options");
     settings.SetToolTip("aslvv", "Disabling this may slightly improve performance");
       settings.Add("aslvv_info", true, "ASL_Info (contextual information)", "aslvv");
@@ -1386,6 +1388,36 @@ update {
         return 0;
       };
       vars.SpecialRoomChangeCallback.Add("w24c", CallAmesLocation);
+
+      // Plant: Split once entering S2C 1F with Emma
+      Func<int> CallEmma1F = delegate() {
+        if (!settings["emma_singlesplit"]) return 0;
+        if ( (vars.old.RoomCode == "w31b") && (!RoomTrackerA) ) {
+          RoomTrackerA = true;
+          return 1;
+        }
+        return -1;
+      };
+      vars.SpecialNewRoomCallback.Add("w31d", CallEmma1F);
+
+      // Plant: Split once entering KL with Emma
+      Func<int> CallEmmaKL = delegate() {
+        if (!settings["emma_singlesplit"]) return 0;
+        if ( (current.RoomCode == "w25d") && (!RoomTrackerB) ) {
+          RoomTrackerB = true;
+          return 1;
+        }
+        return -1;
+      };
+      vars.SpecialRoomChangeCallback.Add("w31d", CallEmmaKL);
+   
+      // Plant: Reset trackers when reaching Strut L
+      Func<int> CallStrutLTrackers = delegate() {
+        RoomTrackerA = false;
+        RoomTrackerB = false;
+        return 0;
+      };
+      vars.SpecialNewRoomCallback.Add("w28a", CallStrutLTrackers);
       
       // Plant: Filter out the "valid" room change that happens during the torture cutscenes
       Func<int> CallTortureCutscene = delegate() {
@@ -1485,19 +1517,6 @@ update {
         return -1; // don't split after tales
       };
       vars.SpecialRoomChangeCallback.Add("tales", CallSnakeTales);
-      // And the results check.
-      Func<int> WatchSnakeTalesCredits = delegate() {
-        // it starts at 0, goes up...
-        if ( (RoomTrackerInt == 1) && (C(current.STCompletionCheck) != 0) ) RoomTrackerInt = 2;
-        // ...then goes back to 0
-        else if ( (RoomTrackerInt == 2) && (C(current.STCompletionCheck) == 0) ) {
-          Debug("Moved briskly to the Snake Tales result screen!");
-          RoomTrackerInt = 0;
-          return 1;
-        }
-        return 0;
-      };
-      vars.SpecialWatchCallback.Add("sselect", WatchSnakeTalesCredits);
       
       // Big Shell Evil: Option to split when meeting Emma in Strut C
       Func<int> CallBSEStrutC1 = delegate() {
@@ -1540,6 +1559,7 @@ update {
       // Split at the right time on the results screen
       Func<int> WatchEnding = () => ( (current.ResultsComplete & 0x200) == 0x200) ? 1 : 0;
       vars.SpecialWatchCallback.Add("ending", WatchEnding);
+      vars.SpecialWatchCallback.Add("sselect", WatchEnding);
 
       // New codename functionality
       bool PerfectStatsOnly = false;
@@ -1701,6 +1721,9 @@ update {
       vars.ASL_CodeName = "";
       
       Action UpdateASLVars = delegate() {
+        if ( (current.Options != old.Options) || (vars.ASL_QuickEquipMode == "") )
+          vars.ASL_QuickEquipMode = ((current.Options & 0x200) == 0x200) ? "Previous" : "Unequip";
+      
         vars.ASL_RoomTimer = current.RoomTimer;
         
         vars.ASL_Strength = Snakelike() ? C(current.StrengthSnake) : C(current.StrengthRaiden);
