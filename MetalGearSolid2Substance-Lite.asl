@@ -46,26 +46,40 @@ startup {
   vars.Initialised = false;
   
   settings.Add("splits", true, "Split Points");
+    settings.CurrentDefaultParent = "tanker";
     settings.Add("tanker", true, "Tanker", "splits");
-      settings.Add("r_tnk0_26", true, "Olga", "tanker");
-      settings.Add("r_tnk0_33", true, "Guard Rush", "tanker");
-      settings.Add("r_tnk0_56", true, "Results (Tanker Only)", "tanker");
-      settings.Add("r_tnk0_58", true, "Plant transition (Tanker-Plant)", "tanker");
+      settings.Add("r_tnk0_24", false, "Reach Olga");
+      settings.Add("r_tnk0_26", true, "Olga");
+      settings.Add("r_tnk0_31", false, "Reach Guard Rush");
+      settings.Add("r_tnk0_33", true, "Guard Rush");
+      settings.Add("r_tnk0_56", true, "Results (Tanker Only)");
+      settings.SetToolTip("r_tnk0_56", "You can keep this enabled if playing Tanker-Plant. It will not trigger.");
+      settings.Add("r_tnk0_58", true, "Tanker (Tanker-Plant)");
     
+    settings.CurrentDefaultParent = "plant";
     settings.Add("plant", true, "Plant", "splits");
-      settings.Add("r_plt0_63", true, "Stillman", "plant");
-      settings.Add("r_plt0_115", true, "Fortune", "plant");
-      settings.Add("r_plt3_119", true, "Fatman", "plant");
-      settings.Add("r_plt0_155", true, "Ames", "plant");
-      settings.Add("r_plt0_190", true, "Harrier", "plant");
-      settings.Add("r_plt0_206", true, "Prez", "plant");
-      settings.Add("r_plt0_254", true, "Vamp 1", "plant");
-      settings.Add("r_plt0_318", true, "Vamp 2", "plant");
-      settings.Add("r_plt0_397", true, "Tengus 1", "plant"); // Late split at 400
-      settings.Add("r_plt0_404", true, "Tengus 2", "plant");
-      settings.Add("r_plt0_412", true, "Rays", "plant");
-      settings.Add("r_plt0_470", true, "Solidus", "plant");
-      settings.Add("r_plt0_486", true, "Results", "plant");
+      settings.Add("r_plt0_63", true, "Reach Stillman");
+      settings.Add("r_plt0_109", false, "Reach Fortune");
+      settings.Add("r_plt0_115", true, "Fortune");
+      settings.Add("r_plt0_117", false, "Reach Fatman");
+      settings.Add("r_plt3_119", true, "Fatman");
+      settings.Add("r_plt0_153", false, "Reach B1 Hall");
+      settings.Add("r_plt0_155", true, "Ames");
+      settings.Add("r_plt0_188", false, "Reach Harrier");
+      settings.Add("r_plt0_190", true, "Harrier");
+      settings.Add("r_plt0_206", true, "Reach Prez");
+      settings.Add("r_plt0_246", false, "Reach Vamp 1");
+      settings.Add("r_plt0_254", true, "Vamp 1");
+      settings.Add("r_plt0_302", false, "Reach Sniping");
+      settings.Add("r_plt0_316", false, "Reach Vamp 2");
+      settings.Add("r_plt0_318", true, "Vamp 2");
+      settings.Add("r_plt0_328", false, "Reach Arsenal Gear");
+      settings.Add("r_plt0_382", false, "Reach Snake");
+      settings.Add("r_plt0_397", true, "Tengus 1"); // Late split at 400
+      settings.Add("r_plt0_404", true, "Tengus 2");
+      settings.Add("r_plt0_412", true, "Rays");
+      settings.Add("r_plt0_470", true, "Solidus");
+      settings.Add("r_plt0_486", true, "Results");
   
   print("Startup complete");
 }
