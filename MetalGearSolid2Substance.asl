@@ -1322,6 +1322,31 @@ update {
       // Vamp 2
       Func<int> WatchVamp2 = () => WatchBoss("Vamp", C(current.Vamp2Stamina), C(current.Vamp2Health));
       vars.SpecialWatchCallback.Add("w32b", WatchVamp2);
+
+      // Tengus (only used for info, 1 = success, not split)
+      Func<bool, int> WatchTengus = (fissionMailed) => {
+        if (current.Tengus2Defeated != BossCounter) {
+          if (!settings["aslvv_info_boss"]) return 0;
+          BossCounter = current.Tengus2Defeated;
+          int TotalTengus = vars.Tengus2Total[current.MaxHealth];
+          
+          if (BossCounter == TotalTengus) {
+            vars.ASL_Info = "Tengus defeated!";
+            vars.InfoTimer = 180;
+            return -1;
+          }            
+
+          if ( (fissionMailed) &&
+            ( (BossCounter == 20) || (BossCounter == 40) ) ) {
+            string TenguMail = (TotalTengus < 100) ? "N MAI" : "N MA";
+            vars.ASL_Info = "FISS" + BossCounter + TenguMail + TotalTengus + "D";
+          }
+          else vars.ASL_Info = "Tengus | " + BossCounter + " of " + TotalTengus + " defeated";
+          vars.InfoTimer = 180;
+          return 0;
+        }
+        return 1;
+      };
       
       // Rays
       Func<int> WatchRays = () => WatchBoss("Rays", MaxVal, C(current.RaysHealth));
@@ -1455,12 +1480,15 @@ update {
         return 0;
       };
       Func<int> WatchBigBossAlert2 = delegate() {
+        // Tengus boss counter
+        int TenguResult = WatchTengus(false);
+        if (TenguResult != 1) return TenguResult;
         // Trigger on the second instance of this room (after cutscene)
         if ( (RoomTrackerInt > 0) && (current.RoomTimer < RoomTrackerInt) ) {
           RoomTrackerInt = 0;
           BigBossAlertState = 2;
           Debug("Setting Big Boss alert allowance to 2");
-          return -1;
+          return 0;
         }
         if (current.RoomTimer < 30) RoomTrackerInt = current.RoomTimer;
         return 0;
@@ -1472,25 +1500,8 @@ update {
             vars.SplitRightNow = true;
         }
         // Tengus boss counter
-        if (current.Tengus2Defeated != BossCounter) {
-          if (!settings["aslvv_info_boss"]) return -1;
-          BossCounter = current.Tengus2Defeated;
-          int TotalTengus = vars.Tengus2Total[current.MaxHealth];
-          
-          if (BossCounter == TotalTengus) {
-            vars.ASL_Info = "Tengus defeated!";
-            vars.InfoTimer = 180;
-            return -1;
-          }            
-
-          if ( (BossCounter == 20) || (BossCounter == 40) ) {
-            string TenguMail = (TotalTengus < 100) ? "N MAI" : "N MA";
-            vars.ASL_Info = "FISS" + BossCounter + TenguMail + TotalTengus + "D";
-          }
-          else vars.ASL_Info = "Tengus | " + BossCounter + " of " + TotalTengus + " defeated";
-          vars.InfoTimer = 180;
-          return 0;
-        }
+        int TenguResult = WatchTengus(true);
+        if (TenguResult != 1) return TenguResult;
         // Trigger on the third instance (after initial gameplay and cutscene)
         if ( (RoomTrackerInt > 0) && (current.RoomTimer < RoomTrackerInt) ) {
           if (RoomTrackerP) {
