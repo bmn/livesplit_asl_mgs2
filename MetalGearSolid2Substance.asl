@@ -819,6 +819,9 @@ startup {
     { "no_split", "true" }
   });
   */
+  // Split when entering Tengus 2
+  settings.Add("w45a_entertengus2", false, "Split when entering Tengus 2", "options_plant");
+      settings.SetToolTip("w45a_entertengus2", "You will need an Arsenal Gear - Sigmoid Colon split before Tengus 2 if this is enabled");
     
   // A Wrongdoing: Option to split when meeting Ames in Strut F
   TempSetting = "snaketales_a_ames";
@@ -1469,6 +1472,11 @@ update {
         return 0;
       };
       Func<int> WatchBigBossAlert3 = delegate() {
+        // Split at start of battle
+        if (settings["w45a_entertengus2"]) {
+          if ((vars.old.ProgressPlant == 401) && (current.ProgressPlant == 402))
+            vars.SplitRightNow = true;
+        }
         // Tengus boss counter
         if (current.Tengus2Defeated != BossCounter) {
           if (!settings["aslvv_info_boss"]) return -1;
