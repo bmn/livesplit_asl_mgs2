@@ -773,9 +773,11 @@ startup {
   vars.VRMissionList = tmp;
   
   
-  // Plant: Option to split when meeting Stillman in Strut C
+  // Plant
+  string TempCategory = "options_plant";
+  // Option to split when meeting Stillman in Strut C
   string TempSetting = "d014p01";
-  settings.Add(TempSetting, false, "Split when meeting Stillman", "options_plant");
+  settings.Add(TempSetting, false, "Split when meeting Stillman", TempCategory);
   settings.SetToolTip(TempSetting, "You will need two Strut C splits if this is enabled");
   vars.SpecialNewRoom.Add(TempSetting, new Dictionary<string, string> {
     { "old", "w16a" },
@@ -788,7 +790,7 @@ startup {
   });
   // Option to split when meeting Prez in Shell 2 Core
   TempSetting = "w31a_prez";
-  settings.Add(TempSetting, false, "Split when meeting Prez", "options_plant");
+  settings.Add(TempSetting, false, "Split when meeting Prez", TempCategory);
   settings.SetToolTip(TempSetting, "You will need two Shell 2 Core 1F splits if this is enabled");
   vars.SpecialRoomChange.Add("w31a", new Dictionary<string, string> {
     { "current", "wmovie" },
@@ -796,7 +798,7 @@ startup {
   });
   // Never split when opening the underwater hatch in Shell 2 Core B1
   TempSetting = "d053p01";
-  settings.Add(TempSetting, false, "Split when opening the underwater hatch in Shell 2 Core B1", "options_plant");
+  settings.Add(TempSetting, false, "Split when opening the underwater hatch in Shell 2 Core B1", TempCategory);
   settings.SetToolTip(TempSetting, "You will need two Shell 2 Core B1 splits if this is enabled");
   vars.SpecialNewRoom.Add("d053p01", new Dictionary<string, string> { // B1 No.1 cutscenes
     { "old", "w31b" },
@@ -808,20 +810,10 @@ startup {
     { "old", "ending" },
     { "no_split", "true" }
   });
-  /*
-  // Option to split when meeting Emma in Shell 2 Core B1
-  TempSetting = "w31f_emma";
-  settings.Add(TempSetting, true, "Don't split when meeting Emma", "options_plant");
-  settings.SetToolTip(TempSetting, "You will need two Shell 2 Core B1 FC2 splits if this is not enabled");
-  vars.SpecialRoomChange.Add("w31f", new Dictionary<string, string> {
-    { "current", "d055p01" },
-    { "setting", TempSetting },
-    { "no_split", "true" }
-  });
-  */
-  // Split when entering Tengus 2
-  settings.Add("w45a_entertengus2", false, "Split when entering Tengus 2", "options_plant");
-      settings.SetToolTip("w45a_entertengus2", "You will need an Arsenal Gear - Sigmoid Colon split before Tengus 2 if this is enabled");
+  // Option to split when entering Tengus 2
+  TempSetting = "w45a_entertengus2";
+  settings.Add(TempSetting, false, "Split when entering Tengus 2", TempCategory);
+  settings.SetToolTip(TempSetting, "You will need an Arsenal Gear - Sigmoid Colon split before Tengus 2 if this is enabled");
     
   // A Wrongdoing: Option to split when meeting Ames in Strut F
   TempSetting = "snaketales_a_ames";
@@ -833,17 +825,19 @@ startup {
     { "no_split", "true" }
   });
 
-  // Big Shell Evil: Option to split when meeting Emma in Strut C - details in update
+  // Big Shell Evil
+  TempCategory = "snaketales_b";
+  // Option to split when meeting Emma in Strut C - details in update
   TempSetting = "snaketales_b_pantry";
-  settings.Add(TempSetting, false, "Split when meeting Emma in Strut C", "snaketales_b");
+  settings.Add(TempSetting, false, "Split when meeting Emma in Strut C", TempCategory);
   settings.SetToolTip(TempSetting, "You will need a Strut C split before Guard Rush if this is enabled");
   // Option to split when accessing the node in Strut B - again, details in update
   TempSetting = "snaketales_b_node";
-  settings.Add(TempSetting, false, "Split when accessing the node", "snaketales_b");
+  settings.Add(TempSetting, false, "Split when accessing the node", TempCategory);
   settings.SetToolTip(TempSetting, "You will need two Strut B splits if this is enabled");
   // Option to split when meeting Emma in Strut F
   TempSetting = "snaketales_b_emma";
-  settings.Add(TempSetting, false, "Split when meeting Emma in Strut F", "snaketales_b");
+  settings.Add(TempSetting, false, "Split when meeting Emma in Strut F", TempCategory);
   settings.SetToolTip(TempSetting, "You will need two Strut F splits if this is enabled");
   vars.SpecialRoomChange.Add("a22b", new Dictionary<string, string> {
     { "current", "tales" },
