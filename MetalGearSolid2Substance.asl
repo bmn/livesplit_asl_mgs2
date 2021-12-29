@@ -1474,7 +1474,7 @@ update {
       Func<int> WatchBigBossAlert3 = delegate() {
         // Split at start of battle
         if (settings["w45a_entertengus2"]) {
-          if ((vars.old.ProgressPlant == 401) && (current.ProgressPlant == 402))
+          if ((vars.old.ProgressPlant == 402) && (current.ProgressPlant == 403))
             vars.SplitRightNow = true;
         }
         // Tengus boss counter
