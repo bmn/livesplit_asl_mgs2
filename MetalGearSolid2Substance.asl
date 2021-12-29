@@ -810,6 +810,10 @@ startup {
     { "old", "ending" },
     { "no_split", "true" }
   });
+  // Option to split when completing codecs in Ascending Colon
+  TempSetting = "w43a_codecscompleted";
+  settings.Add(TempSetting, false, "Split when answering Rose in Ascending Colon", TempCategory);
+  settings.SetToolTip(TempSetting, "You will need two Arsenal Gear - Ascending Colon splits if this is enabled");
   // Option to split when entering Tengus 2
   TempSetting = "w45a_entertengus2";
   settings.Add(TempSetting, false, "Split when entering Tengus 2", TempCategory);
@@ -1463,6 +1467,13 @@ update {
       
       // Plant: Show the 45-second timer for Ascending Colon
       Func<int> WatchAscendingColon = delegate() {
+        if (current.ProgressPlant < 382) return 0;
+        // optional split after codecs
+        if (settings["w43a_codecscompleted"]) {
+          if (vars.old.ProgressPlant == 379)
+            vars.SplitRightNow = true;
+        }
+        // timer
         if (!settings["aslvv_info_colon"]) return -1;
         if (current.AscendingColonActive == 0) return 0;
         int FramesLeft = C(current.AscendingColonTimer);
