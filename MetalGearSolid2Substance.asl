@@ -1185,6 +1185,7 @@ update {
       // New snazzy boss watcher
       Func<string, int, int, int> WatchBoss = delegate(string Name, int NewStamina, int NewHealth) {
         if (!settings["boss_insta"]) return -1; // stop watching if insta-splits are disabled
+        if (current.RoomTimer == vars.old.RoomTimer) return 0; // avoid testing if timer is stopped
         
         if (Continues == -1) Continues = C(current.Continues);
         
