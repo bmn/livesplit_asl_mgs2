@@ -12,33 +12,33 @@ state("mgs2_sse") {
   ushort    ProgressTanker: 0xD8D93C;
   ushort    ProgressPlant: 0xD8D912;
 
-  byte2     Shots: 0x3E315E, 0x73;
-  byte2     Alerts: 0x3E315E, 0x75;
-  byte2     Continues: 0x3E315E, 0x65;
-  byte2     Rations: 0xF80DB, 0x4C3;
-  byte2     Kills: 0x3E315E, 0x77;
-  byte2     Damage: 0x3E315E, 0x79;
-  byte2     Saves: 0x3E315E, 0x69;
-  byte2     Mechs: 0x3E315E, 0x8B;
-  byte2     Clearings: 0xD8C352;
+  short     Shots: 0x3E315E, 0x73;
+  short     Alerts: 0x3E315E, 0x75;
+  short     Continues: 0x3E315E, 0x65;
+  short     Rations: 0xF80DB, 0x4C3;
+  short     Kills: 0x3E315E, 0x77;
+  short     Damage: 0x3E315E, 0x79;
+  short     Saves: 0x3E315E, 0x69;
+  short     Mechs: 0x3E315E, 0x8B;
+  short     Clearings: 0xD8C352;
   byte      SeaLouce: 0x615B1C;
-  byte2     Extra: 0x601F34, 0x1596; // & 0x2000 = radar, & 0x20 = sp item
-  byte      DogTagsSnake: 0xD8AFEE;
-  byte      DogTagsRaiden: 0xD8B13E;
-  byte2     StrengthRaiden: 0x3E315E, 0x63;
-  byte2     StrengthSnake: 0xD8AEEE;
+  ushort    Extra: 0x601F34, 0x1596; // & 0x2000 = radar, & 0x20 = sp item
+  short     DogTagsSnake: 0xD8AFEE;
+  short     DogTagsRaiden: 0xD8B13E;
+  short     StrengthRaiden: 0x3E315E, 0x63;
+  short     StrengthSnake: 0xD8AEEE;
   
   byte      CurrentHealth: 0x3E315E, 0x2D;
   byte      MaxHealth: 0x3E315E, 0x2F;
-  byte2     CurrentChaff: 0xB6DE4C;
-  byte2     CurrentO2: 0x3E315E, 0x31;
-  byte2     CurrentGrip: 0x618BAC, 0x80;
-  byte2     MaxGrip: 0x618BAC, 0x82;
-  byte2     CurrentCaution: 0x6160C8;
-  byte2     MaxCaution: 0xD8F508; // D8D908 B60000
-  byte2     GripMultiplier: 0xD8F500; // This is meant to be 1800 for Snake, 3600 for Raiden, but isn't?
+  short     CurrentChaff: 0xB6DE4C;
+  short     CurrentO2: 0x3E315E, 0x31;
+  short     CurrentGrip: 0x618BAC, 0x80;
+  short     MaxGrip: 0x618BAC, 0x82;
+  short     CurrentCaution: 0x6160C8;
+  short     MaxCaution: 0xD8F508; // D8D908 B60000
+  short     GripMultiplier: 0xD8F500; // This is meant to be 1800 for Snake, 3600 for Raiden, but isn't?
   byte      Difficulty: 0x601F34, 0x10; // 10 = VE, 60 = EEx, increments in 10s
-  byte2     Level: 0x601F34, 0x158A; // 0x1800 + 0xD (Tanker), 0xE (Plant), 0xF (T-P)
+  ushort    Level: 0x601F34, 0x158A; // 0x1800 + 0xD (Tanker), 0xE (Plant), 0xF (T-P)
   short     Options: 0x601F34, 0x6; // 1 = Vibration OFF, 4 = No Radar or Radar 2, 8 = Blood OFF, 0x20 = Radar 2, 0x40 = Reverse view, 0x80 = Linear menu, 0x200 = Previous equip
   
   int       ResultsComplete: 0x65397C; // & 0x200 == 0x200 when ready to split on results
@@ -48,36 +48,36 @@ state("mgs2_sse") {
   byte      OlgaRushStamina: 0xAD4F6C, 0x2C4;
   byte      MerylHealth: 0xB6DEC4, 0x284;
 
-  byte2     FatmanHealth: 0xB6DEC4, 0x24E;
+  short     FatmanHealth: 0xB6DEC4, 0x24E;
   int       FatmanStamina: 0x664E78, 0x88;
   byte      FatmanBombsActive: 0x664E7C, 0x280;
 
-  byte2     HarrierHealth: 0x619BB0, 0x5C;
+  short     HarrierHealth: 0x619BB0, 0x5C;
 
-  byte2     VampStamina: 0x664EA0, 0x15A;
-  byte2     VampHealth: 0x664EA0, 0x158;
+  short     VampStamina: 0x664EA0, 0x15A;
+  short     VampHealth: 0x664EA0, 0x158;
 
   byte      SolidusHealth: 0x664E7C, 0xB8;
   byte      SolidusStamina: 0x664E78, 0xC8;
 
-  byte2     Vamp2Health: 0x61FBB8, 0x2AE;
-  byte2     Vamp2Stamina: 0x664E7C, 0x48;
+  short     Vamp2Health: 0x61FBB8, 0x2AE;
+  short     Vamp2Stamina: 0x664E7C, 0x48;
   
-  ushort    Tengus2Defeated: 0x618E0C;
+  short     Tengus2Defeated: 0x618E0C;
 
-  byte2     RaysHealth: 0xAD4EA4, 0x54, 0x10, 0x10, 0x170, 0x7E0;
-  byte2     RaysTalesHealth: 0x652F30, 0x490;
-  byte2     ChokeTimer: 0xAD4F6C, 0x40;
+  short     RaysHealth: 0xAD4EA4, 0x54, 0x10, 0x10, 0x170, 0x7E0;
+  short     RaysTalesHealth: 0x652F30, 0x490;
+  short     ChokeTimer: 0xAD4F6C, 0x40;
   byte      AscendingColonActive: 0xD8E105;
-  byte2     AscendingColonTimer: 0xAD4F08, 0x40;
+  short     AscendingColonTimer: 0xAD4F08, 0x40;
   byte      CartwheelCode: 0xB6095E;
   byte      AmesLocation: 0xD8DF9F; // D8FB9F
   
-  ushort    EmmaO2: 0x618300, 0x930;
-  ushort    EmmaMaxO2: 0x618300, 0x932;
+  short     EmmaO2: 0x618300, 0x930;
+  short     EmmaMaxO2: 0x618300, 0x932;
   byte      EmmaHealth: 0x61FDA8, 0x2CE;
   
-  ushort    VRMissionID: 0xB60C1C;
+  short     VRMissionID: 0xB60C1C;
   int       VRCurrentScore: 0x5ADC48;
 }
 
@@ -1013,7 +1013,7 @@ update {
       vars.DifficultyText = DifficultyText;
       
       // Code for current level
-      Func<int> Level = () => (C(current.Level) & 3) % 3;
+      Func<int> Level = () => (current.Level & 3) % 3;
       vars.Level = Level;
       
       // Name of current level
@@ -1028,10 +1028,10 @@ update {
       vars.SectionText = SectionText;
       
       // Is Radar enabled?
-      Func<bool> RadarEnabled = () => ((C(current.Extra) & 0x2000) != 0);
+      Func<bool> RadarEnabled = () => ((current.Extra & 0x2000) != 0);
       
       // Has a special item been used?
-      Func<bool> SpItemUsed = () => ((C(current.Extra) & 0x20) != 0);
+      Func<bool> SpItemUsed = () => ((current.Extra & 0x20) != 0);
       
       // Confirm a split
       Func<string, bool> Split = delegate(string Reason) {
@@ -1057,7 +1057,7 @@ update {
       
       // Check for new continues
       Func<bool> HasContinued = delegate() {
-        int NewContinues = C(current.Continues);
+        int NewContinues = current.Continues;
         if (NewContinues > Continues) {
           Debug("Detected continue during boss: " + Continues + " > " + NewContinues);
           Continues = NewContinues;
@@ -1124,7 +1124,7 @@ update {
       
       Func<int, int, int> Percent = delegate(int cur, int max) {
         double percentage = (100.0 * cur / max);
-        return Convert.ToInt16( Math.Round(percentage) );
+        return Convert.ToInt32( Math.Round(percentage) );
       };
       
       Func<int, int, string> ValueFormat = delegate(int cur, int max) {
@@ -1166,7 +1166,7 @@ update {
       // Temporary boss watcher to examine what health values do
       /*
       Func<string, int, int, int> WatchBoss = delegate(string Name, int CurrentStamina, int CurrentHealth) {
-        if (Continues == -1) Continues = C(current.Continues);
+        if (Continues == -1) Continues = current.Continues;
         else if (HasContinued()) {
           ResetBossData();
           vars.Debug(current.RoomTimer +" | Continued");
@@ -1187,7 +1187,7 @@ update {
         if (!settings["boss_insta"]) return -1; // stop watching if insta-splits are disabled
         if (current.RoomTimer == vars.old.RoomTimer) return 0; // avoid testing if timer is stopped
         
-        if (Continues == -1) Continues = C(current.Continues);
+        if (Continues == -1) Continues = current.Continues;
         
         if (current.RoomTimer > 5) {
           if ( (BossActive) && ( (NewStamina != BossStamina) || (NewHealth != BossHealth) ) ) {
@@ -1286,7 +1286,7 @@ update {
       // Fatman the troublemaker
       Func<int> WatchFatman = delegate() {
         if (!BossDefeated) {
-          if (WatchBoss("Fatman", current.FatmanStamina, C(current.FatmanHealth)) == 1) BossDefeated = true;
+          if (WatchBoss("Fatman", current.FatmanStamina, current.FatmanHealth) == 1) BossDefeated = true;
         }
         if (BossDefeated) {
           if (HasContinued()) {
@@ -1315,17 +1315,17 @@ update {
       vars.SpecialWatchCallback.Add("a20c", WatchFatman); // A Wrongdoing
       
       // Harrier
-      Func<int> WatchHarrier = () => WatchBoss("Harrier", MaxVal, C(current.HarrierHealth));
+      Func<int> WatchHarrier = () => WatchBoss("Harrier", MaxVal, current.HarrierHealth);
       vars.SpecialWatchCallback.Add("w25a", WatchHarrier); // Sons of Liberty
       vars.SpecialWatchCallback.Add("a25a", WatchHarrier); // Big Shell Evil
       
       // Vamp
-      Func<int> WatchVamp = () => WatchBoss("Vamp", C(current.VampStamina), C(current.VampHealth));
+      Func<int> WatchVamp = () => WatchBoss("Vamp", current.VampStamina, current.VampHealth);
       vars.SpecialWatchCallback.Add("w31c", WatchVamp); // Sons of Liberty
       vars.SpecialWatchCallback.Add("a31c", WatchVamp); // Dead Man Whispers
       
       // Vamp 2
-      Func<int> WatchVamp2 = () => WatchBoss("Vamp", C(current.Vamp2Stamina), C(current.Vamp2Health));
+      Func<int> WatchVamp2 = () => WatchBoss("Vamp", current.Vamp2Stamina, current.Vamp2Health);
       vars.SpecialWatchCallback.Add("w32b", WatchVamp2);
 
       // Tengus (only used for info, 1 = success, not split)
@@ -1354,15 +1354,15 @@ update {
       };
       
       // Rays
-      Func<int> WatchRays = () => WatchBoss("Rays", MaxVal, C(current.RaysHealth));
+      Func<int> WatchRays = () => WatchBoss("Rays", MaxVal, current.RaysHealth);
       vars.SpecialWatchCallback.Add("w46a", WatchRays); // Sons of Liberty
-      Func<int> WatchRaysEG = () => WatchBoss("Rays", MaxVal, C(current.RaysTalesHealth));
+      Func<int> WatchRaysEG = () => WatchBoss("Rays", MaxVal, current.RaysTalesHealth);
       vars.SpecialWatchCallback.Add("a46a", WatchRaysEG); // External Gazer
       
       // Choke Boss (no split)
       Func<int> WatchChoke = delegate() {
         if (!settings["aslvv_info_choke"]) return -1;
-        int FramesLeft = C(current.ChokeTimer);
+        int FramesLeft = current.ChokeTimer;
         if ( (FramesLeft < 1) || (FramesLeft > 3000) ) return 0;
         vars.InfoTimer = 10;
         Info("Time left: " + string.Format( "{00:0.0}", (decimal)((double)FramesLeft / 60) ));
@@ -1477,7 +1477,7 @@ update {
         // timer
         if (!settings["aslvv_info_colon"]) return -1;
         if (current.AscendingColonActive == 0) return 0;
-        int FramesLeft = C(current.AscendingColonTimer);
+        int FramesLeft = current.AscendingColonTimer;
         if (FramesLeft > 2700) return -1;
         vars.InfoTimer = 10;
         Info("Time left: " + string.Format( "{00:0.0}", (decimal)((double)FramesLeft / 60) ));
@@ -1751,7 +1751,7 @@ update {
       
         vars.ASL_RoomTimer = current.RoomTimer;
         
-        vars.ASL_Strength = Snakelike() ? C(current.StrengthSnake) : C(current.StrengthRaiden);
+        vars.ASL_Strength = Snakelike() ? current.StrengthSnake : current.StrengthRaiden;
         
         if (settings["aslvv_cartwheels"]) {
           if ( (current.CartwheelCode == 16) && (vars.old.CartwheelCode == 0) ) {
@@ -1773,14 +1773,14 @@ update {
         // Update less-critical values at a lower rate
         if ((current.RoomTimer % 15) == 0) {
           UpdateCharacterId();
-          vars.ASL_Alerts = C(current.Alerts);
-          vars.ASL_Continues = C(current.Continues);
-          vars.ASL_Shots = C(current.Shots);
-          vars.ASL_Rations = C(current.Rations);
-          vars.ASL_Kills = C(current.Kills);
-          vars.ASL_Saves = C(current.Saves);
-          vars.ASL_MechsDestroyed = C(current.Mechs);
-          vars.ASL_ClearingEscapes = C(current.Clearings);
+          vars.ASL_Alerts = current.Alerts;
+          vars.ASL_Continues = current.Continues;
+          vars.ASL_Shots = current.Shots;
+          vars.ASL_Rations = current.Rations;
+          vars.ASL_Kills = current.Kills;
+          vars.ASL_Saves = current.Saves;
+          vars.ASL_MechsDestroyed = current.Mechs;
+          vars.ASL_ClearingEscapes = current.Clearings;
           
           vars.ASL_AlertAllowance = BigBossAlertState;
           vars.ASL_SeaLouce = current.SeaLouce;
@@ -1788,7 +1788,7 @@ update {
           vars.ASL_Character = CharacterName();
           vars.ASL_Mode = current.GameSection;
           
-          int CurrentDamage = C(current.Damage);
+          int CurrentDamage = current.Damage;
           if (CurrentDamage > vars.ASL_DamageTaken) vars.ASL_LastDamage = (CurrentDamage - vars.ASL_DamageTaken);
           vars.ASL_DamageTaken = CurrentDamage;
          
@@ -1857,10 +1857,10 @@ update {
           }
         }
 
-        int CurrentO2 = C(current.CurrentO2);
-        int CurrentGrip = (current.CurrentGrip != null) ? C(current.CurrentGrip) : -1;
-        int CurrentChaff = C(current.CurrentChaff);
-        int CurrentCaution = C(current.CurrentCaution);
+        int CurrentO2 = current.CurrentO2;
+        int CurrentGrip = (current.CurrentGrip != null) ? current.CurrentGrip : -1;
+        int CurrentChaff = current.CurrentChaff;
+        int CurrentCaution = current.CurrentCaution;
 
         // If we're underwater, update the O2 status in ASL_Info
         if (
@@ -1903,7 +1903,7 @@ update {
         else if ( (settings["aslvv_info_grip"]) && (CurrentGrip != -1) && (CurrentGrip != PreviousGrip) ) {
           PreviousGrip = CurrentGrip;
           if (WarmUpTimer == 0) {
-            int MaxGrip = C(current.MaxGrip);
+            int MaxGrip = current.MaxGrip;
             int GripRate = (current.CurrentHealth == current.MaxHealth) ? 60 : 120;
             string GripTimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentGrip / GripRate) );
             vars.ASL_Info = "Grip: " + vars.ValueFormat(CurrentGrip, MaxGrip) + " (" + GripTimeLeft + " left)";
@@ -1922,7 +1922,7 @@ update {
         else if ( (settings["aslvv_info_caution"]) && (CurrentCaution != PreviousCaution) ) {
           PreviousCaution = CurrentCaution;
           string CautionTimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentCaution / 60) );
-          vars.ASL_Info = "Caution: " + vars.ValueFormat(CurrentCaution, C(current.MaxCaution)) + " (" + CautionTimeLeft + " left)";
+          vars.ASL_Info = "Caution: " + vars.ValueFormat(CurrentCaution, current.MaxCaution) + " (" + CautionTimeLeft + " left)";
           vars.InfoTimer = 10;
         }
         else if (WarmUpTimer < 5) WarmUpTimer = WarmUpTimer + 1;
