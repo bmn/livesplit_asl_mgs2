@@ -36,6 +36,7 @@ state("mgs2_sse") {
   short     MaxGrip: 0x618BAC, 0x82;
   short     CurrentCaution: 0x6160C8;
   short     MaxCaution: 0xD8F508; // D8D908 B60000
+  int       CurrentPentazemin: 0x618B40;
   short     GripMultiplier: 0xD8F500; // This is meant to be 1800 for Snake, 3600 for Raiden, but isn't?
   byte      Difficulty: 0x601F34, 0x10; // 10 = VE, 60 = EEx, increments in 10s
   ushort    Level: 0x601F34, 0x158A; // 0x1800 + 0xD (Tanker), 0xE (Plant), 0xF (T-P)
@@ -595,6 +596,7 @@ startup {
           settings.Add("aslvv_info_grip", true, "Grip", "aslvv_info_vars");
           settings.Add("aslvv_info_chaff", true, "Chaff", "aslvv_info_vars");
           settings.Add("aslvv_info_caution", true, "Caution", "aslvv_info_vars");
+          settings.Add("aslvv_info_pentaz", true, "Pentazemin", "aslvv_info_vars");
           settings.Add("aslvv_info_boss", true, "Boss health", "aslvv_info_vars");
           settings.SetToolTip("aslvv_info_boss", "The setting \"Split instantly when a boss is defeated\" above must also be enabled");
             settings.Add("aslvv_info_boss_dmg_together", false, "Group hits done within a few frames", "aslvv_info_boss");
@@ -1927,6 +1929,11 @@ update {
           PreviousCaution = CurrentCaution;
           string CautionTimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentCaution / 60) );
           vars.ASL_Info = "Caution: " + vars.ValueFormat(CurrentCaution, current.MaxCaution) + " (" + CautionTimeLeft + " left)";
+          vars.InfoTimer = 10;
+        }
+        else if ( (settings["aslvv_info_pentaz"]) && (current.CurrentPentazemin != vars.old.CurrentPentazemin) ) {
+          string PentazTimeLeft = string.Format("{00:0.0}", (decimal)((double)current.CurrentPentazemin / 60) );
+          vars.ASL_Info = "Pentazemin: " + vars.ValueFormat(current.CurrentPentazemin, 1800)  + " (" + PentazTimeLeft + " left)";
           vars.InfoTimer = 10;
         }
         else if (WarmUpTimer < 5) WarmUpTimer = WarmUpTimer + 1;
