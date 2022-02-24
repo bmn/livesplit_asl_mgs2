@@ -590,11 +590,11 @@ startup {
           settings.Add("aslvv_info_tags", true, "Dog tag progress", "aslvv_info_vars");
           settings.SetToolTip("aslvv_info_tags", "Also see the options for ASL_DogTags");   
             settings.Add("aslvv_info_tags_onlycurrent", false, "Show total only for the current character", "aslvv_info_tags");
-          settings.Add("aslvv_info_caution", true, "Caution", "aslvv_info_vars");
-          settings.Add("aslvv_info_chaff", true, "Chaff", "aslvv_info_vars");
-          settings.Add("aslvv_info_grip", true, "Grip", "aslvv_info_vars");
           settings.Add("aslvv_info_o2", true, "O2", "aslvv_info_vars");
             settings.Add("aslvv_info_o2_emma", true, "Show Emma's O2 instead when relevant", "aslvv_info_o2");
+          settings.Add("aslvv_info_grip", true, "Grip", "aslvv_info_vars");
+          settings.Add("aslvv_info_chaff", true, "Chaff", "aslvv_info_vars");
+          settings.Add("aslvv_info_caution", true, "Caution", "aslvv_info_vars");
           settings.Add("aslvv_info_boss", true, "Boss health", "aslvv_info_vars");
           settings.SetToolTip("aslvv_info_boss", "The setting \"Split instantly when a boss is defeated\" above must also be enabled");
             settings.Add("aslvv_info_boss_dmg_together", false, "Group hits done within a few frames", "aslvv_info_boss");
