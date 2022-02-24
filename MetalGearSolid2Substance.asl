@@ -594,7 +594,6 @@ startup {
           settings.Add("aslvv_info_chaff", true, "Chaff", "aslvv_info_vars");
           settings.Add("aslvv_info_grip", true, "Grip", "aslvv_info_vars");
           settings.Add("aslvv_info_o2", true, "O2", "aslvv_info_vars");
-            settings.Add("aslvv_info_o2health", false, "Also show the time remaining from Life", "aslvv_info_o2");
             settings.Add("aslvv_info_o2_emma", true, "Show Emma's O2 instead when relevant", "aslvv_info_o2");
           settings.Add("aslvv_info_boss", true, "Boss health", "aslvv_info_vars");
           settings.SetToolTip("aslvv_info_boss", "The setting \"Split instantly when a boss is defeated\" above must also be enabled");
@@ -1872,16 +1871,18 @@ update {
             int MaxO2 = 0;
             int O2Rate = 60;
             int O2Health = current.CurrentHealth;
-            string O2Prefix = "O2";
+            int O2MaxHealth = current.MaxHealth;
+            string O2Prefix = "";
             
             if (
               (settings["aslvv_info_o2_emma"]) &&
               ((current.RoomCode == "w31b") || (current.RoomCode == "w31f")) &&
               ((current.EmmaO2 < 1400) && (current.EmmaO2 < current.EmmaMaxO2) && (current.EmmaHealth <= 100))
             ) {
-              O2Prefix = "Emma O2";
+              O2Prefix = "Emma ";
               MaxO2 = current.EmmaMaxO2;
               O2Health = current.EmmaHealth;
+              O2MaxHealth = 100;
               CurrentO2 = current.EmmaO2;
               if (current.EmmaHealth != 100) O2Rate = 120;
             }
@@ -1889,12 +1890,15 @@ update {
               MaxO2 = (current.MaxHealth == 30) ? 3600 : 4000;
               if (current.CurrentHealth != current.MaxHealth) O2Rate = 120;
             }
-            string O2TimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentO2 / O2Rate) );
-            string HealthTimeLeft = "";
-            if (settings["aslvv_info_o2health"]) {
-              HealthTimeLeft = " + " + string.Format( "{00:0.0}", (decimal)((double)O2Health / 4) );
+
+            if (CurrentO2 == 0) {
+              vars.ASL_Info = string.Format("{0}Life: {1} ({02:0.0} left)",
+                O2Prefix, vars.ValueFormat(O2Health, O2MaxHealth), (decimal)((double)O2Health / 4) );
             }
-            vars.ASL_Info = O2Prefix + ": " + vars.ValueFormat(CurrentO2, MaxO2) + " (" + O2TimeLeft + HealthTimeLeft + " left)";
+            else {
+              vars.ASL_Info = string.Format("{0}O2: {1} ({02:0.0} left)",
+                O2Prefix, vars.ValueFormat(CurrentO2, MaxO2), (decimal)((double)CurrentO2 / O2Rate) );
+            }
             vars.InfoTimer = 60;
           }
           else WarmUpTimer = WarmUpTimer - 1;
