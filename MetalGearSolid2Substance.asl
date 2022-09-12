@@ -12,33 +12,34 @@ state("mgs2_sse") {
   ushort    ProgressTanker: 0xD8D93C;
   ushort    ProgressPlant: 0xD8D912;
 
-  byte2     Shots: 0x3E315E, 0x73;
-  byte2     Alerts: 0x3E315E, 0x75;
-  byte2     Continues: 0x3E315E, 0x65;
-  byte2     Rations: 0xF80DB, 0x4C3;
-  byte2     Kills: 0x3E315E, 0x77;
-  byte2     Damage: 0x3E315E, 0x79;
-  byte2     Saves: 0x3E315E, 0x69;
-  byte2     Mechs: 0x3E315E, 0x8B;
-  byte2     Clearings: 0xD8C352;
+  short     Shots: 0x3E315E, 0x73;
+  short     Alerts: 0x3E315E, 0x75;
+  short     Continues: 0x3E315E, 0x65;
+  short     Rations: 0xF80DB, 0x4C3;
+  short     Kills: 0x3E315E, 0x77;
+  short     Damage: 0x3E315E, 0x79;
+  short     Saves: 0x3E315E, 0x69;
+  short     Mechs: 0x3E315E, 0x8B;
+  short     Clearings: 0xD8C352;
   byte      SeaLouce: 0x615B1C;
-  byte2     Extra: 0x601F34, 0x1596; // & 0x2000 = radar, & 0x20 = sp item
-  byte      DogTagsSnake: 0xD8AFEE;
-  byte      DogTagsRaiden: 0xD8B13E;
-  byte2     StrengthRaiden: 0x3E315E, 0x63;
-  byte2     StrengthSnake: 0xD8AEEE;
+  ushort    Extra: 0x601F34, 0x1596; // & 0x2000 = radar, & 0x20 = sp item
+  short     DogTagsSnake: 0xD8AFEE;
+  short     DogTagsRaiden: 0xD8B13E;
+  short     StrengthRaiden: 0x3E315E, 0x63;
+  short     StrengthSnake: 0xD8AEEE;
   
   byte      CurrentHealth: 0x3E315E, 0x2D;
   byte      MaxHealth: 0x3E315E, 0x2F;
-  byte2     CurrentChaff: 0xB6DE4C;
-  byte2     CurrentO2: 0x3E315E, 0x31;
-  byte2     CurrentGrip: 0x618BAC, 0x80;
-  byte2     MaxGrip: 0x618BAC, 0x82;
-  byte2     CurrentCaution: 0x6160C8;
-  byte2     MaxCaution: 0xD8F508; // D8D908 B60000
-  byte2     GripMultiplier: 0xD8F500; // This is meant to be 1800 for Snake, 3600 for Raiden, but isn't?
+  short     CurrentChaff: 0xB6DE4C;
+  short     CurrentO2: 0x3E315E, 0x31;
+  short     CurrentGrip: 0x618BAC, 0x80;
+  short     MaxGrip: 0x618BAC, 0x82;
+  short     CurrentCaution: 0x6160C8;
+  short     MaxCaution: 0xD8F508; // D8D908 B60000
+  int       CurrentPentazemin: 0x618B40;
+  short     GripMultiplier: 0xD8F500; // This is meant to be 1800 for Snake, 3600 for Raiden, but isn't?
   byte      Difficulty: 0x601F34, 0x10; // 10 = VE, 60 = EEx, increments in 10s
-  byte2     Level: 0x601F34, 0x158A; // 0x1800 + 0xD (Tanker), 0xE (Plant), 0xF (T-P)
+  ushort    Level: 0x601F34, 0x158A; // 0x1800 + 0xD (Tanker), 0xE (Plant), 0xF (T-P)
   short     Options: 0x601F34, 0x6; // 1 = Vibration OFF, 4 = No Radar or Radar 2, 8 = Blood OFF, 0x20 = Radar 2, 0x40 = Reverse view, 0x80 = Linear menu, 0x200 = Previous equip
   
   int       ResultsComplete: 0x65397C; // & 0x200 == 0x200 when ready to split on results
@@ -48,36 +49,35 @@ state("mgs2_sse") {
   byte      OlgaRushStamina: 0xAD4F6C, 0x2C4;
   byte      MerylHealth: 0xB6DEC4, 0x284;
 
-  byte2     FatmanHealth: 0xB6DEC4, 0x24E;
+  short     FatmanHealth: 0xB6DEC4, 0x24E;
   int       FatmanStamina: 0x664E78, 0x88;
   byte      FatmanBombsActive: 0x664E7C, 0x280;
 
-  byte2     HarrierHealth: 0x619BB0, 0x5C;
+  short     HarrierHealth: 0x619BB0, 0x5C;
 
-  byte2     VampStamina: 0x664EA0, 0x15A;
-  byte2     VampHealth: 0x664EA0, 0x158;
+  short     VampStamina: 0x664EA0, 0x15A;
+  short     VampHealth: 0x664EA0, 0x158;
 
   byte      SolidusHealth: 0x664E7C, 0xB8;
   byte      SolidusStamina: 0x664E78, 0xC8;
 
-  byte2     Vamp2Health: 0x61FBB8, 0x2AE;
-  byte2     Vamp2Stamina: 0x664E7C, 0x48;
+  short     Vamp2Health: 0x61FBB8, 0x2AE;
+  short     Vamp2Stamina: 0x664E7C, 0x48;
   
-  ushort    Tengus2Defeated: 0x618E0C;
+  short     Tengus2Defeated: 0x618E0C;
 
-  byte2     RaysHealth: 0xAD4EA4, 0x54, 0x10, 0x10, 0x170, 0x7E0;
-  byte2     RaysTalesHealth: 0x652F30, 0x490;
-  byte2     ChokeTimer: 0xAD4F6C, 0x40;
+  short     RaysHealth: 0xAD4EA4, 0x54, 0x10, 0x10, 0x170, 0x7E0;
+  short     RaysTalesHealth: 0x652F30, 0x490;
+  short     ChokeTimer: 0xAD4F6C, 0x40;
   byte      AscendingColonActive: 0xD8E105;
-  byte2     AscendingColonTimer: 0xAD4F08, 0x40;
+  short     AscendingColonTimer: 0xAD4F08, 0x40;
   byte      CartwheelCode: 0xB6095E;
-  byte      AmesLocation: 0xD8DF9F; // D8FB9F
   
-  ushort    EmmaO2: 0x618300, 0x930;
-  ushort    EmmaMaxO2: 0x618300, 0x932;
+  short     EmmaO2: 0x618300, 0x930;
+  short     EmmaMaxO2: 0x618300, 0x932;
   byte      EmmaHealth: 0x61FDA8, 0x2CE;
   
-  ushort    VRMissionID: 0xB60C1C;
+  short     VRMissionID: 0xB60C1C;
   int       VRCurrentScore: 0x5ADC48;
 }
 
@@ -590,12 +590,12 @@ startup {
           settings.Add("aslvv_info_tags", true, "Dog tag progress", "aslvv_info_vars");
           settings.SetToolTip("aslvv_info_tags", "Also see the options for ASL_DogTags");   
             settings.Add("aslvv_info_tags_onlycurrent", false, "Show total only for the current character", "aslvv_info_tags");
-          settings.Add("aslvv_info_caution", true, "Caution", "aslvv_info_vars");
-          settings.Add("aslvv_info_chaff", true, "Chaff", "aslvv_info_vars");
-          settings.Add("aslvv_info_grip", true, "Grip", "aslvv_info_vars");
           settings.Add("aslvv_info_o2", true, "O2", "aslvv_info_vars");
-            settings.Add("aslvv_info_o2health", false, "Also show the time remaining from Life", "aslvv_info_o2");
             settings.Add("aslvv_info_o2_emma", true, "Show Emma's O2 instead when relevant", "aslvv_info_o2");
+          settings.Add("aslvv_info_grip", true, "Grip", "aslvv_info_vars");
+          settings.Add("aslvv_info_chaff", true, "Chaff", "aslvv_info_vars");
+          settings.Add("aslvv_info_caution", true, "Caution", "aslvv_info_vars");
+          settings.Add("aslvv_info_pentaz", true, "Pentazemin", "aslvv_info_vars");
           settings.Add("aslvv_info_boss", true, "Boss health", "aslvv_info_vars");
           settings.SetToolTip("aslvv_info_boss", "The setting \"Split instantly when a boss is defeated\" above must also be enabled");
             settings.Add("aslvv_info_boss_dmg_together", false, "Group hits done within a few frames", "aslvv_info_boss");
@@ -773,9 +773,11 @@ startup {
   vars.VRMissionList = tmp;
   
   
-  // Plant: Option to split when meeting Stillman in Strut C
+  // Plant
+  string TempCategory = "options_plant";
+  // Option to split when meeting Stillman in Strut C
   string TempSetting = "d014p01";
-  settings.Add(TempSetting, false, "Split when meeting Stillman", "options_plant");
+  settings.Add(TempSetting, false, "Split when meeting Stillman", TempCategory);
   settings.SetToolTip(TempSetting, "You will need two Strut C splits if this is enabled");
   vars.SpecialNewRoom.Add(TempSetting, new Dictionary<string, string> {
     { "old", "w16a" },
@@ -788,7 +790,7 @@ startup {
   });
   // Option to split when meeting Prez in Shell 2 Core
   TempSetting = "w31a_prez";
-  settings.Add(TempSetting, false, "Split when meeting Prez", "options_plant");
+  settings.Add(TempSetting, false, "Split when meeting Prez", TempCategory);
   settings.SetToolTip(TempSetting, "You will need two Shell 2 Core 1F splits if this is enabled");
   vars.SpecialRoomChange.Add("w31a", new Dictionary<string, string> {
     { "current", "wmovie" },
@@ -796,7 +798,7 @@ startup {
   });
   // Never split when opening the underwater hatch in Shell 2 Core B1
   TempSetting = "d053p01";
-  settings.Add(TempSetting, false, "Split when opening the underwater hatch in Shell 2 Core B1", "options_plant");
+  settings.Add(TempSetting, false, "Split when opening the underwater hatch in Shell 2 Core B1", TempCategory);
   settings.SetToolTip(TempSetting, "You will need two Shell 2 Core B1 splits if this is enabled");
   vars.SpecialNewRoom.Add("d053p01", new Dictionary<string, string> { // B1 No.1 cutscenes
     { "old", "w31b" },
@@ -808,17 +810,14 @@ startup {
     { "old", "ending" },
     { "no_split", "true" }
   });
-  /*
-  // Option to split when meeting Emma in Shell 2 Core B1
-  TempSetting = "w31f_emma";
-  settings.Add(TempSetting, true, "Don't split when meeting Emma", "options_plant");
-  settings.SetToolTip(TempSetting, "You will need two Shell 2 Core B1 FC2 splits if this is not enabled");
-  vars.SpecialRoomChange.Add("w31f", new Dictionary<string, string> {
-    { "current", "d055p01" },
-    { "setting", TempSetting },
-    { "no_split", "true" }
-  });
-  */
+  // Option to split when completing codecs in Ascending Colon
+  TempSetting = "w43a_codecscompleted";
+  settings.Add(TempSetting, false, "Split when answering Rose in Ascending Colon", TempCategory);
+  settings.SetToolTip(TempSetting, "You will need two Arsenal Gear - Ascending Colon splits if this is enabled");
+  // Option to split when entering Tengus 2
+  TempSetting = "w45a_entertengus2";
+  settings.Add(TempSetting, false, "Split when entering Tengus 2", TempCategory);
+  settings.SetToolTip(TempSetting, "You will need an Arsenal Gear - Sigmoid Colon split before Tengus 2 if this is enabled");
     
   // A Wrongdoing: Option to split when meeting Ames in Strut F
   TempSetting = "snaketales_a_ames";
@@ -830,17 +829,19 @@ startup {
     { "no_split", "true" }
   });
 
-  // Big Shell Evil: Option to split when meeting Emma in Strut C - details in update
+  // Big Shell Evil
+  TempCategory = "snaketales_b";
+  // Option to split when meeting Emma in Strut C - details in update
   TempSetting = "snaketales_b_pantry";
-  settings.Add(TempSetting, false, "Split when meeting Emma in Strut C", "snaketales_b");
+  settings.Add(TempSetting, false, "Split when meeting Emma in Strut C", TempCategory);
   settings.SetToolTip(TempSetting, "You will need a Strut C split before Guard Rush if this is enabled");
   // Option to split when accessing the node in Strut B - again, details in update
   TempSetting = "snaketales_b_node";
-  settings.Add(TempSetting, false, "Split when accessing the node", "snaketales_b");
+  settings.Add(TempSetting, false, "Split when accessing the node", TempCategory);
   settings.SetToolTip(TempSetting, "You will need two Strut B splits if this is enabled");
   // Option to split when meeting Emma in Strut F
   TempSetting = "snaketales_b_emma";
-  settings.Add(TempSetting, false, "Split when meeting Emma in Strut F", "snaketales_b");
+  settings.Add(TempSetting, false, "Split when meeting Emma in Strut F", TempCategory);
   settings.SetToolTip(TempSetting, "You will need two Strut F splits if this is enabled");
   vars.SpecialRoomChange.Add("a22b", new Dictionary<string, string> {
     { "current", "tales" },
@@ -1012,7 +1013,7 @@ update {
       vars.DifficultyText = DifficultyText;
       
       // Code for current level
-      Func<int> Level = () => (C(current.Level) & 3) % 3;
+      Func<int> Level = () => (current.Level & 3) % 3;
       vars.Level = Level;
       
       // Name of current level
@@ -1027,10 +1028,10 @@ update {
       vars.SectionText = SectionText;
       
       // Is Radar enabled?
-      Func<bool> RadarEnabled = () => ((C(current.Extra) & 0x2000) != 0);
+      Func<bool> RadarEnabled = () => ((current.Extra & 0x2000) != 0);
       
       // Has a special item been used?
-      Func<bool> SpItemUsed = () => ((C(current.Extra) & 0x20) != 0);
+      Func<bool> SpItemUsed = () => ((current.Extra & 0x20) != 0);
       
       // Confirm a split
       Func<string, bool> Split = delegate(string Reason) {
@@ -1056,7 +1057,7 @@ update {
       
       // Check for new continues
       Func<bool> HasContinued = delegate() {
-        int NewContinues = C(current.Continues);
+        int NewContinues = current.Continues;
         if (NewContinues > Continues) {
           Debug("Detected continue during boss: " + Continues + " > " + NewContinues);
           Continues = NewContinues;
@@ -1123,7 +1124,7 @@ update {
       
       Func<int, int, int> Percent = delegate(int cur, int max) {
         double percentage = (100.0 * cur / max);
-        return Convert.ToInt16( Math.Round(percentage) );
+        return Convert.ToInt32( Math.Round(percentage) );
       };
       
       Func<int, int, string> ValueFormat = delegate(int cur, int max) {
@@ -1165,7 +1166,7 @@ update {
       // Temporary boss watcher to examine what health values do
       /*
       Func<string, int, int, int> WatchBoss = delegate(string Name, int CurrentStamina, int CurrentHealth) {
-        if (Continues == -1) Continues = C(current.Continues);
+        if (Continues == -1) Continues = current.Continues;
         else if (HasContinued()) {
           ResetBossData();
           vars.Debug(current.RoomTimer +" | Continued");
@@ -1184,8 +1185,9 @@ update {
       // New snazzy boss watcher
       Func<string, int, int, int> WatchBoss = delegate(string Name, int NewStamina, int NewHealth) {
         if (!settings["boss_insta"]) return -1; // stop watching if insta-splits are disabled
+        if (current.RoomTimer == vars.old.RoomTimer) return 0; // avoid testing if timer is stopped
         
-        if (Continues == -1) Continues = C(current.Continues);
+        if (Continues == -1) Continues = current.Continues;
         
         if (current.RoomTimer > 5) {
           if ( (BossActive) && ( (NewStamina != BossStamina) || (NewHealth != BossHealth) ) ) {
@@ -1284,7 +1286,7 @@ update {
       // Fatman the troublemaker
       Func<int> WatchFatman = delegate() {
         if (!BossDefeated) {
-          if (WatchBoss("Fatman", current.FatmanStamina, C(current.FatmanHealth)) == 1) BossDefeated = true;
+          if (WatchBoss("Fatman", current.FatmanStamina, current.FatmanHealth) == 1) BossDefeated = true;
         }
         if (BossDefeated) {
           if (HasContinued()) {
@@ -1313,29 +1315,54 @@ update {
       vars.SpecialWatchCallback.Add("a20c", WatchFatman); // A Wrongdoing
       
       // Harrier
-      Func<int> WatchHarrier = () => WatchBoss("Harrier", MaxVal, C(current.HarrierHealth));
+      Func<int> WatchHarrier = () => WatchBoss("Harrier", MaxVal, current.HarrierHealth);
       vars.SpecialWatchCallback.Add("w25a", WatchHarrier); // Sons of Liberty
       vars.SpecialWatchCallback.Add("a25a", WatchHarrier); // Big Shell Evil
       
       // Vamp
-      Func<int> WatchVamp = () => WatchBoss("Vamp", C(current.VampStamina), C(current.VampHealth));
+      Func<int> WatchVamp = () => WatchBoss("Vamp", current.VampStamina, current.VampHealth);
       vars.SpecialWatchCallback.Add("w31c", WatchVamp); // Sons of Liberty
       vars.SpecialWatchCallback.Add("a31c", WatchVamp); // Dead Man Whispers
       
       // Vamp 2
-      Func<int> WatchVamp2 = () => WatchBoss("Vamp", C(current.Vamp2Stamina), C(current.Vamp2Health));
+      Func<int> WatchVamp2 = () => WatchBoss("Vamp", current.Vamp2Stamina, current.Vamp2Health);
       vars.SpecialWatchCallback.Add("w32b", WatchVamp2);
+
+      // Tengus (only used for info, 1 = success, not split)
+      Func<bool, int> WatchTengus = (fissionMailed) => {
+        if (current.Tengus2Defeated != BossCounter) {
+          if (!settings["aslvv_info_boss"]) return 0;
+          BossCounter = current.Tengus2Defeated;
+          int TotalTengus = vars.Tengus2Total[current.MaxHealth];
+          
+          if (BossCounter == TotalTengus) {
+            vars.ASL_Info = "Tengus defeated!";
+            vars.InfoTimer = 180;
+            return -1;
+          }            
+
+          if ( (fissionMailed) &&
+            ( (BossCounter == 20) || (BossCounter == 40) ) ) {
+            string TenguMail = (TotalTengus < 100) ? "N MAI" : "N MA";
+            vars.ASL_Info = "FISS" + BossCounter + TenguMail + TotalTengus + "D";
+          }
+          else vars.ASL_Info = "Tengus | " + BossCounter + " of " + TotalTengus + " defeated";
+          vars.InfoTimer = 180;
+          return 0;
+        }
+        return 1;
+      };
       
       // Rays
-      Func<int> WatchRays = () => WatchBoss("Rays", MaxVal, C(current.RaysHealth));
+      Func<int> WatchRays = () => WatchBoss("Rays", MaxVal, current.RaysHealth);
       vars.SpecialWatchCallback.Add("w46a", WatchRays); // Sons of Liberty
-      Func<int> WatchRaysEG = () => WatchBoss("Rays", MaxVal, C(current.RaysTalesHealth));
+      Func<int> WatchRaysEG = () => WatchBoss("Rays", MaxVal, current.RaysTalesHealth);
       vars.SpecialWatchCallback.Add("a46a", WatchRaysEG); // External Gazer
       
       // Choke Boss (no split)
       Func<int> WatchChoke = delegate() {
         if (!settings["aslvv_info_choke"]) return -1;
-        int FramesLeft = C(current.ChokeTimer);
+        int FramesLeft = current.ChokeTimer;
         if ( (FramesLeft < 1) || (FramesLeft > 3000) ) return 0;
         vars.InfoTimer = 10;
         Info("Time left: " + string.Format( "{00:0.0}", (decimal)((double)FramesLeft / 60) ));
@@ -1375,7 +1402,8 @@ update {
       Func<int> CallAmesLocation = delegate() {
         if (!settings["aslvv_ames"]) return 0;
         if (current.RoomCode == "d036p03") {
-          int A = current.AmesLocation;
+          int A = memory.ReadValue<int>((IntPtr)0xD8DF9F);
+          
           string AmesText = "";
           
           if (A > 14) AmesText = "South East";
@@ -1441,9 +1469,16 @@ update {
       
       // Plant: Show the 45-second timer for Ascending Colon
       Func<int> WatchAscendingColon = delegate() {
+        if (current.ProgressPlant < 382) return 0;
+        // optional split after codecs
+        if (settings["w43a_codecscompleted"]) {
+          if (vars.old.ProgressPlant == 379)
+            vars.SplitRightNow = true;
+        }
+        // timer
         if (!settings["aslvv_info_colon"]) return -1;
         if (current.AscendingColonActive == 0) return 0;
-        int FramesLeft = C(current.AscendingColonTimer);
+        int FramesLeft = current.AscendingColonTimer;
         if (FramesLeft > 2700) return -1;
         vars.InfoTimer = 10;
         Info("Time left: " + string.Format( "{00:0.0}", (decimal)((double)FramesLeft / 60) ));
@@ -1458,37 +1493,28 @@ update {
         return 0;
       };
       Func<int> WatchBigBossAlert2 = delegate() {
+        // Tengus boss counter
+        int TenguResult = WatchTengus(false);
+        if (TenguResult != 1) return TenguResult;
         // Trigger on the second instance of this room (after cutscene)
         if ( (RoomTrackerInt > 0) && (current.RoomTimer < RoomTrackerInt) ) {
           RoomTrackerInt = 0;
           BigBossAlertState = 2;
           Debug("Setting Big Boss alert allowance to 2");
-          return -1;
+          return 0;
         }
         if (current.RoomTimer < 30) RoomTrackerInt = current.RoomTimer;
         return 0;
       };
       Func<int> WatchBigBossAlert3 = delegate() {
-        // Tengus boss counter
-        if (current.Tengus2Defeated != BossCounter) {
-          if (!settings["aslvv_info_boss"]) return -1;
-          BossCounter = current.Tengus2Defeated;
-          int TotalTengus = vars.Tengus2Total[current.MaxHealth];
-          
-          if (BossCounter == TotalTengus) {
-            vars.ASL_Info = "Tengus defeated!";
-            vars.InfoTimer = 180;
-            return -1;
-          }            
-
-          if ( (BossCounter == 20) || (BossCounter == 40) ) {
-            string TenguMail = (TotalTengus < 100) ? "N MAI" : "N MA";
-            vars.ASL_Info = "FISS" + BossCounter + TenguMail + TotalTengus + "D";
-          }
-          else vars.ASL_Info = "Tengus | " + BossCounter + " of " + TotalTengus + " defeated";
-          vars.InfoTimer = 180;
-          return 0;
+        // Split at start of battle
+        if (settings["w45a_entertengus2"]) {
+          if ((vars.old.ProgressPlant == 402) && (current.ProgressPlant == 403))
+            vars.SplitRightNow = true;
         }
+        // Tengus boss counter
+        int TenguResult = WatchTengus(true);
+        if (TenguResult != 1) return TenguResult;
         // Trigger on the third instance (after initial gameplay and cutscene)
         if ( (RoomTrackerInt > 0) && (current.RoomTimer < RoomTrackerInt) ) {
           if (RoomTrackerP) {
@@ -1726,7 +1752,7 @@ update {
       
         vars.ASL_RoomTimer = current.RoomTimer;
         
-        vars.ASL_Strength = Snakelike() ? C(current.StrengthSnake) : C(current.StrengthRaiden);
+        vars.ASL_Strength = Snakelike() ? current.StrengthSnake : current.StrengthRaiden;
         
         if (settings["aslvv_cartwheels"]) {
           if ( (current.CartwheelCode == 16) && (vars.old.CartwheelCode == 0) ) {
@@ -1748,14 +1774,14 @@ update {
         // Update less-critical values at a lower rate
         if ((current.RoomTimer % 15) == 0) {
           UpdateCharacterId();
-          vars.ASL_Alerts = C(current.Alerts);
-          vars.ASL_Continues = C(current.Continues);
-          vars.ASL_Shots = C(current.Shots);
-          vars.ASL_Rations = C(current.Rations);
-          vars.ASL_Kills = C(current.Kills);
-          vars.ASL_Saves = C(current.Saves);
-          vars.ASL_MechsDestroyed = C(current.Mechs);
-          vars.ASL_ClearingEscapes = C(current.Clearings);
+          vars.ASL_Alerts = current.Alerts;
+          vars.ASL_Continues = current.Continues;
+          vars.ASL_Shots = current.Shots;
+          vars.ASL_Rations = current.Rations;
+          vars.ASL_Kills = current.Kills;
+          vars.ASL_Saves = current.Saves;
+          vars.ASL_MechsDestroyed = current.Mechs;
+          vars.ASL_ClearingEscapes = current.Clearings;
           
           vars.ASL_AlertAllowance = BigBossAlertState;
           vars.ASL_SeaLouce = current.SeaLouce;
@@ -1763,7 +1789,7 @@ update {
           vars.ASL_Character = CharacterName();
           vars.ASL_Mode = current.GameSection;
           
-          int CurrentDamage = C(current.Damage);
+          int CurrentDamage = current.Damage;
           if (CurrentDamage > vars.ASL_DamageTaken) vars.ASL_LastDamage = (CurrentDamage - vars.ASL_DamageTaken);
           vars.ASL_DamageTaken = CurrentDamage;
          
@@ -1832,10 +1858,10 @@ update {
           }
         }
 
-        int CurrentO2 = C(current.CurrentO2);
-        int CurrentGrip = (current.CurrentGrip != null) ? C(current.CurrentGrip) : -1;
-        int CurrentChaff = C(current.CurrentChaff);
-        int CurrentCaution = C(current.CurrentCaution);
+        int CurrentO2 = current.CurrentO2;
+        int CurrentGrip = (current.CurrentGrip != null) ? current.CurrentGrip : -1;
+        int CurrentChaff = current.CurrentChaff;
+        int CurrentCaution = current.CurrentCaution;
 
         // If we're underwater, update the O2 status in ASL_Info
         if (
@@ -1847,16 +1873,18 @@ update {
             int MaxO2 = 0;
             int O2Rate = 60;
             int O2Health = current.CurrentHealth;
-            string O2Prefix = "O2";
+            int O2MaxHealth = current.MaxHealth;
+            string O2Prefix = "";
             
             if (
               (settings["aslvv_info_o2_emma"]) &&
               ((current.RoomCode == "w31b") || (current.RoomCode == "w31f")) &&
               ((current.EmmaO2 < 1400) && (current.EmmaO2 < current.EmmaMaxO2) && (current.EmmaHealth <= 100))
             ) {
-              O2Prefix = "Emma O2";
+              O2Prefix = "Emma ";
               MaxO2 = current.EmmaMaxO2;
               O2Health = current.EmmaHealth;
+              O2MaxHealth = 100;
               CurrentO2 = current.EmmaO2;
               if (current.EmmaHealth != 100) O2Rate = 120;
             }
@@ -1864,12 +1892,15 @@ update {
               MaxO2 = (current.MaxHealth == 30) ? 3600 : 4000;
               if (current.CurrentHealth != current.MaxHealth) O2Rate = 120;
             }
-            string O2TimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentO2 / O2Rate) );
-            string HealthTimeLeft = "";
-            if (settings["aslvv_info_o2health"]) {
-              HealthTimeLeft = " + " + string.Format( "{00:0.0}", (decimal)((double)O2Health / 4) );
+
+            if (CurrentO2 == 0) {
+              vars.ASL_Info = string.Format("{0}Life: {1} ({02:0.0} left)",
+                O2Prefix, vars.ValueFormat(O2Health, O2MaxHealth), (decimal)((double)O2Health / 4) );
             }
-            vars.ASL_Info = O2Prefix + ": " + vars.ValueFormat(CurrentO2, MaxO2) + " (" + O2TimeLeft + HealthTimeLeft + " left)";
+            else {
+              vars.ASL_Info = string.Format("{0}O2: {1} ({02:0.0} left)",
+                O2Prefix, vars.ValueFormat(CurrentO2, MaxO2), (decimal)((double)CurrentO2 / O2Rate) );
+            }
             vars.InfoTimer = 60;
           }
           else WarmUpTimer = WarmUpTimer - 1;
@@ -1878,7 +1909,7 @@ update {
         else if ( (settings["aslvv_info_grip"]) && (CurrentGrip != -1) && (CurrentGrip != PreviousGrip) ) {
           PreviousGrip = CurrentGrip;
           if (WarmUpTimer == 0) {
-            int MaxGrip = C(current.MaxGrip);
+            int MaxGrip = current.MaxGrip;
             int GripRate = (current.CurrentHealth == current.MaxHealth) ? 60 : 120;
             string GripTimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentGrip / GripRate) );
             vars.ASL_Info = "Grip: " + vars.ValueFormat(CurrentGrip, MaxGrip) + " (" + GripTimeLeft + " left)";
@@ -1897,7 +1928,12 @@ update {
         else if ( (settings["aslvv_info_caution"]) && (CurrentCaution != PreviousCaution) ) {
           PreviousCaution = CurrentCaution;
           string CautionTimeLeft = string.Format( "{00:0.0}", (decimal)((double)CurrentCaution / 60) );
-          vars.ASL_Info = "Caution: " + vars.ValueFormat(CurrentCaution, C(current.MaxCaution)) + " (" + CautionTimeLeft + " left)";
+          vars.ASL_Info = "Caution: " + vars.ValueFormat(CurrentCaution, current.MaxCaution) + " (" + CautionTimeLeft + " left)";
+          vars.InfoTimer = 10;
+        }
+        else if ( (settings["aslvv_info_pentaz"]) && (current.CurrentPentazemin != vars.old.CurrentPentazemin) ) {
+          string PentazTimeLeft = string.Format("{00:0.0}", (decimal)((double)current.CurrentPentazemin / 60) );
+          vars.ASL_Info = "Pentazemin: " + vars.ValueFormat(current.CurrentPentazemin, 1800)  + " (" + PentazTimeLeft + " left)";
           vars.InfoTimer = 10;
         }
         else if (WarmUpTimer < 5) WarmUpTimer = WarmUpTimer + 1;
