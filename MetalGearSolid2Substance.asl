@@ -72,7 +72,6 @@ state("mgs2_sse") {
   byte      AscendingColonActive: 0xD8E105;
   short     AscendingColonTimer: 0xAD4F08, 0x40;
   byte      CartwheelCode: 0xB6095E;
-  byte      AmesLocation: 0xD8DF9F; // D8FB9F
   
   short     EmmaO2: 0x618300, 0x930;
   short     EmmaMaxO2: 0x618300, 0x932;
@@ -1403,7 +1402,8 @@ update {
       Func<int> CallAmesLocation = delegate() {
         if (!settings["aslvv_ames"]) return 0;
         if (current.RoomCode == "d036p03") {
-          int A = current.AmesLocation;
+          int A = memory.ReadValue<int>((IntPtr)0xD8DF9F);
+          
           string AmesText = "";
           
           if (A > 14) AmesText = "South East";
