@@ -542,6 +542,16 @@ startup {
     { 50, new[] { 34, 54, 88 } }
   };
   
+  // Tengus 1 counts
+  vars.Tengus1Total = new Dictionary<int, int> {
+    { 200, 24 },
+    { 120, 30 },
+    { 100, 42 },
+    { 75, 49 },
+    { 50, 49 },
+    { 30, 49 }
+  };
+
   // Tengus 2 counts
   vars.Tengus2Total = new Dictionary<int, int> {
     { 200, 48 },
@@ -1333,7 +1343,8 @@ update {
         if (current.Tengus2Defeated != BossCounter) {
           if (!settings["aslvv_info_boss"]) return 0;
           BossCounter = current.Tengus2Defeated;
-          int TotalTengus = vars.Tengus2Total[current.MaxHealth];
+          var TenguDict = fissionMailed ? vars.Tengus2Total : vars.Tengus1Total;
+          int TotalTengus = TenguDict[current.MaxHealth];
           
           if (BossCounter == TotalTengus) {
             vars.ASL_Info = "Tengus defeated!";
