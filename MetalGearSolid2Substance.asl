@@ -87,7 +87,7 @@ isLoading {
 
 gameTime {
   if (settings["aslvv"]) vars.UpdateASLVars();
-  return TimeSpan.FromMilliseconds((current.GameTime) * 1000 / 60);
+  return TimeSpan.FromMilliseconds((ulong)current.GameTime * 1000 / 60);
 }
 
 reset {
@@ -1806,7 +1806,8 @@ update {
          
           // Update the codename if a stat has changed (max once per second)
           if ( (current.GameTime > (LastCodeNameCheck + 60)) || (current.GameTime < LastCodeNameCheck) ) {
-            vars.ASL_Minutes = (int)Math.Floor(( ((float)current.GameTime / 60) - 1 ) / 60);
+            //vars.ASL_Minutes = (int)Math.Floor(( ((float)current.GameTime / 60) - 1 ) / 60);
+            vars.ASL_Minutes = (int)Math.Ceiling(((float)current.GameTime - 59) / 3600);
             foreach (string stat in ListOfStats) {
               int statvalue = Convert.ToInt32(Vars["ASL_" + stat]);
               if (statvalue != Previous[stat]) {
