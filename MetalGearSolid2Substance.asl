@@ -1811,12 +1811,13 @@ update {
             foreach (string stat in ListOfStats) {
               int statvalue = Convert.ToInt32(Vars["ASL_" + stat]);
               if (statvalue != Previous[stat]) {
-                print("Checking for new codename...");
+                print("Checking codename (" + stat + " changed)");
                 string NewCodeName = CurrentCodeName();
                 if (NewCodeName != vars.ASL_CodeName) {
-                  print("New codename: " + NewCodeName);
+                  string newCodenameMsg = "New codename: " + NewCodeName;
+                  print(newCodenameMsg);
                   if (settings["aslvv_info_codename"]) {
-                    vars.ASL_Info = "Codename changed to " + NewCodeName;
+                    vars.ASL_Info = newCodenameMsg;
                     vars.InfoTimer = 300;
                   }
                   vars.ASL_CodeName = NewCodeName;
