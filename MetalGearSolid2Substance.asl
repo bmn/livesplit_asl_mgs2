@@ -44,6 +44,7 @@ state("mgs2_sse") {
   
   int       ResultsComplete: 0x65397C; // & 0x200 == 0x200 when ready to split on results
   int       PadInput: 0xADAD3C;
+  uint      ContinuingState: 0x65398C; // 0 if not continuing
 
   byte      OlgaStamina: 0xAD4F6C, 0x0, 0x1E0, 0x44, 0x1F8, 0x13C;
   byte      OlgaRushStamina: 0xAD4F6C, 0x2C4;
@@ -1195,7 +1196,8 @@ update {
       // New snazzy boss watcher
       Func<string, int, int, int> WatchBoss = delegate(string Name, int NewStamina, int NewHealth) {
         if (!settings["boss_insta"]) return -1; // stop watching if insta-splits are disabled
-        if (current.RoomTimer == vars.old.RoomTimer) return 0; // avoid testing if timer is stopped
+        if ( (current.RoomTimer == vars.old.RoomTimer) || (current.ContinuingState != 0) )
+          return 0; // avoid testing if timer is stopped or continuing/resetting
         
         if (Continues == -1) Continues = current.Continues;
         
